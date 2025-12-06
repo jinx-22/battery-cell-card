@@ -57,11 +57,13 @@ Diese Custom Card steht unter der **Creative Commons Attribution-NonCommercial-S
 2. Kopiere sie in den Ordner `www` deines Home Assistant  
 3. Binde sie in Lovelace ein:
    Gehe zu:
-   -> Einstellungen
-   -> Dashboard
-   -> oben rechts auf die 3 Punkte klicken
-   -> Ressourcen -> Ressource hinzufügen -> /local/battery-cells-card.js (Java-Script-Modul) eingeben
-   -> Browser neu laden mit Strg + F5
+   - Einstellungen ->
+   - Dashboard ->
+   - oben rechts auf die 3 Punkte klicken ->
+   - Ressourcen ->
+   - Ressource hinzufügen ->
+   - /local/battery-cells-card.js (Java-Script-Modul) eingeben ->
+   - Browser neu laden mit Strg + F5
 5. nun sollte die Karte in der GUI auswählbar und aufzufinden sein!
 
 ```yaml-Editor
