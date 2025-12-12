@@ -1,4 +1,4 @@
-# Battery Cells Card - Cell-Monitoring (coming soon)
+# Battery Cells Card - Cell-Monitoring
 *(Link to German version: [Deutsch](
 #battery-cell-card---zellen-monitoring-deutsch))*  
 
