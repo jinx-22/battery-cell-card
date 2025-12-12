@@ -41,7 +41,8 @@ Depending on configuration, this custom card shows:
 Compatible with all BMS that provide individual cell sensors, e.g.:
 
 - Daly  
-- JK-BMS  
+- JK-BMS
+- smartBMS smartlabs dongle
 - All sensors reporting individual cell voltages  
 
 ---
@@ -145,6 +146,7 @@ The card is now selectable and visible in the GUI.
 ```yaml
 type: custom:battery-cells-card
 title: Battery Cells
+background_color: "#00000080"
 card_height: 400
 show_legend: true
 soc_entity: sensor.status_of_charge
@@ -230,7 +232,8 @@ Kompatibel mit allen BMS die Zell-Sensoren ausgeben:
 
  u.a.
 - Daly    
-- JK-BMS  
+- JK-BMS
+- smartBMS - smartlabs dongle
 - allen Sensoren, die Zellspannungen einzeln melden
 
 ---
@@ -335,6 +338,7 @@ Danach ist die Karte in der GUI verfügbar und auswählbar.
 ```yaml
 type: custom:battery-cells-card
 title: Battery Cells
+background_color: "#00000080"
 card_height: 400
 show_legend: true
 soc_entity: sensor.status_of_charge
