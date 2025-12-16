@@ -110,6 +110,11 @@ The card is now selectable and visible in the GUI.
 
 ---
 
+by me a coffee...
+https://ko-fi.com/jinx_22
+
+---
+
 ### Configuration Options
 
 | Option | Default | Type | Description |
