@@ -3,7 +3,7 @@ class BatteryCellsCard extends HTMLElement {
     constructor() {
         super();
         console.info(
-          '%c ðŸ”‹ Battery Cell Card %c v.0.5.0 %c ',
+          '%c 🔋 Battery Cell Card %c v.0.5.1 %c ',
           `background: linear-gradient(90deg,#ff0000 0%,#ff0000 2.5%,#ffa500 2.5%,#ffa500 5%,#ffff00 5%,#ffff00 7.5%,#00ee00 7.5%,#00ee00 100%);
            color: #000; font-weight: bold; padding: 6px 12px; border-radius: 4px;`,
           'color: #2e7d32; padding: 4px 8px; border-radius: 4px;',
@@ -26,7 +26,7 @@ class BatteryCellsCard extends HTMLElement {
 
     setConfig(config) {
         const cfg = Object.assign({}, config || {});
-        cfg.background_color = cfg.background_color ?? "rgba(0,0,0,0.65)";
+        cfg.background_color = cfg.background_color ?? "var(--ha-card-background, var(--card-background-color))";
         cfg.card_height = cfg.card_height ?? 380;
         cfg.show_legend = cfg.show_legend ?? true;
         cfg.soc_entity = cfg.soc_entity ?? 'sensor.soc';
@@ -128,7 +128,7 @@ class BatteryCellsCard extends HTMLElement {
         root.style.padding = `${this._config.container_padding}px`;
         root.style.gap = '8px';
         root.style.background = this._config.background_color;
-        root.style.borderRadius = '6px';
+        root.style.borderRadius = "var(--ha-card-border-radius)";
         root.style.overflow = 'hidden';
         root.style.boxSizing = 'border-box';
     
@@ -143,7 +143,6 @@ class BatteryCellsCard extends HTMLElement {
         titleDiv.style.justifyContent = 'flex-start';
         titleDiv.style.padding = '20px 0 0 25px';
         titleDiv.style.borderRadius = '4px';
-        titleDiv.style.textShadow = '0 0 4px rgba(0,0,0,0.5)';
         root.appendChild(titleDiv);
     
         const chunkSize = this._config.chunk_size ?? 8;
@@ -358,7 +357,7 @@ class BatteryCellsCard extends HTMLElement {
                 diffVal = Math.round(diffVal);
     
                 const diffDiv = document.createElement('div');
-                diffDiv.textContent = `Î” ${diffVal} mV`;
+                diffDiv.textContent = `Δ ${diffVal} mV`;
                 diffDiv.style.position = 'absolute';
                 diffDiv.style.top = '57%';
                 diffDiv.style.left = '50%';
@@ -514,7 +513,6 @@ class BatteryCellsCard extends HTMLElement {
     }
 }
 
-
 customElements.define('battery-cells-card', BatteryCellsCard);
 
 class BatteryCellsCardEditor extends HTMLElement {
@@ -531,7 +529,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     render() {
         this.innerHTML = `
             <div style="padding:16px;">
-                <h3>Battery Cells Card â€“ Settings</h3>
+                <h3>Battery Cells Card – Settings</h3>
                 <p>Currently, only the yaml-code-editor can be used!<br>
                    Momentan sind Änderungen nur über den Yaml-Code-Editor möglich!</p>
             </div>
