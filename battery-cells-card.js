@@ -533,7 +533,7 @@ class BatteryCellsCardEditor extends HTMLElement {
             <div style="padding:16px;">
                 <h3>Battery Cells Card â€“ Settings</h3>
                 <p>Currently, only the yaml-code-editor can be used!<br>
-                   Momentan sind Ã„nderungen nur Ã¼ber den Yaml-Code-Editor mÃ¶glich!</p>
+                   Momentan sind Änderungen nur über den Yaml-Code-Editor möglich!</p>
             </div>
         `;
     }
