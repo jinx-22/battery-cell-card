@@ -1,6 +1,6 @@
 # Battery Cells Card - Cell-(real-time) monitoring
 *(Link to German version: [Deutsch](
-#battery-cell-card---zellen-monitoring-deutsch))*  
+#battery-cell-card---Zellen-Echtzeitüberwachung-(deutsch))*  
 
 **Version:** 0.5.0  
 **Description:** A Home Assistant custom card to visualize battery cells, cell voltages, SOC, balancing status, and differences.  
