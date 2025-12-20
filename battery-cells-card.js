@@ -93,7 +93,7 @@ class BatteryCellsCard extends HTMLElement {
         if (!this._config || !this._hass) return;
         const vpWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
         const vpHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-        let vpScale = 1.0;
+        let vpScale = 0.5;
         if (vpWidth < 1200) vpScale = 1.1;
         if (vpWidth < 900)  vpScale = 1.2;
         if (vpWidth < 600)  vpScale = 1.35;
