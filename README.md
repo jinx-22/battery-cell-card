@@ -137,6 +137,7 @@ usefulplay52@walletofsatoshi.com
 | `cell_diff_sensor` | `'sensor.delta_mvolts_between_cells'` | string | Sensor for cell voltage difference (Δ). |
 | `cell_diff` | `8` | number | Minimum Δ to activate balancing icon. |
 | `cell_bal_over` | `3000` | number | Minimum cell voltage to allow balancing. |
+| `cell_unit` | `V` | string | Unit "V" or "mV". |
 | `show_soc_icon` | `true` | boolean | Show SOC icon in legend. |
 | `show_soc_value` | `true` | boolean | Show SOC value as percentage. |
 | `show_sync_icon` | `true` | boolean | Show sync/balancing icon. |
@@ -164,6 +165,7 @@ balance_sensor: sensor.cell_balance_active
 cell_diff_sensor: sensor.delta_mvolts_between_cells
 cell_diff: 10
 cell_bal_over: 3000
+cell_unit: V
 show_soc_icon: true
 show_soc_value: true
 show_sync_icon: true
@@ -328,6 +330,7 @@ Danach ist die Karte in der GUI verfügbar und auswählbar.
 | `cell_diff_sensor` | `'sensor.delta_mvolts_between_cells'` | string | Sensor für die Zellspannungs-Differenz (Δ). |
 | `cell_diff` | `8` | number | Mindest-Differenz (mV) zur Aktivierung des Balancing-Icons. |
 | `cell_bal_over` | `3000` | number | Mindestzellspannung (mV), ab der Balancing aktiv sein darf. |
+| `cell_unit` | `V` | string | Anzeige-Einheit wählbar "V" or "mV". |
 | `show_soc_icon` | `true` | boolean | Zeigt SOC-Icon in der Legende. |
 | `show_soc_value` | `true` | boolean | Zeigt SOC-Wert als Prozentzahl. |
 | `show_sync_icon` | `true` | boolean | Zeigt Sync-/Balancing-Icon. |
@@ -356,6 +359,7 @@ balance_sensor: sensor.cell_balance_active
 cell_diff_sensor: sensor.delta_mvolts_between_cells
 cell_diff: 10
 cell_bal_over: 3000
+cell_unit: V
 show_soc_icon: true
 show_soc_value: true
 show_sync_icon: true
