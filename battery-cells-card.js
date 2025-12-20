@@ -3,7 +3,7 @@ class BatteryCellsCard extends HTMLElement {
     constructor() {
         super();
         console.info(
-          '%c 🔋 Battery Cell Card %c v.0.5.1 %c ',
+          '%c 🔋 Battery Cell Card %c v.0.5.2 %c ',
           `background: linear-gradient(90deg,#ff0000 0%,#ff0000 2.5%,#ffa500 2.5%,#ffa500 5%,#ffff00 5%,#ffff00 7.5%,#00ee00 7.5%,#00ee00 100%);
            color: #000; font-weight: bold; padding: 6px 12px; border-radius: 4px;`,
           'color: #2e7d32; padding: 4px 8px; border-radius: 4px;',
@@ -41,6 +41,7 @@ class BatteryCellsCard extends HTMLElement {
         cfg.cell_diff_sensor = cfg.cell_diff_sensor ?? "sensor.delta_mvolts";
         cfg.cell_diff = cfg.cell_diff ?? 8;
         cfg.cell_bal_over = cfg.cell_bal_over ?? 3000;
+        cfg.cell_unit = cfg.cell_unit ?? "V";
         cfg.show_soc_icon = cfg.show_soc_icon ?? true;
         cfg.show_soc_value = cfg.show_soc_value ?? true;
         cfg.show_sync_icon = cfg.show_sync_icon ?? true;
@@ -96,8 +97,8 @@ class BatteryCellsCard extends HTMLElement {
         if (vpWidth < 1200) vpScale = 1.1;
         if (vpWidth < 900)  vpScale = 1.2;
         if (vpWidth < 600)  vpScale = 1.35;
-        if (vpWidth < 400)  vpScale = 1.5;
-        if (vpHeight > vpWidth) vpScale *= 1.15;
+        if (vpWidth < 400)  vpScale = 1.4;
+        if (vpHeight > vpWidth) vpScale *= 1.45;
         if (vpWidth < 800 && vpWidth > vpHeight) {
             vpScale *= 1.25;
         }
@@ -361,6 +362,9 @@ class BatteryCellsCard extends HTMLElement {
                 diffDiv.style.position = 'absolute';
                 diffDiv.style.top = '57%';
                 diffDiv.style.left = '50%';
+                diffDiv.style.fontFamily = 'Arial, Helvetica, sans-serif';
+                diffDiv.style.fontFeatureSettings = '"liga" 0';
+                diffDiv.style.letterSpacing = '-0.08em';
                 diffDiv.style.transform = 'translate(-50%, -50%)';
                 diffDiv.style.fontSize = `${Math.max(8, Math.round(this._config.font_size * fontScale * 0.9))}px`;
                 diffDiv.style.fontWeight = '700';
@@ -389,23 +393,38 @@ class BatteryCellsCard extends HTMLElement {
         return legend;
     }
 
-    _createCell(cfg, width, height, gradientStr) {
-        const raw = this._hass.states[cfg.entity]?.state ?? '-';
-        const numeric = parseFloat(raw);
-        const isNum = !Number.isNaN(numeric);
-        const display = isNum ? `${numeric < 30 ? Math.round(numeric * 1000) : Math.round(numeric)} mV` : raw;
+_createCell(cfg, width, height, gradientStr) {
+    const raw = this._hass.states[cfg.entity]?.state;
+    const numeric = Number(raw);
+    const isNum = Number.isFinite(numeric);
 
-        let fillPercent = 0;
-        if (isNum) {
-            if (numeric <= 2800) fillPercent = ((numeric - 2600)/200)*5;
-            else if (numeric <= 3000) fillPercent = ((numeric - 2800)/200)*5+5;
-            else if (numeric <= 3200) fillPercent = ((numeric - 3000)/200)*10+10;
-            else if (numeric <= 3380) fillPercent = ((numeric - 3200)/180)*60+20;
-            else if (numeric <= 3450) fillPercent = ((numeric - 3380)/70)*10+80;
-            else if (numeric <= 3550) fillPercent = ((numeric - 3450)/100)*5+90;
-            else fillPercent = ((numeric - 3550)/100)*5+95;
-        }
-        fillPercent = Math.max(0, Math.min(100, fillPercent));
+    let valueMv = null;
+
+    if (isNum) {
+        valueMv = numeric < 10 ? numeric * 1000 : numeric;
+    }
+ 
+    let display;
+    if (!Number.isFinite(valueMv)) {
+        display = raw ?? '-';
+    } else if (this._config.cell_unit === 'V') {
+        display = `${(valueMv / 1000).toFixed(3)} V`;
+    } else {
+        display = `${Math.round(valueMv)} mV`;
+    }
+
+    let fillPercent = 0;
+    if (valueMv != null) {
+        if (valueMv <= 2800)      fillPercent = ((valueMv - 2600) / 200) * 5;
+        else if (valueMv <= 3000) fillPercent = ((valueMv - 2800) / 200) * 5 + 5;
+        else if (valueMv <= 3200) fillPercent = ((valueMv - 3000) / 200) * 10 + 10;
+        else if (valueMv <= 3380) fillPercent = ((valueMv - 3200) / 180) * 60 + 20;
+        else if (valueMv <= 3450) fillPercent = ((valueMv - 3380) / 70) * 10 + 80;
+        else if (valueMv <= 3550) fillPercent = ((valueMv - 3450) / 100) * 5 + 90;
+        else                      fillPercent = ((valueMv - 3550) / 100) * 5 + 95;
+    }
+
+    fillPercent = Math.max(0, Math.min(100, fillPercent));
 
         const cont = document.createElement('div');
         cont.style.width = `${width}px`;
@@ -444,7 +463,7 @@ class BatteryCellsCard extends HTMLElement {
         overlay.style.zIndex = '2';
         bar.appendChild(overlay);
 
-        const fontScale = ((width / 70) ** 0.75) * this._vpScale;
+        const fontScale = ((width / 70) ** 0.80) * this._vpScale;
         const nameDiv = document.createElement('div');
         nameDiv.textContent = cfg.name ?? '';
         nameDiv.style.position = 'absolute';
@@ -494,9 +513,10 @@ class BatteryCellsCard extends HTMLElement {
             soc_entity: "sensor.status_of_charge",
             watt_entity: "sensor.pack_watt",
             balance_sensor: null,
-            cell_diff_sensor: "sensor.status_of_charge",
+            cell_diff_sensor: "sensor.delta_mvolts",
             cell_diff: 8,
             cell_bal_over: 3000,
+            cell_unit: "V",
             pack_cell_low: "sensor.pack_cell_low",
             pack_cell_high: "sensor.pack_cell_high",
             chunk_cells: false,
@@ -528,7 +548,7 @@ class BatteryCellsCardEditor extends HTMLElement {
 
     render() {
         this.innerHTML = `
-            <div style="padding:16px;">
+            <div style="padding:16px; font-family: Arial, Helvetica, sans-serif;">
                 <h3>Battery Cells Card – Settings</h3>
                 <p>Currently, only the yaml-code-editor can be used!<br>
                    Momentan sind Änderungen nur über den Yaml-Code-Editor möglich!</p>
