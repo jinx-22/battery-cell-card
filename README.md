@@ -1,7 +1,7 @@
 # Battery Cells Card - Cell-(real-time) monitoring
 *(Link to German version: [Deutsch](#battery-cell-card---zellen-echtzeit%C3%BCberwachung-deutsch)*  
 
-**Version:** 0.5.0  
+**Version:** 0.5.2  
 **Description:** A Home Assistant custom card to visualize battery cells, cell voltages, SOC, balancing status, and differences.  
 Ideal for LiFePO₄ battery systems.
 
@@ -27,7 +27,7 @@ Ideal for LiFePO₄ battery systems.
 
 Depending on configuration, this custom card shows:
 
-- Individual cell voltages  
+- Individual cell voltages (V or mV) 
 - Cell voltage difference (Δ mV)  
 - Charge / discharge power (W)  
 - Charge/discharge icons  
@@ -42,7 +42,7 @@ Compatible with all BMS that provide individual cell sensors, e.g.:
 - Daly  
 - JK-BMS
 - smartBMS smartlabs dongle
-- All sensors reporting individual cell voltages  
+- All sensors reporting individual cell voltages (V or mV) 
 
 ---
 
@@ -198,7 +198,7 @@ grid_options:
 
 
 ## Battery Cell Card - Zellen-Echtzeitüberwachung (deutsch)
-**Version:** 0.5.0  
+**Version:** 0.5.2
 **Beschreibung:** Eine Home Assistant Custom Card zur Visualisierung von Batteriezellen, Zellspannungen, SOC, Balancing-Status und Differenzen.  
 Ideal für LiFePO4-Batteriesysteme.
 
@@ -227,7 +227,7 @@ Ideal für LiFePO4-Batteriesysteme.
 
 Diese Custom Card zeigt je nach Konfiguration:
 
-- Zellspannungen jeder einzelnen Zelle  
+- Zellspannungen jeder einzelnen Zelle  (V or mV) 
 - Zell-Differenz (Δ mV)  
 - Ladung / Entladung (Watt)  
 - Lade-/Entlade-Icons  
@@ -243,7 +243,7 @@ Kompatibel mit allen BMS die Zell-Sensoren ausgeben:
 - Daly    
 - JK-BMS
 - smartBMS - smartlabs dongle
-- allen Sensoren, die Zellspannungen einzeln melden
+- allen Sensoren, die Zellspannungen einzeln melden (V or mV)
 
 ---
 
