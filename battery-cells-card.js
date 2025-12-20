@@ -3,7 +3,7 @@ class BatteryCellsCard extends HTMLElement {
     constructor() {
         super();
         console.info(
-          '%c 🔋 Battery Cell Card %c v.0.5.2 %c ',
+          '%c 🔋 Battery Cell Card %c v.0.5.3.beta %c ',
           `background: linear-gradient(90deg,#ff0000 0%,#ff0000 2.5%,#ffa500 2.5%,#ffa500 5%,#ffff00 5%,#ffff00 7.5%,#00ee00 7.5%,#00ee00 100%);
            color: #000; font-weight: bold; padding: 6px 12px; border-radius: 4px;`,
           'color: #2e7d32; padding: 4px 8px; border-radius: 4px;',
@@ -549,13 +549,14 @@ class BatteryCellsCardEditor extends HTMLElement {
     render() {
         this.innerHTML = `
             <div style="padding:16px; font-family: Arial, Helvetica, sans-serif;">
-                <h3>Battery Cells Card – Settings</h3>
-                <p>Currently, only the yaml-code-editor can be used!<br>
-                   Momentan sind Änderungen nur über den Yaml-Code-Editor möglich!</p>
+                <h3>Battery Cells Card &ndash; Settings</h3>
+                <p>
+                    Currently, only the yaml-code-editor can be used!<br>
+                    Momentan sind &Auml;nderungen nur &uuml;ber den Yaml-Code-Editor m&ouml;glich!
+                </p>
             </div>
         `;
-    }
-
+        
     static getConfigElement() {
         return document.createElement("battery-cells-card-editor");
     }
