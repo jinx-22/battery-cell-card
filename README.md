@@ -1,7 +1,7 @@
 # Battery Cells Card - Cell-(real-time) monitoring
 *(Link to German version: [Deutsch](#battery-cell-card---zellen-echtzeit%C3%BCberwachung-deutsch)*  
 
-**Version:** 0.5.2  
+**Version:** 0.5.4 beta  
 **Description:** A Home Assistant custom card to visualize battery cells, cell voltages, SOC, balancing status, and differences.  
 Ideal for LiFePO₄ battery systems.
 
@@ -137,7 +137,8 @@ usefulplay52@walletofsatoshi.com
 | `cell_diff_sensor` | `'sensor.delta_mvolts_between_cells'` | string | Sensor for cell voltage difference (Δ). |
 | `cell_diff` | `8` | number | Minimum Δ to activate balancing icon. |
 | `cell_bal_over` | `3000` | number | Minimum cell voltage to allow balancing. |
-| `cell_unit` | `V` | string | Unit "V" or "mV". |
+| `cell_unit` | `mV` | string | Unit "V" or "mV". |
+| `auto_detect_low_high` | `true` | boolean | auto low-high calculate. |
 | `show_soc_icon` | `true` | boolean | Show SOC icon in legend. |
 | `show_soc_value` | `true` | boolean | Show SOC value as percentage. |
 | `show_sync_icon` | `true` | boolean | Show sync/balancing icon. |
@@ -156,7 +157,6 @@ usefulplay52@walletofsatoshi.com
 ```yaml
 type: custom:battery-cells-card
 title: Battery Cells
-background_color: "#00000080"
 card_height: 400
 show_legend: true
 soc_entity: sensor.status_of_charge
@@ -165,7 +165,8 @@ balance_sensor: sensor.cell_balance_active
 cell_diff_sensor: sensor.delta_mvolts_between_cells
 cell_diff: 10
 cell_bal_over: 3000
-cell_unit: V
+cell_unit: mV
+auto_detect_low_high: true
 show_soc_icon: true
 show_soc_value: true
 show_sync_icon: true
@@ -192,7 +193,7 @@ cells:
     entity: sensor.cell8
 grid_options:
   columns: 24
-  rows: 8
+  rows: auto
 ```
 
 <img width="890" height="918" alt="battery-cell-card-v0 5 0" src="https://github.com/user-attachments/assets/2e8b95ae-606a-4441-b825-b2e62f617771" />
@@ -331,6 +332,7 @@ Danach ist die Karte in der GUI verfügbar und auswählbar.
 | `cell_diff` | `8` | number | Mindest-Differenz (mV) zur Aktivierung des Balancing-Icons. |
 | `cell_bal_over` | `3000` | number | Mindestzellspannung (mV), ab der Balancing aktiv sein darf. |
 | `cell_unit` | `V` | string | Anzeige-Einheit wählbar "V" or "mV". |
+| `auto_detect_low_high` | `true` | boolean | auto Zellen low-high Berechnung. |
 | `show_soc_icon` | `true` | boolean | Zeigt SOC-Icon in der Legende. |
 | `show_soc_value` | `true` | boolean | Zeigt SOC-Wert als Prozentzahl. |
 | `show_sync_icon` | `true` | boolean | Zeigt Sync-/Balancing-Icon. |
@@ -359,7 +361,8 @@ balance_sensor: sensor.cell_balance_active
 cell_diff_sensor: sensor.delta_mvolts_between_cells
 cell_diff: 10
 cell_bal_over: 3000
-cell_unit: V
+cell_unit: mV
+auto_detect_low_high: true
 show_soc_icon: true
 show_soc_value: true
 show_sync_icon: true
@@ -386,4 +389,4 @@ cells:
     entity: sensor.cell8
 grid_options:
   columns: 24
-  rows: 8
+  rows: auto
