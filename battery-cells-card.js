@@ -3,7 +3,7 @@ class BatteryCellsCard extends HTMLElement {
     constructor() {
         super();
         console.info(
-          '%c 🔋 Battery Cell Card %c v.0.5.3.beta %c ',
+          '%c 🔋 Battery Cell Card %c v.0.5.4.beta %c ',
           `background: linear-gradient(90deg,#ff0000 0%,#ff0000 2.5%,#ffa500 2.5%,#ffa500 5%,#ffff00 5%,#ffff00 7.5%,#00ee00 7.5%,#00ee00 100%);
            color: #000; font-weight: bold; padding: 6px 12px; border-radius: 4px;`,
           'color: #2e7d32; padding: 4px 8px; border-radius: 4px;',
@@ -35,7 +35,7 @@ class BatteryCellsCard extends HTMLElement {
         cfg.cell_gap = cfg.cell_gap ?? 2;
         cfg.top_padding = cfg.top_padding ?? 20;
         cfg.overlay_opacity = cfg.overlay_opacity ?? 0.70;
-        cfg.font_size = cfg.font_size ?? 7.5;
+        cfg.font_size = cfg.font_size ?? 8;
         cfg.title = cfg.title ?? 'Battery Cells';
         cfg.balance_sensor = cfg.balance_sensor ?? null;
         cfg.cell_diff_sensor = cfg.cell_diff_sensor ?? "sensor.delta_mvolts";
@@ -46,6 +46,7 @@ class BatteryCellsCard extends HTMLElement {
         cfg.show_soc_value = cfg.show_soc_value ?? true;
         cfg.show_sync_icon = cfg.show_sync_icon ?? true;
         cfg.show_cell_diff = cfg.show_cell_diff ?? true;
+        cfg.auto_detect_low_high = cfg.auto_detect_low_high ?? true;
         cfg.pack_cell_low = cfg.pack_cell_low ?? null;
         cfg.pack_cell_high = cfg.pack_cell_high ?? null;
         cfg.use_3d = cfg.use_3d ?? true;
@@ -109,8 +110,44 @@ class BatteryCellsCard extends HTMLElement {
         const showLegend = this._config.show_legend;
         const socVal = parseFloat(this._hass.states[this._config.soc_entity]?.state ?? 0);
         const wattVal = parseFloat(this._hass.states[this._config.watt_entity]?.state);
-        const packCellLow = this._config.pack_cell_low ? parseInt(this._hass.states[this._config.pack_cell_low]?.state) : null;
-        const packCellHigh = this._config.pack_cell_high ? parseInt(this._hass.states[this._config.pack_cell_high]?.state) : null;
+        let packCellLow = this._config.pack_cell_low
+            ? parseInt(this._hass.states[this._config.pack_cell_low]?.state)
+            : null;
+        
+        let packCellHigh = this._config.pack_cell_high
+            ? parseInt(this._hass.states[this._config.pack_cell_high]?.state)
+            : null;
+        
+        /* --- Fallback: automatische Ermittlung --- */
+        if (
+            this._config.auto_detect_low_high &&
+            (packCellLow === null || packCellHigh === null)
+        ) {
+            const values = this._config.cells
+                .map((c, i) => {
+                    const raw = this._hass.states[c.entity]?.state;
+                    const num = parseFloat(raw);
+                    if (!Number.isFinite(num)) return null;
+        
+                    const mv = num < 10 ? num * 1000 : num;
+                    return { index: i + 1, value: mv };
+                })
+                .filter(Boolean);
+        
+            if (values.length) {
+                if (packCellLow === null) {
+                    packCellLow = values.reduce((a, b) =>
+                        a.value < b.value ? a : b
+                    ).index;
+                }
+                if (packCellHigh === null) {
+                    packCellHigh = values.reduce((a, b) =>
+                        a.value > b.value ? a : b
+                    ).index;
+                }
+            }
+        }
+
         const gradientStr = `linear-gradient(to top, 
             #ff0000 0%, #ff0000 5%,
             #ffa500 5%, #ffa500 10%,
@@ -509,7 +546,7 @@ _createCell(cfg, width, height, gradientStr) {
             show_sync_icon: true,
             show_cell_diff: true,
             overlay_opacity: 0.70,
-            font_size: 7.5,
+            font_size: 8,
             soc_entity: "sensor.status_of_charge",
             watt_entity: "sensor.pack_watt",
             balance_sensor: null,
@@ -517,8 +554,9 @@ _createCell(cfg, width, height, gradientStr) {
             cell_diff: 8,
             cell_bal_over: 3000,
             cell_unit: "mV",
-            pack_cell_low: "sensor.pack_cell_low",
-            pack_cell_high: "sensor.pack_cell_high",
+            auto_detect_low_high: true,
+            pack_cell_low: null,
+            pack_cell_high: null,
             chunk_cells: false,
             chunk_size: 8,
             cells: Array.from({length: 8}, (_, i) => ({
