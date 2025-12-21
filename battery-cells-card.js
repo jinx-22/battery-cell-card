@@ -3,7 +3,7 @@ class BatteryCellsCard extends HTMLElement {
     constructor() {
         super();
         console.info(
-          '%c 🔋 Battery Cell Card %c v.0.5.3.beta %c ',
+          '%c 🔋 Battery Cell Card %c v.0.5.3 %c ',
           `background: linear-gradient(90deg,#ff0000 0%,#ff0000 2.5%,#ffa500 2.5%,#ffa500 5%,#ffff00 5%,#ffff00 7.5%,#00ee00 7.5%,#00ee00 100%);
            color: #000; font-weight: bold; padding: 6px 12px; border-radius: 4px;`,
           'color: #2e7d32; padding: 4px 8px; border-radius: 4px;',
@@ -35,13 +35,13 @@ class BatteryCellsCard extends HTMLElement {
         cfg.cell_gap = cfg.cell_gap ?? 2;
         cfg.top_padding = cfg.top_padding ?? 20;
         cfg.overlay_opacity = cfg.overlay_opacity ?? 0.70;
-        cfg.font_size = cfg.font_size ?? 7.5;
+        cfg.font_size = cfg.font_size ?? 8;
         cfg.title = cfg.title ?? 'Battery Cells';
         cfg.balance_sensor = cfg.balance_sensor ?? null;
         cfg.cell_diff_sensor = cfg.cell_diff_sensor ?? "sensor.delta_mvolts";
         cfg.cell_diff = cfg.cell_diff ?? 8;
         cfg.cell_bal_over = cfg.cell_bal_over ?? 3000;
-        cfg.cell_unit = cfg.cell_unit ?? "V";
+        cfg.cell_unit = cfg.cell_unit ?? "mV";
         cfg.show_soc_icon = cfg.show_soc_icon ?? true;
         cfg.show_soc_value = cfg.show_soc_value ?? true;
         cfg.show_sync_icon = cfg.show_sync_icon ?? true;
@@ -93,7 +93,7 @@ class BatteryCellsCard extends HTMLElement {
         if (!this._config || !this._hass) return;
         const vpWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
         const vpHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-        let vpScale = 0.5;
+        let vpScale = 1.0;
         if (vpWidth < 1200) vpScale = 1.1;
         if (vpWidth < 900)  vpScale = 1.2;
         if (vpWidth < 600)  vpScale = 1.35;
@@ -170,7 +170,7 @@ class BatteryCellsCard extends HTMLElement {
                 legendWrapper.style.boxSizing = 'border-box';
                 legendWrapper.style.display = 'flex';
                 legendWrapper.style.flexDirection = 'column';
-                legendWrapper.style.justifyContent = 'flex-end';
+                //legendWrapper.style.justifyContent = 'flex-end';
                 legendWrapper.style.alignItems = 'center';
                 legendWrapper.style.position = 'relative';
                 legendWrapper.style.borderRadius = '2px';
@@ -326,7 +326,7 @@ class BatteryCellsCard extends HTMLElement {
             iconSoc.style.position = 'absolute';
             iconSoc.style.top = '36%';
             iconSoc.style.left = '50%';
-            const iconScale = Math.min(height / 200, width / 1.0 / 80) * this._vpScale;
+            const iconScale = Math.min(height / 200, width / 0.5 / 80) * this._vpScale;
             iconSoc.style.transform = `translate(-50%, -50%) scale(${iconScale})`;
             iconSoc.style.transformOrigin = 'center center';
             iconSoc.style.color = color;
@@ -382,7 +382,7 @@ class BatteryCellsCard extends HTMLElement {
             syncIcon.style.position = 'absolute';
             syncIcon.style.top = '66%';
             syncIcon.style.left = '50%';
-            const iconScale = Math.min(height / 200, width / 1.0 / 80) * this._vpScale;
+            const iconScale = Math.min(height / 200, width / 0.5 / 80) * this._vpScale;
             syncIcon.style.transform = `translate(-50%, -50%) scale(${iconScale})`;
             syncIcon.style.color = '#dfeeff';
             syncIcon.style.filter = 'drop-shadow(0 0 16px black)';
@@ -509,14 +509,14 @@ _createCell(cfg, width, height, gradientStr) {
             show_sync_icon: true,
             show_cell_diff: true,
             overlay_opacity: 0.70,
-            font_size: 7.5,
+            font_size: 8,
             soc_entity: "sensor.status_of_charge",
             watt_entity: "sensor.pack_watt",
             balance_sensor: null,
             cell_diff_sensor: "sensor.delta_mvolts",
             cell_diff: 8,
             cell_bal_over: 3000,
-            cell_unit: "V",
+            cell_unit: "mV",
             pack_cell_low: "sensor.pack_cell_low",
             pack_cell_high: "sensor.pack_cell_high",
             chunk_cells: false,
@@ -556,7 +556,8 @@ class BatteryCellsCardEditor extends HTMLElement {
                 </p>
             </div>
         `;
-        
+    }
+
     static getConfigElement() {
         return document.createElement("battery-cells-card-editor");
     }
