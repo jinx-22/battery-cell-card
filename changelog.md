@@ -1,3 +1,6 @@
+v.0.5.3
+Font and other mini fixes
+
 v0.5.2
 Fix for HA theme (no fixed background; Card mode is currently not supported)
 Fix for Delta Fix for the comment in the visual (still non-existent) editor
