@@ -1,3 +1,6 @@
+v.0.5.4 beta
+add auto_detect_low_high - calculate high_cell and low_cell intern (delete sensors!!)
+
 v.0.5.3
 Font and other mini fixes
 
