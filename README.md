@@ -1,7 +1,7 @@
 # Battery Cells Card - Cell-(real-time) monitoring
 *(Link to German version: [Deutsch](#battery-cell-card---zellen-echtzeit%C3%BCberwachung-deutsch)*  
 
-**Version:** 0.5.4 beta  
+**Version:** 0.5.9.x beta  
 **Description:** A Home Assistant custom card to visualize battery cells, cell voltages, SOC, balancing status, and differences.  
 Ideal for LiFePO₄ battery systems.
 
@@ -36,6 +36,7 @@ Depending on configuration, this custom card shows:
 - Color-coded voltage legend  
 - Responsive scaling  
 - Optional row wrapping for small displays (chunking)
+- card-mod ready (V.0.5.9.8)
 
 Compatible with all BMS that provide individual cell sensors, e.g.:
 
@@ -109,13 +110,9 @@ The card is now selectable and visible in the GUI.
 
 ---
 
-by me a coffee...
-https://ko-fi.com/jinx_22
-
-or send me a tip...
+send me a tip...
 
 usefulplay52@walletofsatoshi.com
-
 
 ---
 
@@ -124,6 +121,7 @@ usefulplay52@walletofsatoshi.com
 | Option | Default | Type | Description |
 |--------|---------|------|-------------|
 | `card_height` | `380` | number | Total card height in pixels. |
+| `background` | `null` | string / null | individuell background (optional) |
 | `show_legend` | `true` | boolean | Show color legend. |
 | `soc_entity` | `'sensor.status_of_charge'` | string | SOC sensor entity. |
 | `watt_entity` | `'sensor.pack_watt'` | string | Power sensor (W). |
@@ -239,6 +237,7 @@ Diese Custom Card zeigt je nach Konfiguration:
 - Farblegende (Spannungsbereiche)  
 - Responsive Größenanpassung  
 - Optionaler Zeilenumbruch bei kleinen Displays (Chunking)
+- card-mod funktioniert (ab V.0.5.9.8)
 
 Kompatibel mit allen BMS die Zell-Sensoren ausgeben:
 
@@ -318,6 +317,7 @@ Danach ist die Karte in der GUI verfügbar und auswählbar.
 | Option | Standardwert | Typ | Beschreibung |
 |--------|--------------|------|--------------|
 | `card_height` | `380` | number | Höhe der gesamten Karte in Pixel. |
+| `background` | `null` | string / null | Hintergrund individuell (optional) |
 | `show_legend` | `true` | boolean | Zeigt die Farblegende der Zellspannungen. |
 | `soc_entity` | `'sensor.status_of_charge'` | string | Sensor-Entity für den State of Charge (SOC). |
 | `watt_entity` | `'sensor.pack_watt'` | string | Sensor für Lade-/Entladeleistung in Watt. |
@@ -351,42 +351,49 @@ Danach ist die Karte in der GUI verfügbar und auswählbar.
 
 ```yaml
 type: custom:battery-cells-card
-title: Battery Cells
-background_color: "#00000080"
-card_height: 400
+title: Batteriespeicher Zellen
+card_height: 380
+container_padding: 10
+top_padding: 20
+cell_gap: 2
+use_3d: true
 show_legend: true
-soc_entity: sensor.status_of_charge
-watt_entity: sensor.pack_watt
-balance_sensor: sensor.cell_balance_active
-cell_diff_sensor: sensor.delta_mvolts_between_cells
-cell_diff: 10
-cell_bal_over: 3000
-cell_unit: mV
-auto_detect_low_high: true
 show_soc_icon: true
 show_soc_value: true
 show_sync_icon: true
 show_cell_diff: true
-use_3d: true
+overlay_opacity: 0.7
+font_size: 6
+soc_entity: sensor.soc
+watt_entity: sensor.pack
+balance_sensor: null
+cell_diff_sensor: sensor.delta_mvolts
+cell_diff: 8
+cell_bal_over: 3000
+cell_unit: mV
+auto_detect_low_high: true
+pack_cell_low: null
+pack_cell_high: null
 chunk_cells: false
 chunk_size: 8
 cells:
-  - name: Cell 1
+  - name: Zelle 1
     entity: sensor.cell1
-  - name: Cell 2
+  - name: Zelle 2
     entity: sensor.cell2
-  - name: Cell 3
+  - name: Zelle 3
     entity: sensor.cell3
-  - name: Cell 4
+  - name: Zelle 4
     entity: sensor.cell4
-  - name: Cell 5
+  - name: Zelle 5
     entity: sensor.cell5
-  - name: Cell 6
+  - name: Zelle 6
     entity: sensor.cell6
-  - name: Cell 7
+  - name: Zelle 7
     entity: sensor.cell7
-  - name: Cell 8
+  - name: Zelle 8
     entity: sensor.cell8
 grid_options:
-  columns: 24
+  columns: 15
   rows: auto
+```
