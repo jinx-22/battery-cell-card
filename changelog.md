@@ -1,3 +1,6 @@
+0.5.9.8.beta 
+new work, performance update,adjustment of font size, card-mod-ready now!
+
 v.0.5.4 beta
 add auto_detect_low_high - calculate high_cell and low_cell intern (delete sensors!!)
 
