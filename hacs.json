@@ -1,0 +1,6 @@
+{
+  "name": "Battery Cells Card - BMS Visualization",
+  "render_readme": true,
+  "content_in_root": false,
+  "filename": "battery-cells-card.js"
+}
