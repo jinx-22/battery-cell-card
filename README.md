@@ -1,7 +1,15 @@
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![GitHub release](https://img.shields.io/github/release/jinx-22/battery-cell-card?include_prereleases=&sort=semver&color=blue)](https://github.com/jinx-22/battery-cell-card/releases/)
+![File size](https://img.shields.io/github/size/jinx-22/battery-cell-card/battery-cells-card.js?label=Card%20Size)
+![last commit](https://img.shields.io/github/last-commit/jinx-22/battery-cell-card)
+[![README deutsch](https://img.shields.io/badge/README-DE)](https://github.com/jinx-22/battery-cell-card/tree/battery-cells-card_v.0.6.0#battery-cell-card---zellen-echtzeit%C3%BCberwachung-deutsch)
+[![stars](https://img.shields.io/github/stars/jinx-22/battery-cell-card)](https://github.com/jinx-22/battery-cell-card/stargazers)
+
+
 # Battery Cells Card - Cell-(real-time) monitoring
 *(Link to German version: [Deutsch](#battery-cell-card---zellen-echtzeit%C3%BCberwachung-deutsch)*  
 
-**Version:** 0.5.9.x beta  
+**Version:** 0.6.0  
 **Description:** A Home Assistant custom card to visualize battery cells, cell voltages, SOC, balancing status, and differences.  
 Ideal for LiFePO₄ battery systems.
 
@@ -91,18 +99,21 @@ Compatible with all BMS that provide individual cell sensors, e.g.:
 - Individual cells **{name, entity}**
 
 ---
+Installation over HACS
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jinx-22&repository=battery-cell-card&category=plugin)
 
 ## Manual Installation
 
 1. Download **battery-cells-card.js**  
-2. Copy it to `/config/www/`  
+2. Copy it to `/config/www/community/battery-cell-card/`  
 3. In Home Assistant:  
    - Settings  
    - Dashboards  
    - Three-dot menu  
    - Resources  
    - Add Resource  
-   - URL: **/local/battery-cells-card.js**  
+   - URL: **/local/community/battery-cell-card/battery-cells-card.js**  
      Type: **JavaScript Module**
 4. Reload browser (CTRL + F5)
 
@@ -199,7 +210,7 @@ grid_options:
 
 
 ## Battery Cell Card - Zellen-Echtzeitüberwachung (deutsch)
-**Version:** 0.5.2
+**Version:** 0.6.0
 **Beschreibung:** Eine Home Assistant Custom Card zur Visualisierung von Batteriezellen, Zellspannungen, SOC, Balancing-Status und Differenzen.  
 Ideal für LiFePO4-Batteriesysteme.
 
@@ -294,21 +305,29 @@ Kompatibel mit allen BMS die Zell-Sensoren ausgeben:
 
 ---
 
+Installation über HACS
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jinx-22&repository=battery-cell-card&category=plugin)
+
 ## Installation (manuell)
 
 1. Datei **battery-cells-card.js** herunterladen  
-2. In `/config/www/` kopieren  
+2. In `/config/www/community/battery-cell-card/` kopieren  
 3. In Home Assistant:  
    - Einstellungen  
    - Dashboards  
    - Drei Punkte  
    - Ressourcen  
    - Ressource hinzufügen  
-   - URL: **/local/battery-cells-card.js**  
+   - URL: **/local/community/battery-cell-card/battery-cells-card.js**   
      Typ: **JavaScript-Modul**
 4. Browser neu laden (STRG + F5)
 
 Danach ist die Karte in der GUI verfügbar und auswählbar.
+
+---
+Für eine kleine Unterstützung bin ich dankbar!
+usefulplay52@walletofsatoshi.com
 
 ---
 
