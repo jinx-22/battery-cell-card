@@ -145,7 +145,7 @@ or:
 <code>bc1qkz7mtp23cmshxnru96lzgeayu0urlysvqk5vry</code>
 <br>
 
-<img height="450" alt="Donations_240px" src="https://github.com/user-attachments/assets/196f68e4-b0e8-4f27-bded-8c4fe13b9d45" />
+<img height="500" alt="Donations_240px" src="https://github.com/user-attachments/assets/196f68e4-b0e8-4f27-bded-8c4fe13b9d45" />
 <br><br>
 </div>
 
@@ -377,7 +377,7 @@ oder:
   </code>
     <br>
 
-<img height="450" alt="Donations_240px" src="https://github.com/user-attachments/assets/196f68e4-b0e8-4f27-bded-8c4fe13b9d45" />
+<img height="500" alt="Donations_240px" src="https://github.com/user-attachments/assets/196f68e4-b0e8-4f27-bded-8c4fe13b9d45" />
 <br>   <br>
 </div>
 
