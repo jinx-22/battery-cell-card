@@ -121,9 +121,37 @@ The card is now selectable and visible in the GUI.
 
 ---
 
-send me a tip...
+## 🧡 Support & Donations
 
-usefulplay52@walletofsatoshi.com
+If you like this integration and it adds real value to your Home Assistant setup,  
+I’d appreciate a small donation — every contribution helps further development 🚀
+
+<p align="center">
+⚡ <b>Lightning Address:</b>
+<br><br>
+<code>usefulplay52@walletofsatoshi.com</code>
+<br>
+
+<img height="450" alt="Self_Wallet of Satoshi" src="https://github.com/user-attachments/assets/65cc18d9-05d1-4a00-8ccc-9922fdb54baf" />
+<br><br>
+or:
+<br><br>
+
+<div align="center">
+<img width="25" height="25" alt="Bitcoin_25px" src="https://github.com/user-attachments/assets/f74cad36-8c05-4a33-89cd-b998075af33b" />
+ Bitcoin:
+<br><br>
+
+<code>bc1qkz7mtp23cmshxnru96lzgeayu0urlysvqk5vry</code>
+<br>
+
+<img height="450" alt="Donations_240px" src="https://github.com/user-attachments/assets/196f68e4-b0e8-4f27-bded-8c4fe13b9d45" />
+<br><br>
+</div>
+
+**Thank you very much**, and please leave a free  
+[![GitHub stars](https://img.shields.io/github/stars/jinx-22/battery-cell-card?style=social)](https://github.com/jinx-22/battery-cell-card/stargazers)  
+so others can find this project too — thanks!
 
 ---
 
@@ -326,8 +354,35 @@ Installation über HACS
 Danach ist die Karte in der GUI verfügbar und auswählbar.
 
 ---
-Für eine kleine Unterstützung bin ich dankbar!
-usefulplay52@walletofsatoshi.com
+## 🧡 Support & Unterstützung
+
+Wenn dir diese Integration gefällt und sie einen echten Mehrwert für dein Home Assistant Setup bietet,  
+freue ich mich über eine kleine Unterstützung — jede Spende hilft, das Projekt weiterzuentwickeln 🚀
+<br>
+<p align="center">
+⚡ <b>Lightning Adresse:</b>
+<br> <br>
+<code>usefulplay52@walletofsatoshi.com</code>
+<br>
+<img height="450" alt="Self_Wallet of Satoshi" src="https://github.com/user-attachments/assets/65cc18d9-05d1-4a00-8ccc-9922fdb54baf" />
+<br> <br>
+oder: 
+<br>
+<br>
+<div align="center">
+<img width="25" height="25" alt="Bitcoin_25px" src="https://github.com/user-attachments/assets/f74cad36-8c05-4a33-89cd-b998075af33b" />
+ Bitcoin:
+   <br> <br>
+  <code>bc1qkz7mtp23cmshxnru96lzgeayu0urlysvqk5vry
+  </code>
+    <br>
+
+<img height="450" alt="Donations_240px" src="https://github.com/user-attachments/assets/196f68e4-b0e8-4f27-bded-8c4fe13b9d45" />
+<br>   <br>
+</div>
+
+**Vielen Dank** ,und gebt mir einen kostenlosen [![GitHub stars](https://img.shields.io/github/stars/jinx-22/battery-cell-card?style=social)](https://github.com/jinx-22/battery-cell-card/stargazers), dann finden andere auch den Weg hierher - Danke!
+
 
 ---
 
