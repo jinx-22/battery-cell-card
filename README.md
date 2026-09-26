@@ -10,10 +10,17 @@
 
 *(Link to the German version: [Deutsch](README_DE.md))*
 
-**Version:** 0.7.0  
+**Version:** 0.7.1 
 **Description:** A Home Assistant custom card for visualizing battery cells, cell voltages, SOC, balancing status, and voltage differences.
 
 Ideal for LiFePO4 battery systems.
+
+# New in Version 0.7.1
+
+- **Language support** – Added English and German language support for the card editor. The editor automatically follows the Home Assistant language setting.
+- **Bug fixes** – Fixed several editor issues, including the cell name editing bug where the input field lost focus after every keystroke.
+- **Better performance** – Improved editor performance by avoiding unnecessary list re-renders when editing existing cells and sensors.
+
 
 ### New in Version 0.7.0
 
