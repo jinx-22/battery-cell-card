@@ -3,7 +3,7 @@
 [![GitHub release](https://img.shields.io/github/release/jinx-22/battery-cell-card?include_prereleases=&sort=semver&color=blue)](https://github.com/jinx-22/battery-cell-card/releases/)
 ![File size](https://img.shields.io/github/size/jinx-22/battery-cell-card/battery-cells-card.js?label=Card%20Size)
 ![last commit](https://img.shields.io/github/last-commit/jinx-22/battery-cell-card)
-[![README deutsch](https://img.shields.io/badge/README-DE)](https://github.com/jinx-22/battery-cell-card/tree/battery-cells-card_v.0.7.0#battery-cell-card---zellen-echtzeit%C3%BCberwachung-deutsch)
+[![README deutsch](https://img.shields.io/badge/README-DE)](battery-cell-card/blob/main/README.md)
 [![stars](https://img.shields.io/github/stars/jinx-22/battery-cell-card)](https://github.com/jinx-22/battery-cell-card/stargazers)
 
 # Battery Cell Card - Zellen-Echtzeitüberwachung
