@@ -38,13 +38,13 @@ Ideal für LiFePO4-Batteriesysteme.
 
 ## Inhaltsverzeichnis
 1. [Was macht die Karte?](#was-macht-die-karte)
-2. [Lizenz](#lizenz)
-3. [Features](#features)
-4. [Installation](#installation-manuell)
-5. [Beispiel-Konfiguration](#beispiel-konfiguration)
-6. [Alle Konfigurationsoptionen](#konfigurationsoptionen-im-detail)
-7. [Funktionsweise](#funktionsweise)
-8. [Entwicklerhinweise](#entwicklerhinweise)
+2. [Features](#features)
+3. [Installation](#installation-manuell)
+4. [Beispiel-Konfiguration](#beispiel-konfiguration)
+5. [Alle Konfigurationsoptionen](#konfigurationsoptionen-im-detail)
+6. [Funktionsweise](#funktionsweise)
+7. [Entwicklerhinweise](#entwicklerhinweise)
+8. [Lizenz](#lizenz)
 
 ---
 
@@ -71,18 +71,6 @@ u.a.
 - JK-BMS
 - smartBMS - smartlabs dongle
 - allen Sensoren, die Zellspannungen einzeln melden (V oder mV)
-
----
-
-## Lizenz
-
-**Creative Commons – CC BY-NC-SA 4.0**
-
-- Bearbeiten & Anpassen erlaubt
-- Keine kommerzielle Nutzung
-- Weitergabe nur unter gleicher Lizenz
-
-[Link zur vollständigen Lizenz](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 ---
 
@@ -263,3 +251,9 @@ grid_options:
   rows: 8
 ```
 <img width="890" height="918" alt="battery-cell-card-v0 5 0" src="https://github.com/user-attachments/assets/2e8b95ae-606a-4441-b825-b2e62f617771" />
+
+--- 
+
+# 📜 License
+
+**Apache-2.0**
