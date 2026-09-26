@@ -10,12 +10,16 @@
 
 *(Link zur englischen Version: [English](README.md))*
 
-**Version:** 0.7.1  
+**Version:** 0.7.2 
 **Beschreibung:** Eine Home Assistant Custom Card zur Visualisierung von Batteriezellen, Zellspannungen, SOC, Balancing-Status und Differenzen.
 
 Ideal für LiFePO4-Batteriesysteme.
 
-# Neu in Version 0.7.1
+# New in Version 0.7.2
+
+- Overlay BugFix
+
+### Neu in Version 0.7.1
 
 - **Sprachunterstützung** – Der Karten-Editor unterstützt jetzt Deutsch und Englisch und richtet sich automatisch nach der Spracheinstellung von Home Assistant.
 - **Fehlerbehebungen** – Mehrere Fehler im Editor wurden behoben, unter anderem der Fehler beim Bearbeiten von Zellnamen, bei dem das Eingabefeld nach jedem Tastendruck den Fokus verlor.
