@@ -254,6 +254,6 @@ grid_options:
 
 --- 
 
-# 📜 Lizenz
+## Lizenz
 
 **Apache-2.0**
