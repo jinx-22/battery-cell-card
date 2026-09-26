@@ -1,9 +1,9 @@
 /**
- * Battery Cells Card v0.7.1
+ * Battery Cells Card v0.7.2
  * Home Assistant custom Lovelace card
  */
 
-console.info('%c 🔋 Battery Cell Card %c v0.7.1 ','background:linear-gradient(90deg,#ff0000 0%,#ff0000 2.5%,#ffa500 2.5%,#ffa500 5%,#ffff00 5%,#ffff00 7.5%,#00ee00 7.5%,#00ee00 100%);color:#000;font-weight:bold;padding:6px 12px;border-radius:4px;','color:#2e7d32;padding:4px 8px;');
+console.info('%c 🔋 Battery Cell Card %c v0.7.2 ','background:linear-gradient(90deg,#ff0000 0%,#ff0000 2.5%,#ffa500 2.5%,#ffa500 5%,#ffff00 5%,#ffff00 7.5%,#00ee00 7.5%,#00ee00 100%);color:#000;font-weight:bold;padding:6px 12px;border-radius:4px;','color:#2e7d32;padding:4px 8px;');
 
 class BatteryCellsCard extends HTMLElement {
   constructor() {
@@ -151,14 +151,14 @@ class BatteryCellsCard extends HTMLElement {
 .value{bottom:4px;display:flex;flex-direction:column;align-items:center;white-space:nowrap}
 .cell-value-num{font-size:calc(var(--bcc-fs,6)*1.5px + .6vw)}
 .cell-value-unit{font-size:.85em;line-height:1}
-.legend-inner{width:100%;height:100%;display:flex;flex-direction:column;position:relative}
+.legend-inner{width:100%;height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
 .legend-block{position:relative;overflow:hidden;pointer-events:none}
 .legend-label{position:absolute;left:0;right:0;text-align:center;font-weight:700;color:#fff;text-shadow:0 0 3px #000;pointer-events:none;font-size:calc(var(--bcc-fs,6)*1.2px + .5vw)}
 .legend-label-top{top:-4px}.legend-label-bottom{bottom:-4px}
-.overlay-soc{position:absolute;top:49%;left:50%;transform:translate(-50%,-50%);font-weight:700;color:#fff;text-shadow:0 0 6px #000;z-index:3;white-space:nowrap;cursor:pointer;font-size:calc(var(--bcc-fs,6)*1px + 1.2vw)}
-.overlay-diff{position:absolute;top:57%;left:50%;transform:translate(-50%,-50%);font-weight:700;color:#fff;text-shadow:0 0 3px #000;z-index:3;white-space:nowrap;cursor:pointer;font-size:calc(var(--bcc-fs,6)*.7px + .6vw)}
-.overlay-icon-battery{position:absolute;top:36%;left:50%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 6px #000);z-index:3;cursor:pointer;--mdc-icon-size:calc(var(--bcc-fs,6)*2.8px + 1.6vw)}
-.overlay-icon-sync{position:absolute;top:66%;left:50%;transform:translate(-50%,-50%);color:#dfeeff;filter:drop-shadow(0 0 16px #000);z-index:3;display:none;cursor:pointer;--mdc-icon-size:calc(var(--bcc-fs,6)*2.5px + 1.6vw)}
+.overlay-soc{position:absolute;top:49%;left:50%;transform:translate(-50%,-50%);font-weight:700;color:#fff;text-shadow:0 0 6px #000;white-space:nowrap;cursor:pointer;font-size:calc(var(--bcc-fs,6)*1px + 1.2vw)}
+.overlay-diff{position:absolute;top:57%;left:50%;transform:translate(-50%,-50%);font-weight:700;color:#fff;text-shadow:0 0 3px #000;white-space:nowrap;cursor:pointer;font-size:calc(var(--bcc-fs,6)*.7px + .6vw)}
+.overlay-icon-battery{position:absolute;top:36%;left:50%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 6px #000);cursor:pointer;--mdc-icon-size:calc(var(--bcc-fs,6)*2.8px + 1.6vw)}
+.overlay-icon-sync{position:absolute;top:66%;left:50%;transform:translate(-50%,-50%);color:#dfeeff;filter:drop-shadow(0 0 16px #000);display:none;cursor:pointer;--mdc-icon-size:calc(var(--bcc-fs,6)*2.5px + 1.6vw)}
 .border-highlight{position:absolute;inset:-3px;border-radius:3px;pointer-events:none;z-index:2;box-sizing:border-box;display:none}
 .d3 .cell-wrapper,.d3 .legend-wrapper{border-top:3px solid #9b9b9b;border-left:3px solid #7b7b7b;border-right:3px solid #5b5b5b;border-bottom:3px solid #6d6d6d}
 .flat .cell-wrapper,.flat .legend-wrapper{border:2px solid #000}
