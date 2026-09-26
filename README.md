@@ -253,7 +253,7 @@ grid_options:
 
 --- 
 
-# 📜 License
+## 📜 License
 
 **Apache-2.0**
 
