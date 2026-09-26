@@ -1,5 +1,6 @@
 /**
- * Battery Cells Card v0.7.0
+ * Battery Cells Card 
+ * Version: v0.7.0
  * Home Assistant custom Lovelace card
  */
 class BatteryCellsCard extends HTMLElement {
