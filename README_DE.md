@@ -15,7 +15,7 @@
 
 Ideal für LiFePO4-Batteriesysteme.
 
-# New in Version 0.7.2
+# Neu in Version 0.7.2
 
 - Overlay BugFix
 
