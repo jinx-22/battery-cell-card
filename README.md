@@ -37,13 +37,13 @@ Ideal for LiFePO4 battery systems.
 
 ## Table of Contents
 1. [What does the card do?](#what-does-the-card-do)
-2. [License](#license)
-3. [Features](#features)
-4. [Installation](#manual-installation)
-5. [Example Configuration](#example-configuration)
-6. [Configuration Options](#configuration-options-in-detail)
-7. [How it works](#how-it-works)
-8. [Developer Notes](#developer-notes)
+2. [Features](#features)
+3. [Installation](#manual-installation)
+4. [Example Configuration](#example-configuration)
+5. [Configuration Options](#configuration-options-in-detail)
+6. [How it works](#how-it-works)
+7. [Developer Notes](#developer-notes)
+8. [License](#license)
 
 ---
 
@@ -69,18 +69,6 @@ Compatible with all BMS systems that provide individual cell sensors, including:
 - JK-BMS
 - smartBMS - smartlabs dongle
 - Any sensors that provide individual cell voltages (V or mV)
-
----
-
-## License
-
-**Creative Commons – CC BY-NC-SA 4.0**
-
-- Modification & customization allowed
-- No commercial use
-- Redistribution only under the same license
-
-[Full license](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 ---
 
@@ -262,3 +250,9 @@ grid_options:
 ```
 
 <img width="890" height="918" alt="battery-cell-card-v0 5 0" src="https://github.com/user-attachments/assets/2e8b95ae-606a-4441-b825-b2e62f617771" />
+
+# 📜 License
+
+**Apache-2.0**
+
+---
