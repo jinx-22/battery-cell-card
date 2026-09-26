@@ -30,6 +30,10 @@ Ideal für LiFePO4-Batteriesysteme.
 > Die Balkenhöhen geben die Zellspannung, nicht den Ladezustand an.
 > Der prozentuale SOC kann in der Legende abgelesen werden, sofern ein SOC-Sensor eingetragen ist.
 
+
+<img width="1282" height="788" alt="2t" src="https://github.com/user-attachments/assets/72a04c39-3cfd-4768-89a0-d15e2399d07e" />
+<img width="1039" height="512" alt="1" src="https://github.com/user-attachments/assets/c9f03baa-3997-44b7-8d95-478a2b91199b" />
+
 ---
 
 ## Inhaltsverzeichnis
