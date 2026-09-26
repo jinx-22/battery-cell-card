@@ -1,3 +1,41 @@
+# Changelog
+
+## [0.7.0] - 2026-09-26
+
+### Added
+- New native Home Assistant Visual Editor
+- Add, edit, delete and reorder battery cells directly in the editor
+- Add, edit, delete and reorder additional sensors
+- Custom names and icons for cells and additional sensors
+- Home Assistant theme selection
+- Responsive cell chunking
+- Home Assistant `grid_options` support
+- Conditional editor options depending on the selected settings
+- Improved responsive layout and compact display handling
+
+### Improved
+- More efficient layout and content updates
+- Improved handling of configuration changes without unnecessary layout rebuilds
+- Improved cell voltage normalization for V and mV sensor values
+- Improved automatic detection of lowest and highest cell
+- Improved balancing detection
+- Additional sensors can be opened directly via Home Assistant More Info
+
+### Changed
+- Card sizing is now handled through Home Assistant layout / `grid_options`
+- Legacy `card_height` configuration is no longer supported
+- Legacy `background` configuration is no longer supported
+
+### Editor
+- Uses native Home Assistant components:
+  - `ha-form`
+  - `ha-expansion-panel`
+  - `ha-sortable`
+  - `ha-icon-button`
+  - Home Assistant entity selectors
+- No custom drag-and-drop implementation
+- Editor configuration changes are applied immediately
+
 0.5.9.8.beta 
 new work, performance update,adjustment of font size, card-mod-ready now!
 
