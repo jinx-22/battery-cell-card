@@ -251,6 +251,8 @@ grid_options:
 
 <img width="890" height="918" alt="battery-cell-card-v0 5 0" src="https://github.com/user-attachments/assets/2e8b95ae-606a-4441-b825-b2e62f617771" />
 
+--- 
+
 # 📜 License
 
 **Apache-2.0**
