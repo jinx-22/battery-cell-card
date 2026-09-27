@@ -10,10 +10,21 @@
 
 *(Link zur englischen Version: [English](README.md))*
 
-**Version:** 0.7.2 
+**Version:** 0.8.0  
 **Beschreibung:** Eine Home Assistant Custom Card zur Visualisierung von Batteriezellen, Zellspannungen, SOC, Balancing-Status und Differenzen.
+Unterstützt LiFePO4, NMC/NCM, Blei-Säure und eigene Spannungsbereiche.
 
-Ideal für LiFePO4-Batteriesysteme.
+# Neu in Version 0.8.0
+
+- **Batterie-Chemie** – LiFePO4, NMC/NCM, Blei (2V-Zelle) oder Benutzerdefiniert
+- **LiFePO4-Skala unverändert** – Legende, Zellfarben und Füllkurve identisch zu v0.7.2
+- **NMC-Preset** – 3,00 V – 4,20 V
+- **Blei-Preset** – 1,80 V – 2,45 V pro 2V-Zelle
+- **Eigener Bereich** – `custom_min_mv` / `custom_max_mv`
+- **Eigene Legende & Zellskala** – optional `legend_stops` überschreibt Farben, Labels, Höhen und Füllkurve
+- **Editor** – neuer Bereich „Batterie-Chemie“ (DE/EN)
+
+<img width="533" height="352" alt="0 8" src="https://github.com/user-attachments/assets/ae1a84b7-b2c6-4e85-a39a-7528715f04eb" />
 
 # Neu in Version 0.7.2
 
@@ -205,6 +216,10 @@ oder:
 | `chunk_size` | `8` | number | Anzahl der Zellen pro Reihe im Chunk-Modus. |
 | `show_extra_sensors` | `false` | boolean | Zeigt zusätzliche Sensoren an. |
 | `extra_sensors` | `[]` | array | Zusätzliche Sensoren mit `{name, entity, icon}`. |
+| `battery_type` | `lifepo4` | string | `lifepo4` \| `nmc` \| `lead` \| `custom` |
+| `custom_min_mv` | `2600` | number | Min. Zellspannung (mV), bei `custom`. |
+| `custom_max_mv` | `3650` | number | Max. Zellspannung (mV), bei `custom`. |
+| `legend_stops` | `[]` | array | Optionale Überschreibung von Legende & Zellskala (`color`, `pct`, `top`/`bottom`, `mv`). |
 | `cells` | *(Array aus Zellen)* | array | Liste der Zellen mit `{name, entity}`. |
 | `grid_options` | `columns: 12, rows: 8` | object | Home Assistant Sections-Layout. |
 
@@ -215,6 +230,7 @@ oder:
 ```yaml
 type: custom:battery-cells-card
 title: Batteriespeicher Zellen
+battery_type: lifepo4
 container_padding: 10
 top_padding: 20
 cell_gap: 2
