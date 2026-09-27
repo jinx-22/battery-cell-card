@@ -1,9 +1,86 @@
 /**
- * Battery Cells Card v0.7.2
+ * Battery Cells Card v0.8.0
  * Home Assistant custom Lovelace card
  */
 
-console.info('%c 🔋 Battery Cell Card %c v0.7.2 ','background:linear-gradient(90deg,#ff0000 0%,#ff0000 2.5%,#ffa500 2.5%,#ffa500 5%,#ffff00 5%,#ffff00 7.5%,#00ee00 7.5%,#00ee00 100%);color:#000;font-weight:bold;padding:6px 12px;border-radius:4px;','color:#2e7d32;padding:4px 8px;');
+console.info('%c 🔋 Battery Cell Card %c v0.8.0 ','background:linear-gradient(90deg,#ff0000 0%,#ff0000 2.5%,#ffa500 2.5%,#ffa500 5%,#ffff00 5%,#ffff00 7.5%,#00ee00 7.5%,#00ee00 100%);color:#000;font-weight:bold;padding:6px 12px;border-radius:4px;','color:#2e7d32;padding:4px 8px;');
+
+const BATTERY_PRESETS = {
+
+  lifepo4: {
+    min: 2600,
+    max: 3650,
+    legend: [
+      ['#ff0000', 5, '3.65V'],
+      ['#ffa500', 5, '3.55V'],
+      ['#ffff00', 10, '3.45V'],
+      ['#00aa00', 60, '3.38V', '3.20V'],
+      ['#ffff00', 10, null, '3.00V'],
+      ['#ffa500', 5, null, '2.80V'],
+      ['#ff0000', 5, null, '2.60V']
+    ],
+    barGradient: 'linear-gradient(to top,#ff0000 0%,#ff0000 5%,#ffa500 5%,#ffa500 10%,#ffff00 10%,#ffff00 20%,#00ee00 20%,#00ee00 80%,#ffff00 80%,#ffff00 90%,#ffa500 90%,#ffa500 95%,#ff0000 95%,#ff0000 100%)',
+    fill: [
+      {mv: 2600, pct: 0},
+      {mv: 2800, pct: 5},
+      {mv: 3000, pct: 10},
+      {mv: 3200, pct: 20},
+      {mv: 3380, pct: 80},
+      {mv: 3450, pct: 90},
+      {mv: 3550, pct: 95},
+      {mv: 3650, pct: 100}
+    ]
+  },
+  nmc: {
+    min: 3000,
+    max: 4200,
+    legend: [
+      ['#ff0000', 5, '4.20V'],
+      ['#ffa500', 5, '4.10V'],
+      ['#ffff00', 10, '4.00V'],
+      ['#00aa00', 60, '3.70V', '3.50V'],
+      ['#ffff00', 10, null, '3.30V'],
+      ['#ffa500', 5, null, '3.10V'],
+      ['#ff0000', 5, null, '3.00V']
+    ],
+    barGradient: 'linear-gradient(to top,#ff0000 0%,#ff0000 5%,#ffa500 5%,#ffa500 10%,#ffff00 10%,#ffff00 20%,#00ee00 20%,#00ee00 80%,#ffff00 80%,#ffff00 90%,#ffa500 90%,#ffa500 95%,#ff0000 95%,#ff0000 100%)',
+    fill: [
+      {mv: 3000, pct: 0},
+      {mv: 3100, pct: 5},
+      {mv: 3300, pct: 10},
+      {mv: 3500, pct: 20},
+      {mv: 3700, pct: 80},
+      {mv: 4000, pct: 90},
+      {mv: 4100, pct: 95},
+      {mv: 4200, pct: 100}
+    ]
+  },
+  lead: {
+    min: 1800,
+    max: 2450,
+    legend: [
+      ['#ff0000', 5, '2.45V'],
+      ['#ffa500', 5, '2.35V'],
+      ['#ffff00', 10, '2.25V'],
+      ['#00aa00', 60, '2.10V', '2.00V'],
+      ['#ffff00', 10, null, '1.90V'],
+      ['#ffa500', 5, null, '1.85V'],
+      ['#ff0000', 5, null, '1.80V']
+    ],
+    barGradient: 'linear-gradient(to top,#ff0000 0%,#ff0000 5%,#ffa500 5%,#ffa500 10%,#ffff00 10%,#ffff00 20%,#00ee00 20%,#00ee00 80%,#ffff00 80%,#ffff00 90%,#ffa500 90%,#ffa500 95%,#ff0000 95%,#ff0000 100%)',
+    fill: [
+      {mv: 1800, pct: 0},
+      {mv: 1850, pct: 5},
+      {mv: 1900, pct: 10},
+      {mv: 2000, pct: 20},
+      {mv: 2100, pct: 80},
+      {mv: 2250, pct: 90},
+      {mv: 2350, pct: 95},
+      {mv: 2450, pct: 100}
+    ]
+  }
+};
+
 
 class BatteryCellsCard extends HTMLElement {
   constructor() {
@@ -26,6 +103,7 @@ class BatteryCellsCard extends HTMLElement {
       watt_entity:'sensor.pack',balance_sensor:null,cell_diff_sensor:'sensor.delta_mvolts',cell_diff:8,
       cell_bal_over:3000,cell_unit:'mV',auto_detect_low_high:true,pack_cell_low:null,pack_cell_high:null,
       chunk_cells:false,chunk_size:8,
+      battery_type:'lifepo4',custom_min_mv:2600,custom_max_mv:3650,legend_stops:[],
       cells:Array.from({length:8},(_,i)=>({name:`Cell ${i+1}`,entity:`sensor.cell${i+1}`})),
       grid_options:{columns:12,rows:8}
     };
@@ -76,6 +154,10 @@ class BatteryCellsCard extends HTMLElement {
      'auto_detect_low_high','chunk_cells','show_extra_sensors']
       .forEach(k=>{if(c[k]==null)c[k]=d[k]});
 
+    ['custom_min_mv','custom_max_mv'].forEach(k=>{if(c[k]==null)c[k]=d[k]});
+    if(!c.battery_type||!['lifepo4','nmc','lead','custom'].includes(c.battery_type)) c.battery_type='lifepo4';
+    if(!Array.isArray(c.legend_stops)) c.legend_stops=[];
+
     if(!c.show_legend)
       c.show_soc_value=c.show_soc_icon=c.show_cell_diff=c.show_sync_icon=false;
 
@@ -85,7 +167,7 @@ class BatteryCellsCard extends HTMLElement {
       showExtra:c.show_extra_sensors,chunk:c.chunk_cells,size:c.chunk_size,legend:c.show_legend,
       pad:c.container_padding,top:c.top_padding,gap:c.cell_gap,fs:c.font_size,op:c.overlay_opacity,
       d3:c.use_3d,title:c.title,theme:c.theme,go:c.grid_options,
-      si:c.show_soc_icon,sv:c.show_soc_value,sy:c.show_sync_icon,sd:c.show_cell_diff
+      si:c.show_soc_icon,sv:c.show_soc_value,sy:c.show_sync_icon,sd:c.show_cell_diff,bt:c.battery_type,cmin:c.custom_min_mv,cmax:c.custom_max_mv,lstops:c.legend_stops
     });
 
     const changed=key!==this._layoutKey;
@@ -144,7 +226,7 @@ class BatteryCellsCard extends HTMLElement {
 .row{display:flex;gap:var(--bcc-gap,2px);align-items:flex-end;width:100%;box-sizing:border-box;min-height:0}
 .cell-wrapper,.legend-wrapper{position:relative;border-radius:2px;overflow:visible;box-sizing:border-box;height:100%;flex:1 1 0;min-width:0}
 .cell-wrapper{cursor:pointer}
-.bar{width:100%;height:100%;position:relative;background:linear-gradient(to top,#ff0000 0%,#ff0000 5%,#ffa500 5%,#ffa500 10%,#ffff00 10%,#ffff00 20%,#00ee00 20%,#00ee00 80%,#ffff00 80%,#ffff00 90%,#ffa500 90%,#ffa500 95%,#ff0000 95%,#ff0000 100%)}
+.bar{width:100%;height:100%;position:relative;background:var(--bcc-bar-gradient,linear-gradient(to top,#ff0000 0%,#ff0000 5%,#ffa500 5%,#ffa500 10%,#ffff00 10%,#ffff00 20%,#00ee00 20%,#00ee00 80%,#ffff00 80%,#ffff00 90%,#ffa500 90%,#ffa500 95%,#ff0000 95%,#ff0000 100%))}
 .overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,var(--bcc-op,.7));z-index:2;pointer-events:none}
 .name,.value{position:absolute;left:50%;transform:translateX(-50%);z-index:3;width:90%;pointer-events:none;text-align:center;color:#fff;text-shadow:0 0 4px #000;font-weight:700;line-height:1.1}
 .name{top:4px;white-space:normal;word-break:break-word;font-size:calc(var(--bcc-fs,6)*1.2px + .6vw)}
@@ -196,6 +278,7 @@ class BatteryCellsCard extends HTMLElement {
     root.style.setProperty('--bcc-fs',fs);
     root.style.setProperty('--bcc-op',c.overlay_opacity);
     root.style.setProperty('--bcc-title-size',titleSize);
+    root.style.setProperty('--bcc-bar-gradient',this._getPreset().barGradient);
     root.classList.toggle('d3',!!c.use_3d);
     root.classList.toggle('flat',!c.use_3d);
 
@@ -321,11 +404,7 @@ class BatteryCellsCard extends HTMLElement {
     inner.className='legend-inner';
     wrapper.appendChild(inner);
 
-    [
-      ['#ff0000',5,'3.65V'],['#ffa500',5,'3.55V'],['#ffff00',10,'3.45V'],
-      ['#00aa00',60,'3.38V','3.20V'],['#ffff00',10,null,'3.00V'],
-      ['#ffa500',5,null,'2.80V'],['#ff0000',5,null,'2.60V']
-    ].forEach(([color,pct,top,bottom])=>{
+    this._getPreset().legend.forEach(([color,pct,top,bottom])=>{
       const div=document.createElement('div');
       div.className='legend-block';
       div.style.background=color;
@@ -565,17 +644,109 @@ class BatteryCellsCard extends HTMLElement {
     return Number.isFinite(n)?n<10?n*1000:n:null;
   }
 
+  _getPreset() {
+    const c = this._config || {};
+    const type = c.battery_type || 'lifepo4';
+
+    /* Full manual override via legend_stops */
+    if (Array.isArray(c.legend_stops) && c.legend_stops.length >= 2) {
+      return this._presetFromStops(c.legend_stops);
+    }
+
+    if (type === 'custom') {
+      let min = Number(c.custom_min_mv);
+      let max = Number(c.custom_max_mv);
+      if (!Number.isFinite(min)) min = 2600;
+      if (!Number.isFinite(max)) max = 3650;
+      if (min >= max) { min = 2600; max = 3650; }
+      /* Build same 7-segment structure as LiFePO4, scaled to min/max */
+      const base = BATTERY_PRESETS.lifepo4;
+      const span = max - min;
+      const baseMin = base.min, baseSpan = base.max - base.min;
+      const scale = (mv) => Math.round(min + ((mv - baseMin) / baseSpan) * span);
+      const fmt = (mv) => (mv / 1000).toFixed(2).replace(/\.?0+$/, '') + 'V';
+      const fill = base.fill.map(p => ({ mv: scale(p.mv), pct: p.pct }));
+      const legend = base.legend.map((seg, i) => {
+        const copy = seg.slice();
+        /* rewrite labels from scaled fill points where present */
+        return copy;
+      });
+      /* regenerate labels from fill points for clarity */
+      const labels = fill.map(p => fmt(p.mv));
+      /* map: fill indices 7,6,5,4,2,1,0 → legend tops/bottoms roughly */
+      const legendScaled = [
+        ['#ff0000', 5, labels[7]],
+        ['#ffa500', 5, labels[6]],
+        ['#ffff00', 10, labels[5]],
+        ['#00aa00', 60, labels[4], labels[3]],
+        ['#ffff00', 10, null, labels[2]],
+        ['#ffa500', 5, null, labels[1]],
+        ['#ff0000', 5, null, labels[0]]
+      ];
+      return {
+        min, max,
+        legend: legendScaled,
+        barGradient: base.barGradient,
+        fill
+      };
+    }
+
+    return BATTERY_PRESETS[type] || BATTERY_PRESETS.lifepo4;
+  }
+
+  _presetFromStops(stops) {
+    const c = this._config || {};
+    const legend = stops.map(s => [
+      s.color || '#00aa00',
+      Number(s.pct) || 10,
+      s.top || null,
+      s.bottom || null
+    ]);
+    const withMv = stops.filter(s => Number.isFinite(Number(s.mv)));
+    let fill, min, max, barGradient;
+    if (withMv.length >= 2) {
+      const sorted = withMv
+        .map(s => ({ mv: Number(s.mv), color: s.color || '#00aa00' }))
+        .sort((a, b) => a.mv - b.mv);
+      min = sorted[0].mv;
+      max = sorted[sorted.length - 1].mv;
+      const span = max - min || 1;
+      fill = sorted.map(s => ({
+        mv: s.mv,
+        pct: ((s.mv - min) / span) * 100
+      }));
+      /* build gradient from low→high for to-top */
+      const parts = sorted.map(s => {
+        const pct = ((s.mv - min) / span * 100).toFixed(1);
+        return `${s.color} ${pct}%`;
+      });
+      barGradient = `linear-gradient(to top,${parts.join(',')})`;
+    } else {
+      min = Number(c.custom_min_mv) || 2600;
+      max = Number(c.custom_max_mv) || 3650;
+      fill = [
+        { mv: min, pct: 0 },
+        { mv: max, pct: 100 }
+      ];
+      barGradient = BATTERY_PRESETS.lifepo4.barGradient;
+    }
+    return { min, max, legend, barGradient, fill };
+  }
+
   _fillPercent(mv) {
-    if(mv==null)return 0;
-    if(mv<=2600)return 0;
-    if(mv<=2800)return (mv-2600)/200*5;
-    if(mv<=3000)return (mv-2800)/200*5+5;
-    if(mv<=3200)return (mv-3000)/200*10+10;
-    if(mv<=3380)return (mv-3200)/180*60+20;
-    if(mv<=3450)return (mv-3380)/70*10+80;
-    if(mv<=3550)return (mv-3450)/100*5+90;
-    if(mv<=3650)return (mv-3550)/100*5+95;
-    return 100;
+    if (mv == null) return 0;
+    const { fill } = this._getPreset();
+    if (!fill || fill.length < 2) return 0;
+    if (mv <= fill[0].mv) return fill[0].pct;
+    if (mv >= fill[fill.length - 1].mv) return fill[fill.length - 1].pct;
+    for (let i = 0; i < fill.length - 1; i++) {
+      const a = fill[i], b = fill[i + 1];
+      if (mv >= a.mv && mv <= b.mv) {
+        const t = (mv - a.mv) / (b.mv - a.mv || 1);
+        return a.pct + t * (b.pct - a.pct);
+      }
+    }
+    return 50;
   }
 
   connectedCallback() {
@@ -610,7 +781,6 @@ class BatteryCellsCard extends HTMLElement {
 customElements.define('battery-cells-card',BatteryCellsCard);
 
 /**
- * Battery Cells Card Editor v0.7.1
  * Home Assistant custom Lovelace card editor
  */
 
@@ -690,6 +860,9 @@ class BatteryCellsCardEditor extends HTMLElement {
         container_padding:'Container padding (px)',top_padding:'Title spacing (px)',
         overlay_opacity:'Overlay opacity',chunk_cells:'Wrap cells into rows',
         chunk_size:'Cells per row',fallback_cell:'Cell',fallback_sensor:'Sensor',
+        battery_chemistry:'Battery Chemistry',battery_type:'Battery type',
+        type_lifepo4:'LiFePO4',type_nmc:'NMC / NCM (Li-Ni-Mn-Co)',type_lead:'Lead-Acid (2V cell)',type_custom:'Custom',
+        custom_min_mv:'Custom min voltage (mV)',custom_max_mv:'Custom max voltage (mV)',
         unit_mv:'mV',unit_v:'V'
       },
       de:{
@@ -711,6 +884,9 @@ class BatteryCellsCardEditor extends HTMLElement {
         container_padding:'Innenabstand (px)',top_padding:'Abstand zum Titel (px)',
         overlay_opacity:'Deckkraft des Overlays',chunk_cells:'Zellen auf mehrere Zeilen verteilen',
         chunk_size:'Zellen pro Zeile',fallback_cell:'Zelle',fallback_sensor:'Sensor',
+        battery_chemistry:'Batterie-Chemie',battery_type:'Batterietyp',
+        type_lifepo4:'LiFePO4',type_nmc:'NMC / NCM (Li-Ni-Mn-Co)',type_lead:'Blei (2V-Zelle)',type_custom:'Benutzerdefiniert',
+        custom_min_mv:'Eigene Min-Spannung (mV)',custom_max_mv:'Eigene Max-Spannung (mV)',
         unit_mv:'mV',unit_v:'V'
       }
     };
@@ -799,6 +975,15 @@ ha-form{display:block}
       value=>this._commit(value,['title','theme'])
     );
     this._root.append(this._topForm);
+
+    this._chemPanel=this._panel(this._t('battery_chemistry'),true);
+    this._chemForm=this._form(
+      this._chemSchema(),
+      this._config,
+      value=>this._commit(value,['battery_type','custom_min_mv','custom_max_mv'])
+    );
+    this._chemPanel.append(this._chemForm);
+    this._root.append(this._chemPanel);
 
     this._cellsPanel=this._panel(this._t('cells'),true);
     this._cellsPanel.append(
@@ -1012,6 +1197,35 @@ ha-form{display:block}
     ];
   }
 
+  _chemSchema() {
+    return [
+      {
+        name:'battery_type',
+        selector:{
+          select:{
+            mode:'dropdown',
+            options:[
+              {value:'lifepo4',label:this._t('type_lifepo4')},
+              {value:'nmc',label:this._t('type_nmc')},
+              {value:'lead',label:this._t('type_lead')},
+              {value:'custom',label:this._t('type_custom')}
+            ]
+          }
+        }
+      },
+      {
+        name:'custom_min_mv',
+        visible:{field:'battery_type',value:'custom'},
+        selector:{number:{min:1000,max:5000,mode:'box'}}
+      },
+      {
+        name:'custom_max_mv',
+        visible:{field:'battery_type',value:'custom'},
+        selector:{number:{min:1000,max:5000,mode:'box'}}
+      }
+    ];
+  }
+
   _sensorsSchema() {
     return [
       {name:'soc_entity',selector:{entity:{domain:'sensor'}}},
@@ -1092,6 +1306,11 @@ ha-form{display:block}
       };
     }
 
+    if(fields.includes('battery_type')&&partial.battery_type){
+      const defaults={lifepo4:3000,nmc:3500,lead:2000,custom:Number(next.custom_min_mv)||2600};
+      if(defaults[partial.battery_type]!=null) next.cell_bal_over=defaults[partial.battery_type];
+    }
+
     this._config=this._normalize(next);
 
     if(!this._config.show_legend)
@@ -1120,6 +1339,11 @@ ha-form{display:block}
     this._topForm.data=this._config;
     this._topForm.schema=this._topSchema();
 
+    if(this._chemForm){
+      this._chemForm.data=this._config;
+      this._chemForm.schema=this._chemSchema();
+    }
+
     this._sensorsForm.data=this._config;
     this._sensorsForm.schema=this._sensorsSchema();
 
@@ -1138,6 +1362,5 @@ window.customCards.push({
   type:'battery-cells-card',
   name:'Battery Cells Card',
   preview:true,
-  description:'Battery cell monitoring and BMS visualisation'
+  description:'Battery cell monitoring and BMS visualisation (LiFePO4 / NMC / Lead / Custom)'
 });
-
