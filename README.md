@@ -10,10 +10,22 @@
 
 *(Link to the German version: [Deutsch](README_DE.md))*
 
-**Version:** 0.7.2 
-**Description:** A Home Assistant custom card for visualizing battery cells, cell voltages, SOC, balancing status, and voltage differences.
+**Version:** 0.8.0  
+**Description:** 
+A Home Assistant custom card for visualizing battery cells, cell voltages, SOC, balancing status, and voltage differences.
+Supports LiFePO4, NMC/NCM, Lead-Acid and fully custom voltage scales.
 
-Ideal for LiFePO4 battery systems.
+# New in Version 0.8.0
+
+- **Battery chemistry** – LiFePO4, NMC/NCM, Lead-Acid (2V cell) or Custom
+- **LiFePO4 scale unchanged** – Legend, cell colors and fill curve identical to v0.7.2
+- **NMC preset** – 3.00 V – 4.20 V
+- **Lead-Acid preset** – 1.80 V – 2.45 V per 2V cell
+- **Custom range** – `custom_min_mv` / `custom_max_mv`
+- **Custom legend & cell scale** – optional `legend_stops` overrides colors, labels, heights and fill curve
+- **Editor** – new “Battery Chemistry” section (EN/DE)
+
+<img width="533" height="352" alt="0 8" src="https://github.com/user-attachments/assets/ae1a84b7-b2c6-4e85-a39a-7528715f04eb" />
 
 # New in Version 0.7.2
 
@@ -43,6 +55,7 @@ Ideal for LiFePO4 battery systems.
 
 <img width="1282" height="788" alt="2t" src="https://github.com/user-attachments/assets/72a04c39-3cfd-4768-89a0-d15e2399d07e" />
 <img width="1039" height="512" alt="1" src="https://github.com/user-attachments/assets/c9f03baa-3997-44b7-8d95-478a2b91199b" />
+
 
 ---
 
@@ -175,7 +188,7 @@ or:
 ### Configuration Options
 
 | Option | Default | Type | Description |
-|--------|---------|------|-------------|
+| --- | --- | --- | --- |
 | `theme` | `""` | string | Home Assistant Theme. |
 | `show_legend` | `true` | boolean | Shows the cell voltage color legend. |
 | `soc_entity` | `sensor.soc` | string | Sensor entity for State of Charge (SOC). |
@@ -203,6 +216,10 @@ or:
 | `chunk_size` | `8` | number | Number of cells per row in chunk mode. |
 | `show_extra_sensors` | `false` | boolean | Shows additional sensors. |
 | `extra_sensors` | `[]` | array | Additional sensors with `{name, entity, icon}`. |
+| `battery_type` | `lifepo4` | string | `lifepo4` \| `nmc` \| `lead` \| `custom` |
+| `custom_min_mv` | `2600` | number | Min cell voltage (mV), used with `custom`. |
+| `custom_max_mv` | `3650` | number | Max cell voltage (mV), used with `custom`. |
+| `legend_stops` | `[]` | array | Optional full override of legend & cell scale (`color`, `pct`, `top`/`bottom`, `mv`). |
 | `cells` | *(Array of cells)* | array | List of cells with `{name, entity}`. |
 | `grid_options` | `columns: 12, rows: 8` | object | Home Assistant Sections layout. |
 
@@ -213,6 +230,7 @@ or:
 ```yaml
 type: custom:battery-cells-card
 title: Battery Storage Cells
+battery_type: lifepo4
 container_padding: 10
 top_padding: 20
 cell_gap: 2
