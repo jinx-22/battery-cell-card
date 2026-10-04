@@ -12,12 +12,34 @@
 
 *(Link zur englischen Version: [English](README.md))*
 
-**Version:** 0.9.3
+**Version:** 0.9.4
 
 **Beschreibung:** Eine benutzerdefinierte Home-Assistant-Karte zur Visualisierung von Batteriezellen, Zellspannungen, SOC, Balancing-Status und Differenzen.  
-Ideal für LiFePO₄-Batteriesysteme, auch für NMC/NCM und Blei-Säure.
+Ideal für LiFePO₄-Batteriesysteme, auch für NMC/NCM und Blei-Säureakkus.
 
-### ✨ Neu
+## ✨ Neu
+
+### Hinzugefügt
+
+* Leere Karten zeigen jetzt 4 nicht anklickbare Platzhalterzellen
+* Verbesserte Barrierefreiheit durch Beschriftungen für Symbole
+
+### Geändert
+
+* Saubereres YAML mit nur von den Standardwerten abweichenden Einstellungen
+* Balancing-Bereich auf 1500–4500 mV erweitert
+* Bezeichnung für das Laden-/Entladen-Symbol korrigiert
+
+### Verbessert
+
+* Zuverlässigere Erkennung der High-/Low-Zellen
+* Verbesserte Klick- und Tastaturfokus-Unterstützung
+* Effizientere Aktualisierung der Zusatzsensoren
+* Geöffnete Editor-Bereiche bleiben beim Sprachwechsel erhalten
+* Doppelte Registrierung und mehrfaches Laden der Karte verhindert
+
+
+### ✨ Neu in v0.9.3
 
 * Neuer 3D-Look → Batteriegehäuse mit Chrom-Optik.
 
