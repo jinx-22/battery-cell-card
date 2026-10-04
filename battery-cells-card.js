@@ -1,8 +1,8 @@
 /**
- * Battery Cells Card v0.9.3
+ * Battery Cells Card v0.9.4
  * Home Assistant custom Lovelace card – cell voltage / BMS visualisation
  */
-const VERSION = '0.9.3';
+const VERSION = '0.9.4';
 console.info(`%c 🔋 Battery Cells Card %c v${VERSION} `, 'background:linear-gradient(90deg,#f00 0%,#f00 2.5%,#ffa500 2.5%,#ffa500 5%,#ff0 5%,#ff0 7.5%,#0e0 7.5%,#0e0 100%);color:#000;font-weight:bold;padding:6px 12px;border-radius:4px;', 'color:#2e7d32;padding:4px 8px;');
 
 /* ───────────── Konstanten ───────────── */
@@ -22,7 +22,7 @@ const LEGEND_TOGGLES = ['show_soc_value', 'show_soc_icon', 'show_cell_diff', 'sh
 const MIN_CELL_W_FLOOR = 40, DEFAULT_MIN_CELL_W = 50, DEFAULT_CELL_H = 340, CELL_H_MIN = 200, CELL_H_MAX = 800;
 const RANGES = { cell_height: [CELL_H_MIN, CELL_H_MAX], min_cell_width: [MIN_CELL_W_FLOOR, 120] };
 const GRADIENT_BLEND = 1.1;
-const MV_MAX = 6000, MAX_STOPS = 20;
+const MV_MAX = 6000, MAX_STOPS = 20, PLACEHOLDER_CELLS = 4;
 const LIMITS = { font_size: [4, 16], cell_gap: [0, 16], container_padding: [0, 40], top_padding: [0, 60], overlay_opacity: [0, 1], cell_diff: [0, 1000], cell_bal_over: [0, MV_MAX] };
 
 /* ───────────── Helfer ───────────── */
@@ -38,6 +38,8 @@ const toMv = (raw, unit) => {
 const clamp = (v, lo, hi, d) => { const n = Number(v); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
 const pick = (v, list, d) => list.includes(v) ? v : d;
 const safeColor = c => { const s = String(c ?? '').trim(); return s && globalThis.CSS?.supports?.('color', s) ? s : '#00aa00'; };
+const sortKeys = (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : v;
+const sig = o => JSON.stringify(o, sortKeys);
 
 function largestNiceSize(maxAllowed, minSize, total) {
   let s = minSize;
@@ -96,17 +98,17 @@ const DEFAULTS = {
 };
 const stubConfig = () => ({
   ...DEFAULTS,
-  font_size: 6,
+  font_size: 5,
   use_3d: true,
   show_slices: true,
   slice_strength: 'subtle',
   chunk_cells: false,
   chunk_mode: 'auto8',
   cell_height: CELL_H_MIN,
-  soc_entity: 'sensor.status_of_charge',
-  watt_entity: 'sensor.pack_watt',
-  cell_diff_sensor: 'sensor.delta_mvolts_between_cells',
-  cells: Array.from({ length: 8 }, (_, i) => ({ name: `Cell ${i + 1}`, entity: `sensor.cell${i + 1}` })),
+  soc_entity: 'sensor.status_of',
+  watt_entity: 'sensor.pack',
+  cell_diff_sensor: 'sensor.delta_mvolts_between',
+  cells: Array.from({ length: 8 }, (_, i) => ({ name: `Cell ${i + 1}`, entity: `sensor.test_cell${i + 1}` })),
   grid_options: { columns: 24, rows: 6 }
 });
 
@@ -114,6 +116,7 @@ function normalizeConfig(config = {}) {
   const c = { ...DEFAULTS, ...config };
   for (const k in DEFAULTS) if (c[k] == null) c[k] = DEFAULTS[k];
   c.cells = arr(c.cells).map(x => ({ name: x?.name ?? '', entity: x?.entity ?? '' }));
+  if (!c.cells.length) c.cells = Array.from({ length: PLACEHOLDER_CELLS }, (_, i) => ({ name: String(i + 1), entity: '' }));
   c.extra_sensors = arr(c.extra_sensors).map(s => ({ name: s?.name || '', entity: s?.entity || '', icon: s?.icon || '' }));
   c.legend_stops = arr(c.legend_stops).filter(Boolean);
   c.battery_type = pick(c.battery_type, BATTERY_TYPES, 'lifepo4');
@@ -219,11 +222,11 @@ const CARD_CSS = `:host{display:block;width:100%;box-sizing:border-box}
 .sl-subtle{--slh:.1;--sll:.1;--slg:.25;--sla:92%;--slb:95%}.sl-medium{--slh:.2;--sll:.2;--slg:.5;--sla:88%;--slb:92%}.sl-strong{--slh:.4;--sll:.4;--slg:.85;--sla:84%;--slb:86%}
 .title{color:var(--primary-text-color);font-size:var(--bcc-title);font-weight:400;padding:12px 0 var(--bcc-top) 16px;margin:0;flex-shrink:0}
 .extra{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:0 8px 10px 12px;flex-shrink:0}.extra[hidden]{display:none}
-.xi{display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--primary-text-color);font-family:var(--ha-font-family-body,var(--paper-font-body1_-_font-family,Roboto,Noto,sans-serif));font-size:calc(var(--ha-font-size-m,14px) * var(--bcc-efs,1));font-weight:500;line-height:1.3;padding:2px 4px;border-radius:4px}
+.xi{display:inline-flex;align-items:center;gap:6px;color:var(--primary-text-color);font-family:var(--ha-font-family-body,var(--paper-font-body1_-_font-family,Roboto,Noto,sans-serif));font-size:calc(var(--ha-font-size-m,14px) * var(--bcc-efs,1));font-weight:500;line-height:1.3;padding:2px 4px;border-radius:4px}
 .xi:hover{background:rgba(127,127,127,.12)}
 .xi ha-state-icon{--mdc-icon-size:1.35em;color:var(--primary-color)}
 .xn{color:var(--secondary-text-color);font-weight:400;margin-right:2px}.xv{font-weight:600;font-variant-numeric:tabular-nums}.xu{color:var(--secondary-text-color);font-size:.9em;margin-left:2px}
-[data-e]:focus-visible{outline:2px solid var(--primary-color);outline-offset:1px}
+[data-e]{cursor:pointer}[data-e]:focus-visible{outline:2px solid var(--primary-color);outline-offset:1px}
 .content{display:flex;flex-direction:column;gap:12px;width:100%;--sh:clamp(1.5px,0.9cqw,6px);--bl:clamp(3px,1.15cqw,9px);--side:max(3px,min(1.2cqw,8px));--frame:clamp(7px,2.2cqw,32px)}
 .d3 .content{padding-top:max(8px,calc(var(--frame)*0.45));box-sizing:border-box}
 .fill .content{flex:1 1 auto;min-height:0}
@@ -232,7 +235,6 @@ const CARD_CSS = `:host{display:block;width:100%;box-sizing:border-box}
 .fill .w{display:flex;height:auto;align-self:stretch}
 .fill .bar,.fill .inner{height:auto;flex:1 1 auto}
 .w{position:relative;border-radius:4px;overflow:hidden;box-sizing:border-box;height:100%;flex:1 1 0;min-width:0;padding-block:9px;padding-inline:var(--side)}
-.cell{cursor:pointer}
 .bar,.inner{position:relative;width:100%;height:100%;border-radius:1px;overflow:hidden}.bar{background:var(--bcc-grad)}.inner{display:flex;flex-direction:column}
 .d3 .bar,.d3 .inner{border-radius:2px}
 .bar::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,.1) 14%,rgba(255,255,255,0) 32%,rgba(0,0,0,0) 66%,rgba(0,0,0,.22) 100%);mix-blend-mode:overlay}
@@ -246,7 +248,7 @@ const CARD_CSS = `:host{display:block;width:100%;box-sizing:border-box}
 .seg{position:relative;overflow:hidden;pointer-events:none}
 .lab{position:absolute;left:0;right:0;text-align:center;font-weight:700;color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000;pointer-events:none;font-size:calc(var(--bcc-fs)*1.2px + .5*var(--u));z-index:3}
 .lab.t{top:-3px}.lab.b{bottom:-4px}
-.soc,.diff,.bat,.sync{position:absolute;left:50%;transform:translate(-50%,-50%);z-index:3;cursor:pointer}
+.soc,.diff,.bat,.sync{position:absolute;left:50%;transform:translate(-50%,-50%);z-index:3}
 .soc,.diff{font-weight:700;color:#fff;text-align:center;box-sizing:border-box}
 .soc{top:49%;width:94%;text-shadow:0 0 6px #000;white-space:nowrap;font-size:min(clamp(7px,calc(var(--bcc-fs)*1px + 1.2*var(--u)),18px),calc(var(--bcc-cellh)*.085));line-height:1}
 .diff{top:57%;width:90%;max-width:90%;text-shadow:0 0 3px #000;white-space:normal;font-size:min(clamp(6px,calc(var(--bcc-fs)*.7px + .6*var(--u)),14px),calc(var(--bcc-cellh)*.06));line-height:1}
@@ -371,23 +373,25 @@ class BatteryCellsCard extends HTMLElement {
   _legendHtml() {
     const c = this._c, soc = esc(c.soc_entity), diff = esc(c.cell_diff_sensor);
     const on = k => c.show_legend && c[k];
-    const btn = e => `data-e="${e}" role="button" tabindex="0"`;
+    const btn = (e, label) => e ? ` data-e="${e}" role="button" tabindex="0"${label ? ` aria-label="${label}"` : ''}` : '';
     const gm = this._scale.gradientMode;
     const segs = this._scale.legend.map(([col, pct, top, bot]) =>
       `<div class="seg" style="${gm ? '' : `background:${esc(col)};`}flex:${pct} 0 0px">${top ? `<div class="lab t">${esc(top)}</div>` : ''}${bot ? `<div class="lab b">${esc(bot)}</div>` : ''}</div>`
     ).join('');
     return `<div class="w"><div class="inner"${gm ? ` style="background:${esc(this._scale.gradient)}"` : ''}>${segs}`
-      + (on('show_soc_value') ? `<div class="soc" ${btn(soc)}></div>` : '')
-      + (on('show_cell_diff') ? `<div class="diff" ${btn(diff)}></div>` : '')
-      + (on('show_soc_icon') ? `<ha-icon class="bat" icon="mdi:battery" ${btn(soc)}></ha-icon>` : '')
-      + (on('show_sync_icon') ? `<ha-icon class="sync" icon="mdi:sync" ${btn(diff)}></ha-icon>` : '')
+      + (on('show_soc_value') ? `<div class="soc"${btn(soc)}></div>` : '')
+      + (on('show_cell_diff') ? `<div class="diff"${btn(diff)}></div>` : '')
+      + (on('show_soc_icon') ? `<ha-icon class="bat" icon="mdi:battery"${btn(soc, soc)}></ha-icon>` : '')
+      + (on('show_sync_icon') ? `<ha-icon class="sync" icon="mdi:sync"${btn(diff, diff)}></ha-icon>` : '')
       + '</div></div>';
   }
   _cellHtml(cfg) {
-    return `<div class="w cell" data-e="${esc(cfg.entity)}" role="button" tabindex="0" title="${esc(cfg.name || cfg.entity)}"><div class="bar"><div class="ov"></div><div class="name">${esc(cfg.name)}</div><div class="val"><span class="num"></span><span class="unit"></span></div></div><div class="hl"></div></div>`;
+    const btn = cfg.entity ? ` data-e="${esc(cfg.entity)}" role="button" tabindex="0"` : '';
+    return `<div class="w cell"${btn} title="${esc(cfg.name || cfg.entity)}"><div class="bar"><div class="ov"></div><div class="name">${esc(cfg.name)}</div><div class="val"><span class="num"></span><span class="unit"></span></div></div><div class="hl"></div></div>`;
   }
   _extraHtml(s) {
-    return `<div class="xi" data-e="${esc(s.entity)}" role="button" tabindex="0" title="${esc(s.name || s.entity)}"><ha-state-icon></ha-state-icon>${s.name ? `<span class="xn">${esc(s.name)}:</span>` : ''}<span class="xv">—</span><span class="xu"></span></div>`;
+    const btn = s.entity ? ` data-e="${esc(s.entity)}" role="button" tabindex="0"` : '';
+    return `<div class="xi"${btn} title="${esc(s.name || s.entity)}"><ha-state-icon></ha-state-icon>${s.name ? `<span class="xn">${esc(s.name)}:</span>` : ''}<span class="xv">—</span><span class="xu"></span></div>`;
   }
 
   _applyTheme() {
@@ -438,7 +442,7 @@ class BatteryCellsCard extends HTMLElement {
 
     const all = s => [...r.querySelectorAll(s)], one = (el, s) => el.querySelector(s);
     this._cells = all('.cell').map(el => ({ el, ov: one(el, '.ov'), num: one(el, '.num'), unit: one(el, '.unit'), entity: el.dataset.e }));
-    this._extras = all('.xi').map((el, i) => ({ icon: one(el, 'ha-state-icon'), v: one(el, '.xv'), u: one(el, '.xu'), entity: extra[i]?.entity, cfgIcon: extra[i]?.icon || '' }));
+    this._extras = all('.xi').map((el, i) => ({ icon: one(el, 'ha-state-icon'), v: one(el, '.xv'), u: one(el, '.xu'), entity: extra[i]?.entity, cfgIcon: extra[i]?.icon || '', st: undefined, done: false }));
     this._soc = all('.soc'); this._diff = all('.diff'); this._bat = all('.bat'); this._sync = all('.sync');
     this._measure();
   }
@@ -452,6 +456,8 @@ class BatteryCellsCard extends HTMLElement {
     this._extras.forEach(x => {
       if (!x.entity || !x.icon) return;
       const st = S[x.entity];
+      if (x.done && st === x.st) return;
+      x.st = st; x.done = true;
       const { v, u } = formatExtra(st);
       put(x.v, v);
       put(x.u, u ? ` ${u}` : '');
@@ -497,7 +503,7 @@ class BatteryCellsCard extends HTMLElement {
 
     const idx = id => { const n = id ? parseInt(S[id]?.state, 10) : NaN; return Number.isFinite(n) ? n : null; };
     let low = idx(c.pack_cell_low), high = idx(c.pack_cell_high);
-    if (c.auto_detect_low_high) { low ??= minI; high ??= maxI; }
+    if (c.auto_detect_low_high && maxV > minV) { low ??= minI; high ??= maxI; }
     this._cells.forEach((cell, i) => {
       cell.el.classList.toggle('low', i + 1 === low);
       cell.el.classList.toggle('high', i + 1 !== low && i + 1 === high);
@@ -509,7 +515,7 @@ class BatteryCellsCard extends HTMLElement {
     this._sync.forEach(el => { if (el.style.display !== display) el.style.display = display; });
   }
 }
-customElements.define('battery-cells-card', BatteryCellsCard);
+if (!customElements.get('battery-cells-card')) customElements.define('battery-cells-card', BatteryCellsCard);
 
 /* ───────────── Editor ───────────── */
 const I18N = {
@@ -532,7 +538,7 @@ const I18N = {
     slice_subtle: 'Subtle', slice_medium: 'Medium', slice_strong: 'Strong',
     cell_unit: 'Cell unit', font_size: 'Font size', cell_gap: 'Cell gap (px)',
     container_padding: 'Card padding (px)', top_padding: 'Title spacing (px)',
-    overlay_opacity: 'Overlay opacity',
+    overlay_opacity_pct: 'Overlay opacity (%)',
     chunk_panel: 'Cell wrapping', chunk_cells: 'Enable cell wrapping', chunk_mode: 'Wrapping mode',
     chunk_auto4: 'Auto 4 cells', chunk_auto8: 'Auto 8 cells', chunk_manual: 'Manual',
     chunk_size: 'Cells per row', cell_height: 'Cell height (px)', min_cell_width: 'Min. cell width (px)',
@@ -558,7 +564,7 @@ const I18N = {
     auto_detect_low_high: 'Niedrigste / höchste Zelle automatisch erkennen',
     pack_cell_low: 'Sensor für niedrigste Zelle', pack_cell_high: 'Sensor für höchste Zelle',
     show_legend: 'Legende anzeigen', show_soc_value: 'SOC-Wert anzeigen',
-    show_soc_icon: 'laden/enladen anzeigen', show_cell_diff: 'Zelldifferenz anzeigen',
+    show_soc_icon: 'Laden-/Entladen-Symbol anzeigen', show_cell_diff: 'Zelldifferenz anzeigen',
     show_sync_icon: 'Synchronisationssymbol anzeigen',
     show_extra_sensors: 'Zusätzliche Sensoren anzeigen', use_3d: '3D-Rahmen',
     extra_font_scale: 'Schriftgröße für zusätzliche Sensoren',
@@ -566,7 +572,7 @@ const I18N = {
     slice_subtle: 'Dezent', slice_medium: 'Mittel', slice_strong: 'Stark',
     cell_unit: 'Zelleneinheit', font_size: 'Schriftgröße', cell_gap: 'Zellenabstand (px)',
     container_padding: 'Kartenrand-Abstand (px)', top_padding: 'Abstand zum Titel (px)',
-    overlay_opacity: 'Deckkraft des Overlays',
+    overlay_opacity_pct: 'Deckkraft des Overlays (%)',
     chunk_panel: 'Zellen-Umbruch', chunk_cells: 'Zellen umbrechen aktivieren', chunk_mode: 'Umbruch-Modus',
     chunk_auto4: 'Auto 4 Zellen', chunk_auto8: 'Auto 8 Zellen', chunk_manual: 'Manuell',
     chunk_size: 'Zellen pro Zeile', cell_height: 'Zellenhöhe (px)', min_cell_width: 'Min. Zellenbreite (px)',
@@ -596,6 +602,7 @@ const numSel = (min, max, step) => ({ number: { min, max, ...(step && { step }),
 const sliderSel = (min, max) => ({ number: { min, max, step: 1, mode: 'slider' } });
 const dropdown = options => ({ select: { mode: 'dropdown', options } });
 const mk = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
+const lean = c => Object.fromEntries(Object.entries(c).filter(([k, v]) => !(k in DEFAULTS) || !(v == null || (k === 'theme' && v === 'default') || sig(v) === sig(DEFAULTS[k]))));
 
 let hexCtx;
 const toHex = c => {
@@ -663,10 +670,10 @@ class BatteryCellsCardEditor extends HTMLElement {
     const fresh = !this._built && !Object.keys(this._config).length;
     const defined = Object.fromEntries(Object.entries(config || {}).filter(([, v]) => v !== undefined));
     const empty = !Object.keys(defined).some(k => k !== 'type');
-    const next = this._normalize({ ...(fresh ? (empty ? stubConfig() : DEFAULTS) : this._config), ...defined });
-    const lists = c => JSON.stringify([c.cells, c.extra_sensors, c.legend_stops]);
+    const next = this._normalize({ ...(fresh && empty ? stubConfig() : DEFAULTS), ...defined });
+    const lists = c => sig([c.cells, c.extra_sensors, c.legend_stops]);
     const listsChanged = lists(this._config) !== lists(next);
-    const isOwnEcho = JSON.stringify(next) === this._local;
+    const isOwnEcho = sig(next) === this._local;
     this._config = next;
     if (!this._built) return this._build();
     if (isOwnEcho) return;
@@ -697,6 +704,9 @@ class BatteryCellsCardEditor extends HTMLElement {
         bottom: x?.bottom || ''
       }))
     };
+  }
+  _formData() {
+    return { ...this._config, overlay_opacity_pct: Math.round((Number(this._config.overlay_opacity) || 0) * 100) };
   }
   _entityName(entity, fallback) { return this._hass?.states?.[entity]?.attributes?.friendly_name || fallback; }
   _form(schema, data, onChange, ctx = {}) {
@@ -737,7 +747,7 @@ class BatteryCellsCardEditor extends HTMLElement {
   _balanceSchema() {
     const s = [
       { name: 'cell_diff', selector: numSel(1, 200) },
-      { name: 'cell_bal_over', selector: numSel(2000, 4000) },
+      { name: 'cell_bal_over', selector: numSel(1500, 4500) },
       { name: 'auto_detect_low_high', selector: bool }
     ];
     if (!this._config.auto_detect_low_high) s.push({ name: 'pack_cell_low', selector: SENSOR_SELECTOR }, { name: 'pack_cell_high', selector: SENSOR_SELECTOR });
@@ -747,7 +757,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     const cfg = this._config;
     return [
       { name: 'font_size', selector: numSel(4, 16, .5) },
-      { name: 'overlay_opacity', selector: numSel(0, 1, .06) },
+      { name: 'overlay_opacity_pct', selector: { number: { min: 0, max: 100, step: 1, mode: 'slider', unit_of_measurement: '%' } } },
       { name: 'cell_gap', selector: numSel(0, 16) },
       { name: 'container_padding', selector: numSel(0, 40) },
       { name: 'top_padding', selector: numSel(0, 60) },
@@ -794,12 +804,13 @@ class BatteryCellsCardEditor extends HTMLElement {
 
   /* ── Aufbau ── */
   _build() {
+    const open = [...this.querySelectorAll('ha-expansion-panel')].map(p => !!p.expanded);
     this.style.display = 'block';
     this.replaceChildren();
     this._forms = [];
     const form = (schemaFn, fields) => {
       const fn = schemaFn.bind(this);
-      const f = this._form(fn(), this._config, v => this._commit(v, fields));
+      const f = this._form(fn(), this._formData(), v => this._commit(v, fields));
       this._forms.push([f, fn]);
       return f;
     };
@@ -850,15 +861,17 @@ class BatteryCellsCardEditor extends HTMLElement {
     );
     this.append(style, root);
     this._built = true;
+    this.querySelectorAll('ha-expansion-panel').forEach((p, i) => { if (open[i]) p.expanded = true; });
     ['cells', 'extra_sensors', 'legend_stops'].forEach(k => this._renderList(k));
     this._syncForms(false);
-    this._local = JSON.stringify(this._config);
+    this._local = sig(this._config);
   }
 
   _syncForms(schema) {
+    const data = this._formData();
     this._forms.forEach(([f, fn]) => {
       if (schema) f.schema = fn();
-      f.data = this._config;
+      f.data = data;
     });
     if (this._presetForm) this._presetForm.data = { preset: this._presetKey() };
     if (this._scalePanel) this._scalePanel.style.display = this._config.battery_type === 'custom' ? '' : 'none';
@@ -1006,6 +1019,9 @@ class BatteryCellsCardEditor extends HTMLElement {
   }
 
   _commit(partial, fields) {
+    if (partial.overlay_opacity_pct !== undefined && partial.overlay_opacity_pct !== Math.round((Number(this._config.overlay_opacity) || 0) * 100)) {
+      partial = { ...partial, overlay_opacity: partial.overlay_opacity_pct / 100 };
+    }
     if (fields.some(k => RANGES[k] && partial[k] !== this._config[k] && !(partial[k] >= RANGES[k][0] && partial[k] <= RANGES[k][1]))) return;
     const next = { ...this._config };
     fields.forEach(f => {
@@ -1033,17 +1049,19 @@ class BatteryCellsCardEditor extends HTMLElement {
 
   _emit() {
     const config = this._normalize(this._config);
-    this._local = JSON.stringify(config);
-    this.dispatchEvent(new CustomEvent('config-changed', { detail: { config }, bubbles: true, composed: true }));
+    this._local = sig(config);
+    this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: lean(config) }, bubbles: true, composed: true }));
   }
 }
-customElements.define('battery-cells-card-editor', BatteryCellsCardEditor);
+if (!customElements.get('battery-cells-card-editor')) customElements.define('battery-cells-card-editor', BatteryCellsCardEditor);
 
 /* ───────────── Registrierung ───────────── */
 window.customCards = window.customCards || [];
-window.customCards.push({
-  type: 'battery-cells-card',
-  name: 'Battery Cells Card',
-  preview: true,
-  description: 'Battery cell monitoring and BMS visualisation (LiFePO4 / NMC / Lead / Custom)'
-});
+if (!window.customCards.some(x => x.type === 'battery-cells-card')) {
+  window.customCards.push({
+    type: 'battery-cells-card',
+    name: 'Battery Cells Card',
+    preview: true,
+    description: 'Battery cell monitoring and BMS visualisation (LiFePO4 / NMC / Lead / Custom)'
+  });
+}
