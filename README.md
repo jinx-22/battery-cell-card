@@ -3,14 +3,14 @@
 [![GitHub release](https://img.shields.io/github/release/jinx-22/battery-cell-card?include_prereleases=&sort=semver&color=blue&style=flat&logo=github&logoColor=white)](https://github.com/jinx-22/battery-cell-card/releases/)
 [![File size](https://img.shields.io/github/size/jinx-22/battery-cell-card/battery-cells-card.js?label=Card%20Size&style=flat&logo=javascript&logoColor=white)](https://github.com/jinx-22/battery-cell-card/blob/main/battery-cells-card.js)
 [![Editor Setting - Doku](https://img.shields.io/badge/Editor%20Setting-Doku-e91e63?style=flat&logo=readthedocs&logoColor=white)](#editor-documentation)
-[![README deutsch](https://img.shields.io/badge/README-DE-blue?style=flat&logo=googletranslate&logoColor=white)](readme_de.md)
+[![README deutsch](https://img.shields.io/badge/README-DE-blue?style=flat&logo=googletranslate&logoColor=white)](README_DE.md)
 [![stars](https://img.shields.io/github/stars/jinx-22/battery-cell-card?style=flat&logo=github&logoColor=white)](https://github.com/jinx-22/battery-cell-card/stargazers)
 [![Donate Bitcoin](https://img.shields.io/badge/Bitcoin-Donate-F7931A?style=flat&logo=bitcoin&logoColor=white)](#bitcoin)
 [![Donate Lightning](https://img.shields.io/badge/%E2%9A%A1-Lightning-FFD700?style=flat)](#lightning)
 
 # Battery Cells Card - Cell-(real-time) monitoring
 
-*(Link to German version: [Deutsch](readme_de.md))*
+*(Link to German version: [Deutsch](README_DE.md))*
 
 **Version:** 0.9.4
 
