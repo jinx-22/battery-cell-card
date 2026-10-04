@@ -29,16 +29,23 @@ Ideal für LiFePO₄-Batteriesysteme, auch für NMC/NCM und Blei-Säure.
 
 <img width="60%" height="auto" alt="Skala" src="https://github.com/user-attachments/assets/2543b511-668d-4fda-9fff-d4b35d1e1805" />
 
-* Scheiben-Look der Skala in drei Stufen – Dezent, Mittel und Stark.
-* Zellen-Umbruch (Chunk-Modus) komplett überarbeitet. (Bitte melde, ob er auf dem iPhone korrekt angezeigt wird!)
-* Auswahl des Batterietyps komplett überarbeitet und erweitert.
-* Visueller Editor erweitert und neu gestaltet.
-* Automatischer Umbruch → Auto 4, Auto 8 oder Manuell.
-* Zeilenhöhe im Editor manuell einstellbar.
-* Minimale Zellenbreite im Editor manuell einstellbar.
-* Optionale weiche Farbverläufe für eigene Skalen.
-* Einstellbare Schriftgröße für zusätzliche Sensoren.
-* Deutlich bessere Performance und viele weitere kleine Änderungen und Verbesserungen.
+* Scheiben-Optik für die Skala: drei Stärken – Dezent, Mittel und Stark.
+* Chunk-Modus komplett überarbeitet. (Bitte Feedback geben, ob die Darstellung auf dem iPhone korrekt funktioniert!)
+* Auswählbarer Batterietyp komplett überarbeitet und weiterentwickelt.
+* Visueller Editor erweitert und überarbeitet.
+* Native Home-Assistant-Editor-Komponenten für eine bessere Bedienung.
+* Zellen und zusätzliche Sensoren können jetzt direkt im visuellen Editor hinzugefügt, bearbeitet, gelöscht und sortiert werden.
+* Eigene Namen und Icons für Zellen und zusätzliche Sensoren.
+* Editor auf Deutsch und Englisch verfügbar.
+* Auto-Chunk-Modus → Auto4, Auto8 oder manuell.
+* Chunk-Höhe im Editor manuell einstellbar.
+* Chunk-Zellenbreite im Editor manuell einstellbar.
+* Schriftgröße der zusätzlichen Sensoren skalierbar.
+* Verbesserte automatische Erkennung der niedrigsten und höchsten Zellspannung.
+* Verbesserte Darstellung von Balancing und Zellspannungsdifferenzen.
+* Verbesserte Unterstützung für Spannungssensoren mit V- oder mV-Werten.
+* `grid_options` zur Steuerung der Kartengröße.
+* Erhebliche Performance-Verbesserungen und viele weitere kleine Änderungen/Verbesserungen.
 
 ### Vollständiger Changelog: [changelog.md](https://github.com/jinx-22/battery-cell-card/blob/main/changelog.md)
 
