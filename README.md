@@ -12,12 +12,30 @@
 
 *(Link to German version: [Deutsch](readme_de.md))*
 
-**Version:** 0.9.3
+**Version:** 0.9.4
 
 **Description:** A Home Assistant custom card to visualize battery cells, cell voltages, SOC, balancing status, and differences.  
 Ideal for LiFePO₄ battery systems, also for NMC/NCM and lead-acid.
 
-### ✨ New
+## ✨ New 
+
+### Added
+Empty cards now display 4 non-clickable placeholder cells
+Improved accessibility with labels for icons
+
+### Changed
+Cleaner YAML output with only non-default values
+Balancing range expanded to 1500–4500 mV
+Corrected loading/unloading symbol label
+
+### Improved
+More reliable High/Low cell detection
+Improved click and keyboard focus handling
+More efficient extra sensor updates
+Editor state is preserved when changing language
+Prevented duplicate card registration and loading
+
+### ✨ New in 0.9.3
 
 * New 3D look → chrome-finished battery housing.
 
