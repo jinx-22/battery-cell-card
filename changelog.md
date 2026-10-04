@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.9.4] - 2026-10-04
+
+### Added
+
+* Empty cards now show 4 non-clickable placeholder cells (1–4) when no cells are configured
+* Accessible labels for icons
+
+### Changed
+
+* Editor now writes only values that differ from their defaults
+* `null`, empty lists and `theme: default` are no longer written to YAML
+* Corrected label: "Charge/Discharge-Symbol anzeigen"
+* Balancing voltage range expanded to 1500–4500 mV
+
+### Improved
+
+* Configuration changes are now handled more reliably when defaults change
+* Lowest / highest cell detection only runs automatically when cell voltages actually differ
+* Configured lowest / highest cell sensors continue to work as before
+* Click and keyboard focus are only enabled for elements with a configured entity
+* Additional sensors are only updated when their own state changes
+* Editor panels remain open when changing the Home Assistant language
+* Loading the card multiple times no longer creates duplicate elements or `customCards` entries
+
+### Fixed
+
+* Prevented unnecessary interaction with cells and sensors that have no entity configured
+* Improved handling of empty cell configurations
+
+
 ## [0.9.3] - 2026-10-04
 
 Summary of all changes since **0.8.0** (development steps 0.9.0 – 0.9.3.2): new 3D look, disc-style scale, visual scale builder, completely reworked cell wrapping, many editor and stability improvements.
