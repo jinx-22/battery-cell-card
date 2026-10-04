@@ -197,35 +197,25 @@ The card is now selectable and visible in the GUI.
 If you like this integration and it adds real value to your Home Assistant setup,  
 I’d appreciate a small donation — every contribution helps further development 🚀
 
-<table>
-<tr>
-<td width="50%" align="center" valign="top">
+<div align="center">
 
-### Lightning
+### <a id="lightning"></a>Lightning
 
-<img width="8%" height="auto" alt="abe8ac56-db42-4f3a-bbfe-7848fb72819a" src="https://github.com/user-attachments/assets/0bff59d2-7986-46cf-9d39-17fe0dbb128a" />
-
+<img width="32" alt="Lightning" src="https://github.com/user-attachments/assets/0bff59d2-7986-46cf-9d39-17fe0dbb128a" />
 
 `usefulplay52@walletofsatoshi.com`
 
-<img src="https://github.com/user-attachments/assets/65cc18d9-05d1-4a00-8ccc-9922fdb54baf" width="50%" height="auto" alt="Lightning - Wallet of Satoshi">
+<img height="300" alt="Lightning - Wallet of Satoshi" src="https://github.com/user-attachments/assets/65cc18d9-05d1-4a00-8ccc-9922fdb54baf" />
 
-</td>
-<td width="50%" align="center" valign="top">
+### <a id="bitcoin"></a>Bitcoin
 
-### Bitcoin
-
-<img src="https://github.com/user-attachments/assets/f74cad36-8c05-4a33-89cd-b998075af33b" width="8%" height="auto" alt="Bitcoin">
+<img width="32" alt="Bitcoin" src="https://github.com/user-attachments/assets/f74cad36-8c05-4a33-89cd-b998075af33b" />
 
 `bc1qkz7mtp23cmshxnru96lzgeayu0urlysvqk5vry`
-<br>
-<br>
-<br>
-<img src="https://github.com/user-attachments/assets/196f68e4-b0e8-4f27-bded-8c4fe13b9d45" width="40%" height="auto" alt="Bitcoin donation">
 
-</td>
-</tr>
-</table>
+<img height="300" alt="Bitcoin donation" src="https://github.com/user-attachments/assets/196f68e4-b0e8-4f27-bded-8c4fe13b9d45" />
+
+</div>
 
 **Thank you very much**, and please leave a free [![GitHub stars](https://img.shields.io/github/stars/jinx-22/battery-cell-card?style=social)](https://github.com/jinx-22/battery-cell-card/stargazers) so others can find this project too — thanks!
 
