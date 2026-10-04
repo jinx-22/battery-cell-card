@@ -29,15 +29,23 @@ Ideal for LiFePO₄ battery systems, also for NMC/NCM and lead-acid.
 
 <img width="60%" height="auto" alt="Skala" src="https://github.com/user-attachments/assets/2543b511-668d-4fda-9fff-d4b35d1e1805" />
 
-* Disc-style scale with three intensity levels – Subtle, Medium and Strong.
-* Cell wrapping (chunk mode) completely reworked. (Please provide feedback on whether it displays correctly on iPhone!)
+* Disc-style scale with three intensity levels – Subtle, Medium, and Strong.
+* Chunk mode completely reworked. (Please provide feedback on whether it displays correctly on iPhone!)
 * Selectable battery type completely reworked and further enhanced.
 * Visual editor expanded and redesigned.
-* Auto wrapping → Auto 4, Auto 8 or Manual.
-* Row height can be adjusted manually in the editor.
-* Minimum cell width can be adjusted manually in the editor.
+* Native Home Assistant editor components for a better editing experience.
+* Cells and additional sensors can now be added, edited, removed, and sorted directly in the visual editor.
+* Custom names and icons for cells and additional sensors.
+* Editor available in German and English.
+* Auto-Chunk mode → Auto4, Auto8, or Manual.
+* Chunk height can be adjusted manually in the editor.
+* Chunk cell width can be adjusted manually in the editor.
 * Optional smooth color gradients for custom scales.
 * Adjustable font size for additional sensors.
+* Improved automatic detection of the lowest and highest cell voltage.
+* Improved balancing and cell voltage difference display.
+* Improved support for voltage sensors using V or mV.
+* `grid_options` for controlling the card size.
 * Significant performance improvements and many other small changes and enhancements.
 
 ### Full changelog: [changelog.md](https://github.com/jinx-22/battery-cell-card/blob/main/changelog.md)
