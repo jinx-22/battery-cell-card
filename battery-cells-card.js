@@ -2,7 +2,7 @@
  * Battery Cells Card – Home Assistant Lovelace card for BMS cell voltages
  * (LiFePO4, NMC/NCM, lead-acid, custom scale).
  */
-const VERSION = '0.9.4';
+const VERSION = '0.9.5';
 console.info(`%c 🔋 Battery Cells Card %c v${VERSION} `, 'background:linear-gradient(90deg,#f00 0%,#f00 2.5%,#ffa500 2.5%,#ffa500 5%,#ff0 5%,#ff0 7.5%,#0e0 7.5%,#0e0 100%);color:#000;font-weight:bold;padding:6px 12px;border-radius:4px;', 'color:#2e7d32;padding:4px 8px;');
 
 /* ── Constants ── */
