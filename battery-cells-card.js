@@ -1,11 +1,11 @@
 /**
- * Battery Cells Card v0.9.4
- * Home Assistant custom Lovelace card – cell voltage / BMS visualisation
+ * Battery Cells Card – Home Assistant Lovelace card for BMS cell voltages
+ * (LiFePO4, NMC/NCM, lead-acid, custom scale).
  */
 const VERSION = '0.9.4';
 console.info(`%c 🔋 Battery Cells Card %c v${VERSION} `, 'background:linear-gradient(90deg,#f00 0%,#f00 2.5%,#ffa500 2.5%,#ffa500 5%,#ff0 5%,#ff0 7.5%,#0e0 7.5%,#0e0 100%);color:#000;font-weight:bold;padding:6px 12px;border-radius:4px;', 'color:#2e7d32;padding:4px 8px;');
 
-/* ───────────── Konstanten ───────────── */
+/* ── Constants ── */
 const PRESETS = {
   lifepo4: [2600, 2800, 3000, 3200, 3380, 3450, 3550, 3650],
   nmc: [3000, 3100, 3300, 3500, 3700, 4000, 4100, 4200],
@@ -18,15 +18,55 @@ const BAR_GRADIENT = 'linear-gradient(to top,#ff0000 0%,#ff0000 5%,#ffa500 5%,#f
 const BATTERY_TYPES = ['lifepo4', 'nmc', 'lead', 'custom'];
 const SLICE_LEVELS = ['subtle', 'medium', 'strong'];
 const CHUNK_MODES = ['auto4', 'auto8', 'manual'];
+const ANIM = {
+  top: { upSec: 2.5, downSec: 4.2, gap: .4, stagger: .15, thickPx: 4, thickK: .014 },
+  tail: { bar1: 50, bar2: 2 },
+  speed: [[.02, .3], [.1, .5], [.5, 1.1], [1, 1.5]],
+  wave: { period: 72, sec: 1.6, stagger: .5 },
+  pulse: { width: 56 },
+  flow: { minPx: 22, maxPx: 80, fullMv: 80, pulseSec: 1.4 }
+};
+/* Basic factor of the charge/discharge animation: speed 1.0 in the editor = internal playback rate 0.5 */
+const SPEED_BASE = .5;
+const speedAt = p => {
+  const T = ANIM.speed;
+  if (p <= T[0][0]) return T[0][1];
+  for (let i = 1; i < T.length; i++) if (p <= T[i][0]) return T[i - 1][1] + (T[i][1] - T[i - 1][1]) * (p - T[i - 1][0]) / (T[i][0] - T[i - 1][0]);
+  return T[T.length - 1][1];
+};
+/* Single source for all animation colours: keys, defaults and editor labels are derived from here */
+const FX_DEFAULT_RGB = { tip1_up: [80, 160, 255], tip1_down: [255, 95, 22], tip2_up: [80, 160, 255], tip2_down: [255, 95, 22], tip3_up: [80, 160, 255], tip3_down: [255, 95, 22], bar1_up: [20, 130, 255], bar1_down: [255, 110, 30], bar2_up: [20, 130, 255], bar2_down: [255, 40, 50], wave_up: [140, 195, 255], wave_down: [255, 30, 30], pulse_up: [140, 195, 255], pulse_down: [255, 30, 30], bf: [45, 115, 255] };
+const COLOR_KEYS = Object.keys(FX_DEFAULT_RGB).map(k => 'color_' + k);
+const parseRgb = v => {
+  if (Array.isArray(v) && v.length >= 3) { const a = v.slice(0, 3).map(Number); return a.every(Number.isFinite) ? a.map(n => Math.max(0, Math.min(255, Math.round(n)))) : null; }
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(v ?? '').trim());
+  return m ? [0, 2, 4].map(i => parseInt(m[1].slice(i, i + 2), 16)) : null;
+};
+const J = c => c.join(',');
+const mixW = (c, k) => c.map(v => Math.round(v * k + 255 * (1 - k)));
+const mixK = (c, k) => c.map(v => Math.round(v * k));
+const FX_VARS = {
+  glow: c => ({ '--ov-g1': J(mixW(c, .25)), '--ov-g2': J(mixW(c, .7)), '--ov-g3': J(c) }),
+  tip: c => ({ '--ov-t1': J(mixK(c, .55)), '--ov-t2': J(c), '--ov-t3': J(mixW(c, .55)), '--ov-t4': J(mixW(c, .15)) }),
+  bar2: c => ({ '--ov-fc': J(c), '--ov-fg': J(mixW(c, .5)), '--ov-fh': `rgb(${J(mixW(c, .1))})` }),
+  bar1: c => FX_VARS.bar2(c),
+  bf: c => ({ '--ov-bo': `rgba(${J(c)},.98)`, '--ov-bg': `rgba(${J(c)},.2)`, '--ov-bg2': `rgba(${J(c)},.3)`, '--ov-bb': `rgba(${J(mixK(c, .16))},.92)`, '--ov-b3': `rgba(${J(c)},.65)`, '--ov-b2': `rgba(${J(mixW(c, .6))},.95)`, '--ov-b1': `rgb(${J(mixW(c, .12))})`, '--ov-b4': `rgb(${J(mixW(c, .25))})`, '--ov-bs': `rgba(${J(mixW(c, .6))},.95)`, '--ov-pf': `rgba(${J(mixW(c, .6))},.9)`, '--ov-ps': `rgba(${J(c)},.7)` })
+};
+const FX_NAMES = [...new Set(Object.values(FX_VARS).flatMap(f => Object.keys(f([0, 0, 0]))))];
+const BF_P = 56;
+const BF_SVG = '<svg class="bfx" aria-hidden="true"><g class="bfg"><path class="bf-g"/><path class="bf-g2"/><path class="bf-o"/><path class="bf-b"/><path class="bf-p bf-p3"/><path class="bf-p bf-p2"/><path class="bf-p bf-p1"/><path class="bf-p bf-p4"/><rect class="bf-pole" rx="1"/><circle class="bf-s bf-s1" r="5"/><circle class="bf-s bf-s2" r="5"/><circle class="bf-d bf-d1" r="1.8"/><circle class="bf-d bf-d2" r="1.8"/></g></svg>';
+const FLOW_TIPS = ['off', 'tip1', 'tip2', 'tip3'], FLOW_BARS = ['off', 'bar1', 'bar2'], FLOW_GLOWS = ['off', 'pulse', 'wave'], FLOW_SPEEDS = ['manual', 'auto'];
 const LEGEND_TOGGLES = ['show_soc_value', 'show_soc_icon', 'show_cell_diff', 'show_sync_icon'];
 const MIN_CELL_W_FLOOR = 40, DEFAULT_MIN_CELL_W = 50, DEFAULT_CELL_H = 340, CELL_H_MIN = 200, CELL_H_MAX = 800;
-const RANGES = { cell_height: [CELL_H_MIN, CELL_H_MAX], min_cell_width: [MIN_CELL_W_FLOOR, 120] };
+const RANGES = { cell_height: [CELL_H_MIN, CELL_H_MAX], min_cell_width: [MIN_CELL_W_FLOOR, 120], flow_max_charge_w: [100, 100000], flow_max_discharge_w: [100, 100000] };
 const GRADIENT_BLEND = 1.1;
 const MV_MAX = 6000, MAX_STOPS = 20, PLACEHOLDER_CELLS = 4;
-const LIMITS = { font_size: [4, 16], cell_gap: [0, 16], container_padding: [0, 40], top_padding: [0, 60], overlay_opacity: [0, 1], cell_diff: [0, 1000], cell_bal_over: [0, MV_MAX] };
+const LIMITS = { font_size: [4, 16], cell_gap: [0, 16], container_padding: [0, 40], top_padding: [0, 60], overlay_opacity: [0, 1], flow_speed: [0.1, 2], flow_speed_auto: [0.2, 2], cell_diff: [0, 1000], cell_bal_over: [0, MV_MAX] };
 
-/* ───────────── Helfer ───────────── */
+/* ── Helpers ── */
 const arr = x => Array.isArray(x) ? x : [];
+const normCell = x => ({ name: x?.name ?? '', entity: x?.entity ?? '' });
+const normExtra = x => ({ name: x?.name || '', entity: x?.entity || '', icon: x?.icon || '' });
 const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ESC[m]);
 const volt = mv => (mv / 1000).toFixed(2) + 'V';
@@ -40,6 +80,19 @@ const pick = (v, list, d) => list.includes(v) ? v : d;
 const safeColor = c => { const s = String(c ?? '').trim(); return s && globalThis.CSS?.supports?.('color', s) ? s : '#00aa00'; };
 const sortKeys = (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : v;
 const sig = o => JSON.stringify(o, sortKeys);
+
+function roundPath(pts, r) {
+  const p = pts.filter((q, i) => !i || q[0] !== pts[i - 1][0] || q[1] !== pts[i - 1][1]);
+  let d = `M${p[0][0]} ${p[0][1]}`;
+  for (let i = 1; i < p.length - 1; i++) {
+    const a = p[i - 1], b = p[i], c = p[i + 1];
+    const l1 = Math.hypot(b[0] - a[0], b[1] - a[1]), l2 = Math.hypot(c[0] - b[0], c[1] - b[1]);
+    const k = Math.min(r, l1 / 2, l2 / 2);
+    d += `L${(b[0] + (a[0] - b[0]) / l1 * k).toFixed(1)} ${(b[1] + (a[1] - b[1]) / l1 * k).toFixed(1)}Q${b[0]} ${b[1]} ${(b[0] + (c[0] - b[0]) / l2 * k).toFixed(1)} ${(b[1] + (c[1] - b[1]) / l2 * k).toFixed(1)}`;
+  }
+  const e = p[p.length - 1];
+  return `${d}L${e[0]} ${e[1]}`;
+}
 
 function largestNiceSize(maxAllowed, minSize, total) {
   let s = minSize;
@@ -84,12 +137,12 @@ function fitStops(list, keep = -1, min = 0) {
   return list.map((s, i) => ({ ...s, mv: mv[i], pct: p[i] }));
 }
 
-/* ───────────── Konfiguration ───────────── */
+/* ── Configuration ── */
 const DEFAULTS = {
   title: 'Battery Cells', theme: '', container_padding: 10, top_padding: 20, cell_gap: 4,
-  use_3d: false, show_slices: false, slice_strength: 'medium',
+  use_3d: false, show_slices: false, slice_strength: 'subtle',
   show_legend: true, show_soc_icon: true, show_soc_value: true, show_sync_icon: true, show_cell_diff: true,
-  show_extra_sensors: false, extra_sensors: [], extra_font_scale: 1, overlay_opacity: .7, font_size: 8,
+  show_extra_sensors: false, show_balance_flow: false, ...Object.fromEntries(COLOR_KEYS.map(k => [k, null])), show_flow: false, flow_sync: false, flow_tip: 'tip1', flow_bar: 'off', flow_glow: 'off', flow_speed_mode: 'manual', flow_speed: 1, flow_speed_auto: 1, flow_max_charge_w: 3000, flow_max_discharge_w: 3000, extra_sensors: [], extra_font_scale: 1, overlay_opacity: .7, font_size: 8,
   soc_entity: null, watt_entity: null, balance_sensor: null, cell_diff_sensor: null,
   cell_diff: 8, cell_bal_over: 3000, cell_unit: 'mV',
   auto_detect_low_high: true, pack_cell_low: null, pack_cell_high: null,
@@ -98,30 +151,34 @@ const DEFAULTS = {
 };
 const stubConfig = () => ({
   ...DEFAULTS,
-  font_size: 5,
+  font_size: 6,
   use_3d: true,
   show_slices: true,
   slice_strength: 'subtle',
   chunk_cells: false,
   chunk_mode: 'auto8',
   cell_height: CELL_H_MIN,
-  soc_entity: 'sensor.status_of',
-  watt_entity: 'sensor.pack',
-  cell_diff_sensor: 'sensor.delta_mvolts_between',
-  cells: Array.from({ length: 8 }, (_, i) => ({ name: `Cell ${i + 1}`, entity: `sensor.test_cell${i + 1}` })),
+  soc_entity: 'sensor.status_of_charge',
+  watt_entity: 'sensor.pack_watt',
+  cell_diff_sensor: 'sensor.delta_mvolts_between_cells',
+  cells: Array.from({ length: 8 }, (_, i) => ({ name: `Cell ${i + 1}`, entity: `sensor.cell${i + 1}` })),
   grid_options: { columns: 24, rows: 6 }
 });
 
 function normalizeConfig(config = {}) {
   const c = { ...DEFAULTS, ...config };
   for (const k in DEFAULTS) if (c[k] == null) c[k] = DEFAULTS[k];
-  c.cells = arr(c.cells).map(x => ({ name: x?.name ?? '', entity: x?.entity ?? '' }));
+  c.cells = arr(c.cells).map(normCell);
   if (!c.cells.length) c.cells = Array.from({ length: PLACEHOLDER_CELLS }, (_, i) => ({ name: String(i + 1), entity: '' }));
-  c.extra_sensors = arr(c.extra_sensors).map(s => ({ name: s?.name || '', entity: s?.entity || '', icon: s?.icon || '' }));
+  c.extra_sensors = arr(c.extra_sensors).map(normExtra);
   c.legend_stops = arr(c.legend_stops).filter(Boolean);
   c.battery_type = pick(c.battery_type, BATTERY_TYPES, 'lifepo4');
-  c.slice_strength = pick(c.slice_strength, SLICE_LEVELS, 'medium');
+  c.slice_strength = pick(c.slice_strength, SLICE_LEVELS, 'subtle');
   c.chunk_mode = pick(c.chunk_mode, CHUNK_MODES, 'auto8');
+  c.flow_tip = pick(c.flow_tip, FLOW_TIPS, 'tip1');
+  c.flow_bar = pick(c.flow_bar, FLOW_BARS, 'off');
+  c.flow_glow = pick(c.flow_glow, FLOW_GLOWS, 'off');
+  c.flow_speed_mode = pick(c.flow_speed_mode, FLOW_SPEEDS, 'manual');
   c.cell_unit = pick(c.cell_unit, ['mV', 'V'], 'mV');
   c.grid_options = { columns: config.grid_options?.columns ?? 12 };
   for (const k in RANGES) c[k] = clamp(c[k], ...RANGES[k], DEFAULTS[k]);
@@ -131,7 +188,7 @@ function normalizeConfig(config = {}) {
   return c;
 }
 
-/* ───────────── Skala ───────────── */
+/* ── Scale ── */
 function buildScale(c) {
   if (c.battery_type === 'custom' && c.legend_stops.length >= 2) return scaleFromStops(c);
   let pts = PRESETS[c.battery_type];
@@ -173,6 +230,7 @@ function scaleFromStops(c) {
     bottom: s?.bottom || null,
     index: i
   })).filter(s => Number.isFinite(s.mv));
+  for (let i = 1; i < stops.length; i++) stops[i].mv = Math.min(stops[i].mv, stops[i - 1].mv - 1);
   const legend = stops.length ? stops.map(s => [s.color, s.pct || 0, s.top, s.bottom]) : [['#00aa00', 100, null, null]];
   let fill;
   if (stops.length >= 2) {
@@ -213,67 +271,56 @@ function formatExtra(st) {
   return { v: String(a >= 100 ? Math.round(n) : +n.toFixed(a >= 10 ? 1 : 2)), u: unit };
 }
 
-/* ───────────── CSS ───────────── */
-const CARD_CSS = `:host{display:block;width:100%;box-sizing:border-box}
-:host([fill]){height:100%}
-.card>*{--u:min(1vw,3.2cqw)}.compact>*{--u:min(1vw,1.8cqw)}
-.card{container-type:inline-size;isolation:isolate;width:100%;box-sizing:border-box;border-radius:var(--ha-card-border-radius,12px);box-shadow:var(--ha-card-box-shadow,0 2px 4px rgba(0,0,0,.1));overflow:hidden;display:flex;flex-direction:column;padding:var(--bcc-pad)}
-.fill{height:100%}
-.sl-subtle{--slh:.1;--sll:.1;--slg:.25;--sla:92%;--slb:95%}.sl-medium{--slh:.2;--sll:.2;--slg:.5;--sla:88%;--slb:92%}.sl-strong{--slh:.4;--sll:.4;--slg:.85;--sla:84%;--slb:86%}
-.title{color:var(--primary-text-color);font-size:var(--bcc-title);font-weight:400;padding:12px 0 var(--bcc-top) 16px;margin:0;flex-shrink:0}
-.extra{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:0 8px 10px 12px;flex-shrink:0}.extra[hidden]{display:none}
-.xi{display:inline-flex;align-items:center;gap:6px;color:var(--primary-text-color);font-family:var(--ha-font-family-body,var(--paper-font-body1_-_font-family,Roboto,Noto,sans-serif));font-size:calc(var(--ha-font-size-m,14px) * var(--bcc-efs,1));font-weight:500;line-height:1.3;padding:2px 4px;border-radius:4px}
-.xi:hover{background:rgba(127,127,127,.12)}
-.xi ha-state-icon{--mdc-icon-size:1.35em;color:var(--primary-color)}
-.xn{color:var(--secondary-text-color);font-weight:400;margin-right:2px}.xv{font-weight:600;font-variant-numeric:tabular-nums}.xu{color:var(--secondary-text-color);font-size:.9em;margin-left:2px}
-[data-e]{cursor:pointer}[data-e]:focus-visible{outline:2px solid var(--primary-color);outline-offset:1px}
-.content{display:flex;flex-direction:column;gap:12px;width:100%;--sh:clamp(1.5px,0.9cqw,6px);--bl:clamp(3px,1.15cqw,9px);--side:max(3px,min(1.2cqw,8px));--frame:clamp(7px,2.2cqw,32px)}
-.d3 .content{padding-top:max(8px,calc(var(--frame)*0.45));box-sizing:border-box}
-.fill .content{flex:1 1 auto;min-height:0}
-.row{display:flex;gap:var(--bcc-gap);align-items:flex-end;width:100%;box-sizing:border-box;height:var(--bcc-cellh);min-height:var(--bcc-cellh);flex:0 0 auto}
-.fill .row{height:auto;min-height:${CELL_H_MIN}px;flex:1 1 var(--bcc-base)}
-.fill .w{display:flex;height:auto;align-self:stretch}
-.fill .bar,.fill .inner{height:auto;flex:1 1 auto}
-.w{position:relative;border-radius:4px;overflow:hidden;box-sizing:border-box;height:100%;flex:1 1 0;min-width:0;padding-block:9px;padding-inline:var(--side)}
-.bar,.inner{position:relative;width:100%;height:100%;border-radius:1px;overflow:hidden}.bar{background:var(--bcc-grad)}.inner{display:flex;flex-direction:column}
-.d3 .bar,.d3 .inner{border-radius:2px}
-.bar::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,.1) 14%,rgba(255,255,255,0) 32%,rgba(0,0,0,0) 66%,rgba(0,0,0,.22) 100%);mix-blend-mode:overlay}
-.d3 .bar::after,.d3 .inner::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:1;box-shadow:inset 0 2px 3px rgba(0,0,0,.45),inset 0 -1px 2px rgba(255,255,255,.1),inset var(--sh) 0 var(--bl) rgba(0,0,0,.55),inset calc(-1*var(--sh)) 0 var(--bl) rgba(0,0,0,.55),inset calc(var(--sh)*2) 0 calc(var(--bl)*1.6) rgba(0,0,0,.28),inset calc(-2*var(--sh)) 0 calc(var(--bl)*1.6) rgba(0,0,0,.28)}
-.sl .bar::after,.sl .inner::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:1;background:linear-gradient(180deg,rgba(255,255,255,var(--slh)) 0,rgba(255,255,255,calc(var(--slh)*.3)) 18%,rgba(255,255,255,0) 40%,rgba(0,0,0,.05) 62%,rgba(0,0,0,var(--sll)) var(--sla),rgba(0,0,0,var(--slg)) var(--slb),rgba(0,0,0,var(--slg)) 100%) 0 0/100% 5% repeat-y}
-.ov{position:absolute;inset:0;background:rgba(0,0,0,var(--bcc-op));z-index:2;pointer-events:none}
-.name,.val{position:absolute;left:50%;transform:translateX(-50%);z-index:3;width:90%;pointer-events:none;text-align:center;color:#fff;text-shadow:0 0 6px #000;font-weight:700;line-height:1.1}
-.name{top:4px;white-space:normal;word-break:break-word;font-size:calc(var(--bcc-fs)*1.2px + .6*var(--u))}
-.val{bottom:4px;display:flex;flex-direction:column;align-items:center;white-space:nowrap;text-shadow:0 1px 2px #000,0 0 4px #000}
-.num{font-size:calc(var(--bcc-fs)*1.5px + .6*var(--u))}.unit{font-size:.85em;line-height:1}
-.seg{position:relative;overflow:hidden;pointer-events:none}
-.lab{position:absolute;left:0;right:0;text-align:center;font-weight:700;color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000;pointer-events:none;font-size:calc(var(--bcc-fs)*1.2px + .5*var(--u));z-index:3}
-.lab.t{top:-3px}.lab.b{bottom:-4px}
-.soc,.diff,.bat,.sync{position:absolute;left:50%;transform:translate(-50%,-50%);z-index:3}
-.soc,.diff{font-weight:700;color:#fff;text-align:center;box-sizing:border-box}
-.soc{top:49%;width:94%;text-shadow:0 0 6px #000;white-space:nowrap;font-size:min(clamp(7px,calc(var(--bcc-fs)*1px + 1.2*var(--u)),18px),calc(var(--bcc-cellh)*.085));line-height:1}
-.diff{top:57%;width:90%;max-width:90%;text-shadow:0 0 3px #000;white-space:normal;font-size:min(clamp(6px,calc(var(--bcc-fs)*.7px + .6*var(--u)),14px),calc(var(--bcc-cellh)*.06));line-height:1}
-.bat{top:36%;filter:drop-shadow(0 0 6px #000);--mdc-icon-size:min(calc(var(--bcc-fs)*2.8px + 1.6*var(--u)),calc(var(--bcc-cellh)*.15))}
-.sync{top:66%;color:#dfeeff;filter:drop-shadow(0 0 16px #000);display:none;--mdc-icon-size:min(calc(var(--bcc-fs)*2.5px + 1.2*var(--u)),calc(var(--bcc-cellh)*.13))}
-.hl{position:absolute;inset:0;border-radius:1px;pointer-events:none;z-index:2;box-sizing:border-box;display:none}
-.d3 .hl{border-radius:2px;top:var(--frame);bottom:var(--frame);left:var(--side);right:var(--side);z-index:2}
-.low>.hl,.high>.hl{display:block;border:4px solid}.compact .low>.hl,.compact .high>.hl{border-width:2px}
-.low>.hl{border-color:#ff6666 #ff7f7f #cc1a1a #e60000}.high>.hl{border-color:#99d1ff #66b3ff #0066dd #3385ff}
-.d3 .w{overflow:visible;padding-block:var(--frame);padding-inline:var(--side);background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,0) 38%,rgba(0,0,0,0) 62%,rgba(0,0,0,.2) 100%),linear-gradient(88deg,#404247 0%,#c9cbce 7%,#dcdee0 10%,#b3b5b9 16%,#93959a 23%,#e4e6e8 30%,#f0f1f2 37%,#b0b2b6 45%,#82848a 56%,#f1f2f3 68%,#62646a 78%,#4c4e54 86%,#f3f4f5 94%,#404247 100%);box-shadow:0 0 0 1px rgba(0,0,0,.28),inset 0 1px 1px rgba(255,255,255,.3),inset 0 -2px 3px rgba(255,255,255,.18),inset 1px 0 1px rgba(255,255,255,.15),inset -1px 0 2px rgba(255,255,255,.16)}
-.d3 .w::after{content:'';position:absolute;inset:calc(var(--frame) - 2px) max(0px,calc(var(--side) - 2px));box-sizing:border-box;border:2px solid;border-color:#d8dadd #e4e5e7 #2c2e33 #6a6c72;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.3);pointer-events:none;z-index:1}
-.d3 .w::before{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:20%;height:clamp(2px,1.2cqw,5px);box-sizing:border-box;background:linear-gradient(180deg,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 40%,rgba(0,0,0,0) 65%,rgba(0,0,0,.35) 100%),linear-gradient(95deg,#34363a 0%,#767880 8%,#b3b5ba 20%,#d8dadd 30%,#a9abaf 42%,#75777b 60%,#575960 80%,#3c3e42 92%,#2c2d31 100%);border:1px solid rgba(255,255,255,.28);border-radius:1px;box-shadow:inset 0 1px 1px rgba(255,255,255,.5),inset 0 -1px 1px rgba(0,0,0,.4);z-index:2;pointer-events:none}
-.flat .w{padding:3px}
-.flat .w::after{content:'';position:absolute;inset:0;box-sizing:border-box;border:2px solid #aeb1b4;border-radius:4px;pointer-events:none;z-index:2;box-shadow:inset 0 1px 0 rgba(255,255,255,.42),inset 1px 0 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(0,0,0,.28),inset -1px 0 0 rgba(0,0,0,.2),0 1px 2px rgba(0,0,0,.2)}
-@container (max-width:600px){.content{--side:max(2px,min(1.2cqw,6px));--frame:clamp(7px,2.2cqw,28px)}}
-@container (max-width:400px){.content{--side:2px;--frame:clamp(6px,2cqw,24px)}}`;
-
-/* ───────────── Karte ───────────── */
+/* ── Styles ── */
+/* Adds the pause between two cycles: scales all keyframe percentages and holds the last frame */
+function withCycleGap(css) {
+  return css.replace(/@keyframes ([\w-]+)\{((?:[^{}]*\{[^{}]*\})+)\}/g, (all, name, body) => {
+    if (/^(wv|bf)-/.test(name)) return all;
+    const total = /-dn$/.test(name) ? ANIM.top.downSec : ANIM.top.upSec, k = Math.max(.5, 1 - ANIM.top.gap / total);
+    let last = '';
+    const frames = body.replace(/([^{}]+)\{([^{}]*)\}/g, (m, sel, decl) => {
+      last = decl.replace(/;?animation-timing-function:cubic-bezier\([^)]*\)/, '');
+      return `${sel.replace(/([\d.]+)%/g, (x, p) => +(p * k).toFixed(2) + '%')}{${decl}}`;
+    });
+    return `@keyframes ${name}{${frames}100%{${last}}}`;
+  });
+}
+/* Cell animations share duration, delay and easing; only the keyframe name differs per element.
+   [selector, keyframe base name] – the keyframes are called <base>-up (charging) and <base>-dn (discharging). */
+const FX_ANIM = [
+  ['.tg', 'tg'], ['.tg:not(.t2):not(.t3)', 'tg1'], ['.tg.t3', 'tg3'], ['.tb.t3', 'tg3'],
+  ['.tb', 'tb'], ['.tg.t2::before', 'tb'], ['.tb.t1', 'tb1'], ['.tg:not(.t2):not(.t3)::after', 'tb1'],
+  ['.tb.t3::before', 't3f'], ['.tb.t3::after', 't3r'], ['.tg.t3::before', 't3s'],
+  ['.tl', 'tl'], ['.tl.l2', 'tl2'], ['.pv::before', 'pv-edge'], ['.pvi', 'pv']
+];
+const FX_ANIM_CSS = `[data-flow=up]{--dur:${ANIM.top.upSec}s}[data-flow=down]{--dur:${ANIM.top.downSec}s}`
+  + `[data-flow] :is(.tg,.tb,.tl,.pvi),[data-flow] :is(.tg,.tb)::before,[data-flow] :is(.tg,.tb)::after,[data-flow] .pv::before{animation-duration:var(--dur);animation-delay:calc(var(--ci,0) * -${ANIM.top.stagger}s);animation-timing-function:linear;animation-iteration-count:infinite}`
+  + FX_ANIM.map(([sel, base]) => `[data-flow=up] ${sel}{animation-name:${base}-up}[data-flow=down] ${sel}{animation-name:${base}-dn}`).join('');
+const CARD_STYLE = withCycleGap(`:host{display:block;width:100%;box-sizing:border-box}:host([fill]){height:100%}.card>*{--u:min(1vw,3.2cqw)}.compact>*{--u:min(1vw,1.8cqw)}.card{position:relative;container-type:inline-size;isolation:isolate;width:100%;box-sizing:border-box;border-radius:var(--ha-card-border-radius,12px);box-shadow:var(--ha-card-box-shadow,0 2px 4px rgba(0,0,0,.1));overflow:hidden;display:flex;flex-direction:column;padding:var(--bcc-pad)}.fill{height:100%}.sl-subtle{--slh:.1;--sll:.1;--slg:.25;--sla:92%;--slb:95%}.sl-medium{--slh:.2;--sll:.2;--slg:.5;--sla:88%;--slb:92%}.sl-strong{--slh:.4;--sll:.4;--slg:.85;--sla:84%;--slb:86%}.title{color:var(--primary-text-color);font-size:var(--bcc-title);font-weight:400;padding:12px 0 var(--bcc-top) 16px;margin:0;flex-shrink:0}.extra{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:0 8px 10px 12px;flex-shrink:0}.extra[hidden]{display:none}.xi{display:inline-flex;align-items:center;gap:6px;color:var(--primary-text-color);font-family:var(--ha-font-family-body,var(--paper-font-body1_-_font-family,Roboto,Noto,sans-serif));font-size:calc(var(--ha-font-size-m,14px) * var(--bcc-efs,1));font-weight:500;line-height:1.3;padding:2px 4px;border-radius:4px}.xi:hover{background:rgba(127,127,127,.12)}.xi ha-state-icon{--mdc-icon-size:1.35em;color:var(--primary-color)}.xn{color:var(--secondary-text-color);font-weight:400;margin-right:2px}.xv{font-weight:600;font-variant-numeric:tabular-nums}.xu{color:var(--secondary-text-color);font-size:.9em;margin-left:2px}[data-e]{cursor:pointer}[data-e]:focus-visible{outline:2px solid var(--primary-color);outline-offset:1px}.content{display:flex;flex-direction:column;gap:12px;width:100%;--sh:clamp(1.5px,0.9cqw,6px);--bl:clamp(3px,1.15cqw,9px);--side:max(3px,min(1.2cqw,8px));--frame:clamp(7px,2.2cqw,32px)}.d3 .content{padding-top:max(8px,calc(var(--frame)*0.45));box-sizing:border-box}.fill .content{flex:1 1 auto;min-height:0}.row{display:flex;gap:var(--bcc-gap);align-items:flex-end;width:100%;box-sizing:border-box;height:var(--bcc-cellh);min-height:var(--bcc-cellh);flex:0 0 auto}.fill .row{height:auto;min-height:${CELL_H_MIN}px;flex:1 1 var(--bcc-base)}.fill .w{display:flex;height:auto;align-self:stretch}.fill .bar,.fill .inner{height:auto;flex:1 1 auto}.w{position:relative;border-radius:4px;overflow:hidden;box-sizing:border-box;height:100%;flex:1 1 0;min-width:0;padding-block:9px;padding-inline:var(--side)}.bar,.inner{position:relative;width:100%;height:100%;border-radius:1px;overflow:hidden}.bar{background:var(--bcc-grad)}.inner{display:flex;flex-direction:column}.d3 .bar,.d3 .inner{border-radius:2px}.bar::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,.1) 14%,rgba(255,255,255,0) 32%,rgba(0,0,0,0) 66%,rgba(0,0,0,.22) 100%);mix-blend-mode:overlay}.d3 .bar::after,.d3 .inner::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:1;box-shadow:inset 0 2px 3px rgba(0,0,0,.45),inset 0 -1px 2px rgba(255,255,255,.1),inset var(--sh) 0 var(--bl) rgba(0,0,0,.55),inset calc(-1*var(--sh)) 0 var(--bl) rgba(0,0,0,.55),inset calc(var(--sh)*2) 0 calc(var(--bl)*1.6) rgba(0,0,0,.28),inset calc(-2*var(--sh)) 0 calc(var(--bl)*1.6) rgba(0,0,0,.28)}.sl .bar::after,.sl .inner::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:1;background:linear-gradient(180deg,rgba(255,255,255,var(--slh)) 0,rgba(255,255,255,calc(var(--slh)*.3)) 18%,rgba(255,255,255,0) 40%,rgba(0,0,0,.05) 62%,rgba(0,0,0,var(--sll)) var(--sla),rgba(0,0,0,var(--slg)) var(--slb),rgba(0,0,0,var(--slg)) 100%) 0 0/100% 5% repeat-y}.ov{position:absolute;inset:0;background:rgba(0,0,0,var(--bcc-op));z-index:2;pointer-events:none}.name,.val{position:absolute;left:50%;transform:translateX(-50%);z-index:3;width:90%;pointer-events:none;text-align:center;color:#fff;text-shadow:0 0 6px #000;font-weight:700;line-height:1.1}.name{top:4px;white-space:normal;word-break:break-word;font-size:calc(var(--bcc-fs)*1.2px + .6*var(--u))}.val{bottom:4px;display:flex;flex-direction:column;align-items:center;white-space:nowrap;text-shadow:0 1px 2px #000,0 0 4px #000}.num{font-size:calc(var(--bcc-fs)*1.5px + .6*var(--u))}.unit{font-size:.85em;line-height:1}.seg{position:relative;overflow:hidden;pointer-events:none}.lab{position:absolute;left:0;right:0;text-align:center;font-weight:700;color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000;pointer-events:none;font-size:calc(var(--bcc-fs)*1.2px + .5*var(--u));z-index:3}.lab.t{top:-3px}.lab.b{bottom:-4px}
+.bar{--th:clamp(17.5px,calc((${ANIM.top.thickPx * 2}px + var(--bcc-cellh) * ${ANIM.top.thickK * 2}) * 1.25),45px)}[data-flow=up] .bar{--t1:var(--ov-t1,44,88,140);--t2:var(--ov-t2,80,160,255);--t3:var(--ov-t3,159,203,255);--t4:var(--ov-t4,229,241,255);--fc:var(--ov-fc,20,130,255);--fg:var(--ov-fg,138,193,255);--fh:var(--ov-fh,#e8f3ff);--fdir:bottom;--fpos:50% 0%}[data-flow=down] .bar{--t1:var(--ov-t1,150,25,12);--t2:var(--ov-t2,255,95,22);--t3:var(--ov-t3,255,175,60);--t4:var(--ov-t4,255,235,175);--fc:var(--ov-fc,255,110,30);--fg:var(--ov-fg,255,190,120);--fh:var(--ov-fh,#fff1d6);--fdir:top;--fpos:50% 100%}
+.tg{--h1:max(5%,8px);display:none;position:absolute;left:0;right:0;bottom:calc(var(--fp,100) * 1% - var(--h1));height:var(--h1);transform-origin:50% 0;z-index:2;pointer-events:none;opacity:0;background-image:linear-gradient(to bottom,rgba(var(--t4),1) 0,rgba(var(--t3),1) 22%,rgba(var(--t2),.92) 70%,rgba(var(--t1),0) 100%)}.tg:not(.t2):not(.t3)::after{content:'';position:absolute;left:0;right:0;top:0;height:70%;pointer-events:none;opacity:0;background:linear-gradient(to bottom,rgba(255,255,255,1) 0,rgba(var(--t4),.85) 35%,rgba(var(--t3),.3) 75%,rgba(var(--t3),0) 100%)}.tg.t2{bottom:calc(var(--fp,100) * 1% - var(--th));height:var(--th);background-image:linear-gradient(to bottom,rgba(var(--t4),.98) 0,rgba(var(--t3),.88) 10%,rgba(var(--t2),.7) 50%,rgba(var(--t2),.26) 78%,rgba(var(--t1),0) 100%)}.tg.t2::before{content:'';position:absolute;left:0;right:0;top:0;height:70%;pointer-events:none;opacity:0;background:linear-gradient(to bottom,rgba(255,255,255,.6) 0,rgba(var(--t4),.4) 40%,rgba(var(--t4),0) 100%)}.tg.t2::after{content:'';position:absolute;left:0;right:0;top:0;height:2px;pointer-events:none;background:rgba(var(--t4),.95);box-shadow:0 0 6px 1px rgba(var(--t3),.8)}.tg.t3{--h3:clamp(9px,3.6%,26px);bottom:calc(var(--fp,100) * 1% - var(--h3));height:var(--h3);background-image:linear-gradient(to bottom,rgba(var(--t4),1) 0,rgba(var(--t3),.92) 20%,rgba(var(--t2),.62) 58%,rgba(var(--t1),0) 100%)}.tg.t3::before{content:'';position:absolute;left:6%;right:6%;bottom:100%;height:calc(var(--th) * 1.7);transform-origin:50% 100%;opacity:0;pointer-events:none;background:radial-gradient(circle at 10% 70%,#fff 0 1.2px,transparent 2.2px),radial-gradient(circle at 24% 38%,rgba(var(--t4),1) 0 1.4px,transparent 2.4px),radial-gradient(circle at 37% 78%,#fff 0 1px,transparent 2px),radial-gradient(circle at 50% 22%,rgba(var(--t4),1) 0 1.6px,transparent 2.6px),radial-gradient(circle at 63% 62%,#fff 0 1.2px,transparent 2.2px),radial-gradient(circle at 76% 30%,rgba(var(--t4),1) 0 1.4px,transparent 2.4px),radial-gradient(circle at 90% 74%,#fff 0 1px,transparent 2px)}.tg.t3::after{content:'';position:absolute;left:0;right:0;top:0;height:2px;pointer-events:none;background:rgba(var(--t4),1);box-shadow:0 0 8px 2px rgba(var(--t3),.9)}.tg.t2.gwn,.tg.t3.gwn,.tb.gwn{left:2px;right:2px}.tb{display:none;position:absolute;left:0;right:0;bottom:calc(var(--fp,100) * 1%);height:calc(var(--th) * .9);z-index:2;pointer-events:none;opacity:0;background:linear-gradient(to top,rgba(var(--t4),.75) 0,rgba(var(--t3),.4) 40%,rgba(var(--t3),0) 100%)}.tb.t1{height:calc(var(--th) * 1.1);background:linear-gradient(to top,rgba(var(--t4),.95) 0,rgba(var(--t3),.55) 40%,rgba(var(--t3),0) 100%)}.tb.t3{height:calc(var(--th) * 1.1)}.tb.t3::before{content:'';position:absolute;left:-6%;right:-6%;bottom:calc(var(--th) * -.9);height:calc(var(--th) * 1.8);opacity:0;pointer-events:none;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(255,255,255,.95) 0,rgba(var(--t4),.8) 18%,rgba(var(--t3),.45) 42%,rgba(var(--t2),0) 75%)}.tb.t3::after{content:'';position:absolute;left:8%;right:8%;bottom:calc(var(--th) * -.5);height:var(--th);box-sizing:border-box;border:2px solid rgba(var(--t4),.95);border-radius:50%;box-shadow:0 0 8px 1px rgba(var(--t3),.8),inset 0 0 6px rgba(var(--t3),.6);opacity:0;pointer-events:none}[data-flow=up] .tg,[data-flow=down] .tg,[data-flow=up] .tb,[data-flow=down] .tb{display:block}
+.ag{display:none;position:absolute;left:0;right:0;bottom:0;height:0;overflow:hidden;z-index:2;pointer-events:none}[data-flow=up] .ag,[data-flow=down] .ag{display:block}.tl{--ft:clamp(2px,calc(var(--bcc-cellh) * .015),8px);--ft2:max(1.5px,calc(var(--ft)*.35));position:absolute;left:0;right:0;top:0;height:100%;opacity:0}.tl::before,.tl::after{content:'';position:absolute;left:0;right:0;pointer-events:none}.tl::before{height:var(--tn,${ANIM.tail.bar1}%);background:linear-gradient(to var(--fdir),rgba(var(--fc),.8) 0,rgba(var(--fc),.58) 10%,rgba(var(--fc),.4) 20%,rgba(var(--fc),.26) 30%,rgba(var(--fc),.16) 40%,rgba(var(--fc),.09) 50%,rgba(var(--fc),.045) 60%,rgba(var(--fc),.018) 70%,rgba(var(--fc),.005) 80%,rgba(var(--fc),0) 100%);-webkit-mask-image:radial-gradient(ellipse 85% 130% at var(--fpos),#000 40%,transparent 100%);mask-image:radial-gradient(ellipse 85% 130% at var(--fpos),#000 40%,transparent 100%)}[data-flow=up] .tl::before{top:0}[data-flow=down] .tl::before{bottom:0}.tl.l2::before{--tn:min(100%,calc(var(--fp,100) * ${ANIM.tail.bar1 * ANIM.tail.bar2 / 100}%))}.tl::after{height:var(--ft2);background:var(--fh);box-shadow:0 0 4px 1px rgba(var(--fg),.9),0 0 12px 3px rgba(var(--fc),.6)}[data-flow=up] .tl::after{top:0}[data-flow=down] .tl::after{bottom:0}.tl.l2{top:auto;bottom:0;height:calc(100% * 100 / var(--fp,100))}
+${FX_ANIM_CSS}
+@keyframes tg-up{0%{opacity:.55;transform:scaleY(.9);animation-timing-function:cubic-bezier(.2,.6,.4,1)}45%{opacity:0;transform:scaleY(.6);animation-timing-function:cubic-bezier(.45,0,.85,.5)}96%{opacity:1;transform:scaleY(1)}100%{opacity:.55;transform:scaleY(.9)}}@keyframes tg-dn{0%{opacity:0;transform:scaleY(.5);animation-timing-function:cubic-bezier(.45,0,.85,.5)}42%{opacity:1;transform:scaleY(1);animation-timing-function:cubic-bezier(.15,.6,.4,1)}100%{opacity:0;transform:scaleY(.85)}}@keyframes tb-up{0%{opacity:.55;animation-timing-function:cubic-bezier(.2,.6,.4,1)}45%{opacity:0;animation-timing-function:cubic-bezier(.45,0,.85,.5)}96%{opacity:1}100%{opacity:.55}}@keyframes tb-dn{0%{opacity:0;animation-timing-function:cubic-bezier(.45,0,.85,.5)}42%{opacity:1;animation-timing-function:cubic-bezier(.15,.6,.4,1)}100%{opacity:0}}
+@keyframes tg1-up{0%{opacity:1;transform:scaleY(1)}6%{opacity:1;transform:scaleY(1);animation-timing-function:cubic-bezier(.2,.6,.4,1)}50%{opacity:0;transform:scaleY(.7);animation-timing-function:cubic-bezier(.45,0,.85,.5)}96%{opacity:1;transform:scaleY(1)}100%{opacity:1;transform:scaleY(1)}}@keyframes tg1-dn{0%{opacity:0;transform:scaleY(.5);animation-timing-function:cubic-bezier(.45,0,.85,.5)}42%{opacity:1;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1);animation-timing-function:cubic-bezier(.2,.6,.4,1)}100%{opacity:0;transform:scaleY(.85)}}@keyframes tb1-up{0%{opacity:1}6%{opacity:1;animation-timing-function:cubic-bezier(.2,.6,.4,1)}50%{opacity:0;animation-timing-function:cubic-bezier(.45,0,.85,.5)}96%{opacity:1}100%{opacity:1}}@keyframes tb1-dn{0%{opacity:0;animation-timing-function:cubic-bezier(.45,0,.85,.5)}42%{opacity:1}50%{opacity:1;animation-timing-function:cubic-bezier(.2,.6,.4,1)}100%{opacity:0}}
+@keyframes tg3-up{0%{opacity:.75}12%{opacity:.45}40%{opacity:.15}70%{opacity:.3}90%{opacity:.5}95%{opacity:.62}96%{opacity:1}100%{opacity:.75}}@keyframes tg3-dn{0%{opacity:.2}10%{opacity:.12}17%{opacity:.3}24%{opacity:.16}31%{opacity:.4}37%{opacity:.26}41%{opacity:.55}42%{opacity:1}52%{opacity:.8}70%{opacity:.45}100%{opacity:.2}}@keyframes t3f-up{0%{opacity:.5;transform:scale(1.2)}7%{opacity:0;transform:scale(1.5)}95%{opacity:0;transform:scale(.3)}96%{opacity:1;transform:scale(.4)}98%{opacity:.85;transform:scale(1)}100%{opacity:.5;transform:scale(1.2)}}@keyframes t3f-dn{0%,41%{opacity:0;transform:scale(.3)}42%{opacity:1;transform:scale(.4)}46%{opacity:.8;transform:scale(1)}56%{opacity:0;transform:scale(1.5)}100%{opacity:0;transform:scale(1.5)}}@keyframes t3r-up{0%{opacity:.55;transform:scale(1)}14%{opacity:0;transform:scale(1.7)}95%{opacity:0;transform:scale(.2)}96%{opacity:.9;transform:scale(.2)}100%{opacity:.55;transform:scale(1)}}@keyframes t3r-dn{0%,41%{opacity:0;transform:scale(.2)}42%{opacity:.9;transform:scale(.2)}50%{opacity:.5;transform:scale(1)}62%{opacity:0;transform:scale(1.7)}100%{opacity:0;transform:scale(1.7)}}@keyframes t3s-up{0%{opacity:.5;transform:scale(1.3)}9%{opacity:0;transform:scale(1.7)}95%{opacity:0;transform:scale(.2)}96%{opacity:1;transform:scale(.25)}100%{opacity:.5;transform:scale(1.3)}}@keyframes t3s-dn{0%,41%{opacity:0;transform:scale(.2)}42%{opacity:1;transform:scale(.25)}52%{opacity:.55;transform:scale(1.2)}60%{opacity:0;transform:scale(1.7)}100%{opacity:0;transform:scale(1.7)}}
+@keyframes tl-up{0%{transform:translateY(100%);opacity:1}96%{transform:translateY(0);opacity:1}100%{transform:translateY(0);opacity:0}}@keyframes tl-dn{0%,41.9%{transform:translateY(-100%);opacity:0}42%{transform:translateY(-100%);opacity:1}94%{transform:translateY(0);opacity:1}100%{transform:translateY(60%);opacity:0}}@keyframes tl2-up{0%{transform:translateY(100%);opacity:1}96%{transform:translateY(calc(100% - var(--fp,100)*1%));opacity:1}100%{transform:translateY(calc(100% - var(--fp,100)*1%));opacity:0}}@keyframes tl2-dn{0%,41.9%{transform:translateY(calc(var(--fp,100)*-1%));opacity:0}42%{transform:translateY(calc(var(--fp,100)*-1%));opacity:1}94%{transform:translateY(0);opacity:1}100%{transform:translateY(60%);opacity:0}}
+.gl{display:none;position:absolute;left:0;right:0;bottom:0;height:0;overflow:hidden;z-index:2;pointer-events:none}[data-flow=up] .gl,[data-flow=down] .gl{display:block}[data-flow=up] .gl{--g1:var(--ov-g1,226,240,255);--g2:var(--ov-g2,175,213,255);--g3:var(--ov-g3,140,195,255)}[data-flow=down] .gl{--g1:var(--ov-g1,255,205,150);--g2:var(--ov-g2,255,80,40);--g3:var(--ov-g3,255,30,30)}.wv{display:none;position:absolute;top:0;bottom:0;left:0;width:34%;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(to right,#000 0,rgba(0,0,0,.55) 35%,transparent 100%);mask-image:linear-gradient(to right,#000 0,rgba(0,0,0,.55) 35%,transparent 100%)}.wv.r{left:auto;right:0;-webkit-mask-image:linear-gradient(to left,#000 0,rgba(0,0,0,.55) 35%,transparent 100%);mask-image:linear-gradient(to left,#000 0,rgba(0,0,0,.55) 35%,transparent 100%)}[data-flow=up] .wv,[data-flow=down] .wv{display:block}.wvi{position:absolute;left:0;right:0;top:0;height:calc(100% + ${ANIM.wave.period}px);background:repeating-linear-gradient(to bottom,rgba(var(--g3),0) 0,rgba(var(--g2),.6) ${ANIM.wave.period / 8}px,rgba(var(--g1),1) ${ANIM.wave.period / 4}px,rgba(var(--g2),.6) ${ANIM.wave.period * .375}px,rgba(var(--g3),0) ${ANIM.wave.period / 2}px,rgba(var(--g3),0) ${ANIM.wave.period}px)}[data-flow=up] .wvi{animation:wv-up ${ANIM.wave.sec}s linear infinite;animation-delay:calc(var(--ci,0)*-${ANIM.wave.stagger}s)}[data-flow=down] .wvi{animation:wv-dn ${ANIM.wave.sec}s linear infinite;animation-delay:calc(var(--ci,0)*-${ANIM.wave.stagger}s)}@keyframes wv-up{from{transform:translateY(0)}to{transform:translateY(-${ANIM.wave.period}px)}}@keyframes wv-dn{from{transform:translateY(-${ANIM.wave.period}px)}to{transform:translateY(0)}}
+.pv{display:none;position:absolute;top:0;bottom:0;left:0;width:${ANIM.pulse.width}%;overflow:hidden;pointer-events:none}.pv.r{left:auto;right:0}[data-flow=up] .pv,[data-flow=down] .pv{display:block}.pv::before{content:'';position:absolute;top:0;bottom:0;left:0;width:3px;background:rgba(var(--g1),.95);box-shadow:0 0 8px 1px rgba(var(--g2),.7);opacity:.45}.pv.r::before{left:auto;right:0}.pvi{position:absolute;inset:0;transform-origin:0 50%;opacity:0;background:linear-gradient(to right,rgba(var(--g2),.75) 0,rgba(var(--g3),.42) 40%,rgba(var(--g3),.16) 72%,rgba(var(--g3),0) 100%)}.pv.r .pvi{transform-origin:100% 50%;background:linear-gradient(to left,rgba(var(--g2),.75) 0,rgba(var(--g3),.42) 40%,rgba(var(--g3),.16) 72%,rgba(var(--g3),0) 100%)}@keyframes pv-up{0%{transform:scaleX(.3);opacity:0;animation-timing-function:cubic-bezier(.45,0,.85,.5)}96%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}@keyframes pv-dn{0%{transform:scaleX(1);opacity:0;animation-timing-function:cubic-bezier(.45,0,.85,.5)}42%{transform:scaleX(.8);opacity:1;animation-timing-function:cubic-bezier(.15,.6,.4,1)}100%{transform:scaleX(.3);opacity:0}}@keyframes pv-edge-up{0%{opacity:.45}96%{opacity:.95}100%{opacity:.45}}@keyframes pv-edge-dn{0%{opacity:.45}42%{opacity:.95}100%{opacity:.45}}@media (prefers-reduced-motion:reduce){.gl,.ag,.tb,.tg{display:none!important}}.paused *,.paused *::before,.paused *::after{animation-play-state:paused!important}
+.soc,.diff,.bat,.sync{position:absolute;left:50%;transform:translate(-50%,-50%);z-index:3}.soc,.diff{font-weight:700;color:#fff;text-align:center;box-sizing:border-box}.soc{top:49%;width:94%;text-shadow:0 0 6px #000;white-space:nowrap;font-size:min(clamp(7px,calc(var(--bcc-fs)*1px + 1.2*var(--u)),18px),calc(var(--bcc-cellh)*.085));line-height:1}.diff{top:57%;width:90%;max-width:90%;text-shadow:0 0 3px #000;white-space:normal;font-size:min(clamp(6px,calc(var(--bcc-fs)*.7px + .6*var(--u)),14px),calc(var(--bcc-cellh)*.06));line-height:1}.bat{top:36%;filter:drop-shadow(0 0 6px #000);--mdc-icon-size:min(calc(var(--bcc-fs)*2.8px + 1.6*var(--u)),calc(var(--bcc-cellh)*.15))}.sync{top:66%;color:#dfeeff;filter:drop-shadow(0 0 16px #000);display:none;--mdc-icon-size:min(calc(var(--bcc-fs)*2.5px + 1.2*var(--u)),calc(var(--bcc-cellh)*.13))}.hl{position:absolute;inset:0;border-radius:1px;pointer-events:none;z-index:2;box-sizing:border-box;display:none}.d3 .hl{border-radius:2px;top:var(--frame);bottom:var(--frame);left:var(--side);right:var(--side);z-index:2}.low>.hl,.high>.hl{display:block;border:4px solid}.compact .low>.hl,.compact .high>.hl{border-width:2px}.low>.hl{border-color:#ff6666 #ff7f7f #cc1a1a #e60000}.high>.hl{border-color:#99d1ff #66b3ff #0066dd #3385ff}.d3 .w{overflow:visible;padding-block:var(--frame);padding-inline:var(--side);background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,0) 38%,rgba(0,0,0,0) 62%,rgba(0,0,0,.2) 100%),linear-gradient(88deg,#404247 0%,#c9cbce 7%,#dcdee0 10%,#b3b5b9 16%,#93959a 23%,#e4e6e8 30%,#f0f1f2 37%,#b0b2b6 45%,#82848a 56%,#f1f2f3 68%,#62646a 78%,#4c4e54 86%,#f3f4f5 94%,#404247 100%);box-shadow:0 0 0 1px rgba(0,0,0,.28),inset 0 1px 1px rgba(255,255,255,.3),inset 0 -2px 3px rgba(255,255,255,.18),inset 1px 0 1px rgba(255,255,255,.15),inset -1px 0 2px rgba(255,255,255,.16)}.d3 .w::after{content:'';position:absolute;inset:calc(var(--frame) - 2px) max(0px,calc(var(--side) - 2px));box-sizing:border-box;border:2px solid;border-color:#d8dadd #e4e5e7 #2c2e33 #6a6c72;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.3);pointer-events:none;z-index:1}.d3 .w::before{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:20%;height:clamp(2px,1.2cqw,5px);box-sizing:border-box;background:linear-gradient(180deg,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 40%,rgba(0,0,0,0) 65%,rgba(0,0,0,.35) 100%),linear-gradient(95deg,#34363a 0%,#767880 8%,#b3b5ba 20%,#d8dadd 30%,#a9abaf 42%,#75777b 60%,#575960 80%,#3c3e42 92%,#2c2d31 100%);border:1px solid rgba(255,255,255,.28);border-radius:1px;box-shadow:inset 0 1px 1px rgba(255,255,255,.5),inset 0 -1px 1px rgba(0,0,0,.4);z-index:2;pointer-events:none}.flat .w{padding:3px}.flat .w::after{content:'';position:absolute;inset:0;box-sizing:border-box;border:2px solid #aeb1b4;border-radius:4px;pointer-events:none;z-index:2;box-shadow:inset 0 1px 0 rgba(255,255,255,.42),inset 1px 0 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(0,0,0,.28),inset -1px 0 0 rgba(0,0,0,.2),0 1px 2px rgba(0,0,0,.2)}
+.bf .content{gap:18px}.flat.bf .content{gap:15px}.bfx{--bfw:4px;position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3;overflow:visible}.compact .bfx{--bfw:3px}.bfg{opacity:0;visibility:hidden;transition:opacity 1s ease,visibility 0s linear 1s}.bfg.on{opacity:1;visibility:visible;transition:opacity 1s ease,visibility 0s}.bfg path,.bfg circle{fill:none}.bf-g,.bf-g2,.bf-o,.bf-b,.bf-p{stroke-linecap:round;stroke-linejoin:round}.bf-g{stroke:var(--ov-bg,rgba(30,100,255,.2));stroke-width:calc(var(--bfw) + 7px);animation:bf-flick 2.6s linear infinite}.bf-g2{stroke:var(--ov-bg2,rgba(60,130,255,.3));stroke-width:calc(var(--bfw) + 3px);animation:bf-flick 1.9s linear infinite}.bf-o{stroke:var(--ov-bo,rgba(45,115,255,.98));stroke-width:var(--bfw)}.bf-b{stroke:var(--ov-bb,rgba(3,10,44,.92));stroke-width:calc(var(--bfw) - 2px)}.bf-p{animation:bf-run 1s linear infinite}.bf-p3{stroke:var(--ov-b3,rgba(40,110,255,.65));stroke-width:calc(var(--bfw) - 2px);stroke-dasharray:30 26;--o:25px}.bf-p2{stroke:var(--ov-b2,rgba(120,175,255,.95));stroke-width:calc((var(--bfw) - 2px)*.8);stroke-dasharray:14 42;--o:9px}.bf-p1{stroke:var(--ov-b1,#eaf3ff);stroke-width:calc((var(--bfw) - 2px)*.5);stroke-dasharray:5 51;--o:0px}.bf-p4{stroke:var(--ov-b4,#cfe0ff);stroke-width:calc((var(--bfw) - 2px)*.35);stroke-dasharray:2 7 1 13 3 17 1 9;animation:bf-run2 .6s linear infinite}.bf-pole{fill:var(--ov-pf,rgba(100,160,255,.9));stroke:var(--ov-ps,rgba(45,115,255,.7));stroke-width:2;animation:bf-pole ${ANIM.flow.pulseSec}s ease-in-out infinite;animation-delay:-${ANIM.flow.pulseSec / 2}s}.bf-s{stroke:var(--ov-bs,rgba(110,170,255,.95));stroke-width:1.2;transform-box:fill-box;transform-origin:center;animation:bf-ring ${ANIM.flow.pulseSec}s ease-out infinite}.bf-s2{animation-delay:-${ANIM.flow.pulseSec / 2}s}.bf-d{fill:#fff!important}@keyframes bf-run{from{stroke-dashoffset:var(--o)}to{stroke-dashoffset:calc(var(--o) - 56px)}}@keyframes bf-run2{from{stroke-dashoffset:0}to{stroke-dashoffset:-53px}}@keyframes bf-ring{from{transform:scale(.3);opacity:.95}to{transform:scale(1.5);opacity:0}}@keyframes bf-pole{0%,100%{opacity:.3}50%{opacity:1}}@keyframes bf-flick{0%,100%{opacity:.85}6%{opacity:.45}9%{opacity:1}34%{opacity:.7}37%{opacity:1}63%{opacity:.5}66%{opacity:.95}85%{opacity:.75}}@media (prefers-reduced-motion:reduce){.bf-p{display:none}.bf-pole,.bf-s,.bf-g,.bf-g2{animation:none}}@container (max-width:600px){.content{--side:max(2px,min(1.2cqw,6px));--frame:clamp(7px,2.2cqw,28px)}}@container (max-width:400px){.content{--side:2px;--frame:clamp(6px,2cqw,24px)}}`);
+/* One constructed stylesheet is shared by all cards (falls back to a <style> per card on old browsers) */
+const SHEET = typeof CSSStyleSheet !== 'undefined' && 'replaceSync' in CSSStyleSheet.prototype ? new CSSStyleSheet() : null;
+SHEET?.replaceSync(CARD_STYLE);
+/* ── Card ── */
 class BatteryCellsCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
     this._c = this._hass = this._scale = this._card = this._ro = null;
     this._sig = ''; this._themeName = ''; this._rt = 0; this._rowCount = 0;
-    this._ids = []; this._prev = [];
+    this._ids = []; this._prev = []; this._rateG = SPEED_BASE; this._io = null; this._paused = false;
+    this._bf = this._bfEls = this._bfRo = null; this._bfKey = ''; this._bfRate = 0; this._bfOk = false; this._bfShown = false; this._bfT = 0; this._bfRaf = this._bfRaf2 = 0; this._bfSt = { on: false, low: 0, high: 0, ratio: 0 };
     this._cells = []; this._extras = []; this._soc = []; this._diff = []; this._bat = []; this._sync = [];
     const handler = e => {
       if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
@@ -283,6 +330,8 @@ class BatteryCellsCard extends HTMLElement {
       if (t.dataset.e) this._moreInfo(t.dataset.e);
     };
     ['click', 'keydown'].forEach(type => this.shadowRoot.addEventListener(type, handler));
+    /* New animations start at 1×; only adjust them when a different tempo is active */
+    this.shadowRoot.addEventListener('animationstart', e => { if (this._rateG !== 1 || this._bfRate) this._setRates(e.target); });
   }
   static getStubConfig() { return stubConfig(); }
   static getConfigElement() { return document.createElement('battery-cells-card-editor'); }
@@ -297,7 +346,7 @@ class BatteryCellsCard extends HTMLElement {
     const c = this._c = normalizeConfig(config);
     this._scale = buildScale(c);
     this._ids = [
-      c.soc_entity, c.watt_entity, c.cell_diff_sensor, c.balance_sensor, c.pack_cell_low, c.pack_cell_high,
+      c.soc_entity, c.watt_entity, c.cell_diff_sensor, c.balance_sensor, ...(c.auto_detect_low_high ? [] : [c.pack_cell_low, c.pack_cell_high]),
       ...c.cells.map(x => x.entity), ...c.extra_sensors.map(x => x.entity)
     ].filter(Boolean);
     this._prev = [];
@@ -331,25 +380,141 @@ class BatteryCellsCard extends HTMLElement {
       }, 250);
     });
     this._ro.observe(this);
+    /* Pause all CSS animations while the card is off screen or hidden */
+    this._io = new IntersectionObserver(([e]) => { this._paused = !e.isIntersecting; this._card?.classList.toggle('paused', this._paused); });
+    this._io.observe(this);
+    this._observeBf();
+    this._settleBf();
+    requestAnimationFrame(() => this._setRates());
   }
   disconnectedCallback() {
     clearTimeout(this._rt);
+    this._bfRo?.disconnect();
+    cancelAnimationFrame(this._bfRaf); cancelAnimationFrame(this._bfRaf2);
+    clearTimeout(this._bfT); this._bfT = 0;
     this._ro?.disconnect();
     this._ro = null;
+    this._io?.disconnect();
+    this._io = null;
   }
   _moreInfo(entityId) {
     this.dispatchEvent(new CustomEvent('hass-more-info', { bubbles: true, composed: true, detail: { entityId } }));
   }
 
+  /* Balancing flow (.bfx) plays at _bfRate, all other animations at _rateG */
+  _setRates(root = this._card) {
+    (root?.getAnimations?.({ subtree: true }) || []).forEach(an => {
+      const r = an.effect?.target?.closest?.('.bfx') ? this._bfRate : this._rateG;
+      if (r && an.playbackRate !== r) an.playbackRate = r;
+    });
+  }
+
+  _applyColors(flow) {
+    const c = this._c, card = this._card;
+    if (!c || !card) return;
+    const dir = flow === 'down' ? 'down' : 'up', vars = {};
+    if (flow && c.show_flow) {
+      const g = c.flow_glow !== 'off' && parseRgb(c[`color_${c.flow_glow}_${dir}`]);
+      if (g) Object.assign(vars, FX_VARS.glow(g));
+      const tp = c.flow_tip !== 'off' && parseRgb(c[`color_${c.flow_tip}_${dir}`]);
+      if (tp) Object.assign(vars, FX_VARS.tip(tp));
+      const b = c.flow_bar !== 'off' && parseRgb(c[`color_${c.flow_bar}_${dir}`]);
+      if (b) Object.assign(vars, FX_VARS[c.flow_bar](b));
+    }
+    const f = c.show_balance_flow && parseRgb(c.color_bf);
+    if (f) Object.assign(vars, FX_VARS.bf(f));
+    FX_NAMES.forEach(n => { if (n in vars) card.style.setProperty(n, vars[n]); else card.style.removeProperty(n); });
+  }
+
+  _observeBf() {
+    this._bfRo?.disconnect();
+    if (!this._bfEls || !this._card || !this.isConnected) return;
+    this._bfRo ??= new ResizeObserver(() => {
+      cancelAnimationFrame(this._bfRaf);
+      this._bfRaf = requestAnimationFrame(() => { if (this._bfOk) this._layoutBf(); });
+    });
+    this._bfRo.observe(this._card);
+    const ct = this._card.querySelector('.content');
+    if (ct) this._bfRo.observe(ct);
+  }
+
+  _settleBf() {
+    if (!this._bfEls) return;
+    this._bfOk = false;
+    cancelAnimationFrame(this._bfRaf2);
+    this._bfRaf2 = requestAnimationFrame(() => { this._bfRaf2 = requestAnimationFrame(() => { this._bfOk = true; this._layoutBf(); }); });
+  }
+
   _measure() {
     const row = !this._c?.chunk_cells && this._card?.querySelector('.row');
     if (row) this._card.style.setProperty('--bcc-cellh', Math.max(CELL_H_MIN, row.offsetHeight) + 'px');
+    this._layoutBf();
+  }
+
+  _layoutBf() {
+    const card = this._card;
+    if (!this._bfEls || !card) { this._bf = null; return; }
+    const rows = [...card.querySelectorAll('.row')];
+    if (!rows.length || !this._cells.length) { this._bf = null; return; }
+    const right = Math.max(...rows.map(r => r.offsetLeft + r.offsetWidth)), padR = Math.max(0, card.clientWidth - right);
+    const w = card.classList.contains('compact') ? 3 : 4;
+    this._bf = {
+      d3: card.classList.contains('d3'), w, cw: card.clientWidth,
+      xr: right + Math.max(w / 2 + .5, Math.min(4, padR / 2)),
+      rows: rows.map(r => ({ top: r.offsetTop, bottom: r.offsetTop + r.offsetHeight })),
+      cells: this._cells.map(({ el }, i) => {
+        const bar = el.querySelector('.bar'), fb = bar ? Math.max(0, el.offsetHeight - (bar.offsetTop + bar.offsetHeight)) : 0, bottom = el.offsetTop + el.offsetHeight;
+        return { i, x: el.offsetLeft + el.offsetWidth / 2, left: el.offsetLeft, right: el.offsetLeft + el.offsetWidth, top: el.offsetTop, bottom, sy: bottom - Math.max(1.5, fb / 2), row: rows.indexOf(el.closest('.row')) };
+      })
+    };
+    this._bfKey = '';
+    this._drawBf();
+  }
+
+  _drawBf() {
+    const g = this._bf, st = this._bfSt, el = this._bfEls;
+    if (!g || !el) return;
+    const S = g.cells[st.high - 1], D = g.cells[st.low - 1], on = !!(this._bfOk && st.on && S && D && S !== D && S.row >= 0 && D.row >= 0);
+    if (!on) {
+      el.g.classList.remove('on'); this._bfShown = false;
+      clearTimeout(this._bfT); this._bfT = 0;
+      return;
+    }
+    const key = `${st.high}|${st.low}`;
+    if (key !== this._bfKey) {
+      if (this._bfShown && this._bfKey) {
+        el.g.classList.remove('on'); this._bfShown = false;
+        clearTimeout(this._bfT);
+        this._bfT = setTimeout(() => { this._bfT = 0; this._bfKey = ''; this._drawBf(); }, 1000);
+        return;
+      }
+      if (this._bfT) return;
+      this._bfKey = key;
+      const tOff = (g.d3 ? 11.5 : 8.5) + g.w / 2, yb = g.rows[S.row].bottom + 3 + g.w / 2, yt = g.rows[D.row].top - tOff, ye = D.top - (g.d3 ? 5 : 3.5);
+      let pts;
+      if (S.row === D.row) {
+        const dir = D.x > S.x ? 1 : -1, N = g.cells[S.i + dir];
+        const gx = N && N.row === S.row ? (dir > 0 ? (S.right + N.left) / 2 : (N.right + S.left) / 2) : g.xr;
+        pts = [[S.x, S.sy], [S.x, yb], [gx, yb], [gx, yt], [D.x, yt], [D.x, ye]];
+      } else if (D.row === S.row + 1) pts = [[S.x, S.sy], [S.x, yt], [D.x, yt], [D.x, ye]];
+      else pts = [[S.x, S.sy], [S.x, yb], [g.xr, yb], [g.xr, yt], [D.x, yt], [D.x, ye]];
+      const d = roundPath(pts, g.w + 1);
+      el.paths.forEach(p => p.setAttribute('d', d));
+      const at = (n, x, y) => { n.setAttribute('cx', x); n.setAttribute('cy', y); };
+      at(el.s1, S.x, S.sy); at(el.d1, S.x, S.sy); at(el.s2, D.x, ye); at(el.d2, D.x, ye);
+      const pw = Math.max(8, (D.right - D.left) * .2), ph = g.d3 ? Math.min(5, Math.max(2, g.cw * .012)) : 3;
+      el.pole.setAttribute('x', D.x - pw / 2); el.pole.setAttribute('y', g.d3 ? D.top - 5 : D.top - 3.5);
+      el.pole.setAttribute('width', pw); el.pole.setAttribute('height', ph);
+    }
+    el.g.classList.add('on'); this._bfShown = true;
+    const rate = (ANIM.flow.minPx + (ANIM.flow.maxPx - ANIM.flow.minPx) * st.ratio) / BF_P;
+    if (!this._bfRate || Math.abs(rate - this._bfRate) > this._bfRate * .15) { this._bfRate = rate; this._setRates(el.svg); }
   }
 
   _env() {
     const c = this._c, w = this.clientWidth || 0, h = this.clientHeight || 0;
     const compact = (w > 0 && w < 420) || (h > 0 && h < 260);
-    const pad = compact ? Math.min(c.container_padding, 6) : c.container_padding;
+    const pad = Math.max(compact ? Math.min(c.container_padding, 6) : c.container_padding, c.show_balance_flow ? (compact ? 6 : 8) : 0);
     const gap = c.cell_gap || 0, n = c.cells.length;
     const minW = Math.max(MIN_CELL_W_FLOOR, Number(c.min_cell_width) || DEFAULT_MIN_CELL_W);
     let size = n, chunk = false;
@@ -385,9 +550,18 @@ class BatteryCellsCard extends HTMLElement {
       + (on('show_sync_icon') ? `<ha-icon class="sync" icon="mdi:sync"${btn(diff, diff)}></ha-icon>` : '')
       + '</div></div>';
   }
-  _cellHtml(cfg) {
+  _cellHtml(cfg, i = 0) {
+    const c = this._c, on = c.show_flow, tip = on ? c.flow_tip : 'off', bar = on ? c.flow_bar : 'off', mode = on ? c.flow_glow : 'off';
+    const gm = mode !== 'off', w = gm ? ' gwn' : '';
     const btn = cfg.entity ? ` data-e="${esc(cfg.entity)}" role="button" tabindex="0"` : '';
-    return `<div class="w cell"${btn} title="${esc(cfg.name || cfg.entity)}"><div class="bar"><div class="ov"></div><div class="name">${esc(cfg.name)}</div><div class="val"><span class="num"></span><span class="unit"></span></div></div><div class="hl"></div></div>`;
+    const side = mode === 'wave' ? '<i class="wv"><i class="wvi"></i></i><i class="wv r"><i class="wvi"></i></i>'
+      : mode === 'pulse' ? '<i class="pv"><i class="pvi"></i></i><i class="pv r"><i class="pvi"></i></i>' : '';
+    const fx = gm ? `<div class="gl ${mode}">${side}</div>` : '';
+    const ag = bar !== 'off' ? `<div class="ag"><i class="tl${bar === 'bar2' ? ' l2' : ''}"></i></div>` : '';
+    const tg = tip === 'tip1' ? '<div class="tg t1"></div><i class="tb t1"></i>'
+      : tip === 'tip2' ? `<div class="tg t2${w}"></div><i class="tb${w}"></i>`
+      : tip === 'tip3' ? `<div class="tg t3${w}"></div><i class="tb t3${w}"></i>` : '';
+    return `<div class="w cell"${btn} style="--ci:${c.flow_sync ? 0 : i}" title="${esc(cfg.name || cfg.entity)}"><div class="bar"><div class="ov"></div>${ag}${tg}${fx}<div class="name">${esc(cfg.name)}</div><div class="val"><span class="num"></span><span class="unit"></span></div></div><div class="hl"></div></div>`;
   }
   _extraHtml(s) {
     const btn = s.entity ? ` data-e="${esc(s.entity)}" role="button" tabindex="0"` : '';
@@ -409,7 +583,7 @@ class BatteryCellsCard extends HTMLElement {
     this.toggleAttribute('fill', !c.chunk_cells);
     const vars = {
       pad: env.pad + 'px',
-      top: (env.compact ? Math.min(c.top_padding, 8) : c.top_padding) + 'px',
+      top: Math.max(env.compact ? Math.min(c.top_padding, 8) : c.top_padding, c.show_balance_flow ? (c.use_3d ? 8 : 12) : 0) + 'px',
       gap: c.cell_gap + 'px',
       efs: c.extra_font_scale,
       fs: env.compact ? Math.min(c.font_size, 8) : c.font_size,
@@ -429,22 +603,30 @@ class BatteryCellsCard extends HTMLElement {
 
     let card = this._card;
     if (!card) {
-      r.innerHTML = `<style>${CARD_CSS}</style><ha-card></ha-card>`;
+      r.innerHTML = SHEET ? '<ha-card></ha-card>' : `<style>${CARD_STYLE}</style><ha-card></ha-card>`;
+      if (SHEET) r.adoptedStyleSheets = [SHEET];
       card = this._card = r.querySelector('ha-card');
     }
-    card.className = `card ${c.use_3d ? 'd3' : 'flat'}${c.chunk_cells ? '' : ' fill'}${env.compact ? ' compact' : ''}${c.show_slices ? ` sl sl-${c.slice_strength}` : ''}`;
+    card.className = `card ${c.use_3d ? 'd3' : 'flat'}${c.chunk_cells ? '' : ' fill'}${env.compact ? ' compact' : ''}${c.show_slices ? ` sl sl-${c.slice_strength}` : ''}${c.show_balance_flow ? ' bf' : ''}${this._paused ? ' paused' : ''}`;
     theme ? card.setAttribute('theme', theme) : card.removeAttribute('theme');
     card.style.cssText = Object.entries(vars).map(([k, v]) => `--bcc-${k}:${v}`).join(';');
+    this._applyColors(card.dataset.flow || '');
     if (theme) this._applyTheme();
     card.innerHTML = `<div class="title">${esc(c.title)}</div>`
       + `<div class="extra"${extra.length ? '' : ' hidden'}>${extra.map(s => this._extraHtml(s)).join('')}</div>`
-      + `<div class="content">${rows.map(row => `<div class="row">${legend}${row.map(cfg => this._cellHtml(cfg)).join('')}</div>`).join('')}</div>`;
+      + `<div class="content">${rows.map((row, ri) => `<div class="row">${legend}${row.map((cfg, j) => this._cellHtml(cfg, ri * env.size + j)).join('')}</div>`).join('')}</div>`
+      + (c.show_balance_flow ? BF_SVG : '');
 
     const all = s => [...r.querySelectorAll(s)], one = (el, s) => el.querySelector(s);
-    this._cells = all('.cell').map(el => ({ el, ov: one(el, '.ov'), num: one(el, '.num'), unit: one(el, '.unit'), entity: el.dataset.e }));
+    this._cells = all('.cell').map(el => ({ el, ov: one(el, '.ov'), num: one(el, '.num'), unit: one(el, '.unit'), gl: one(el, '.gl'), ag: one(el, '.ag'), tg: one(el, '.tg'), tb: one(el, '.tb'), entity: el.dataset.e, fk: '', cls: '' }));
     this._extras = all('.xi').map((el, i) => ({ icon: one(el, 'ha-state-icon'), v: one(el, '.xv'), u: one(el, '.xu'), entity: extra[i]?.entity, cfgIcon: extra[i]?.icon || '', st: undefined, done: false }));
     this._soc = all('.soc'); this._diff = all('.diff'); this._bat = all('.bat'); this._sync = all('.sync');
+    const svg = c.show_balance_flow ? card.querySelector('.bfx') : null;
+    this._bfEls = svg ? { svg, g: svg.querySelector('.bfg'), paths: [...svg.querySelectorAll('.bf-g,.bf-g2,.bf-o,.bf-b,.bf-p')], pole: svg.querySelector('.bf-pole'), s1: svg.querySelector('.bf-s1'), s2: svg.querySelector('.bf-s2'), d1: svg.querySelector('.bf-d1'), d2: svg.querySelector('.bf-d2') } : null;
+    this._bf = null; this._bfKey = ''; this._bfRate = 0; this._bfShown = false; clearTimeout(this._bfT); this._bfT = 0;
     this._measure();
+    this._observeBf();
+    this._settleBf();
   }
 
   _update() {
@@ -489,35 +671,69 @@ class BatteryCellsCard extends HTMLElement {
       if (el.style.color !== color) el.style.color = color;
     });
 
+    const flow = c.show_flow && c.watt_entity ? (watt > 0 ? 'up' : watt < 0 ? 'down' : '') : '';
+    let rateDirty = false;
+    if (flow) {
+      let g = c.flow_speed * SPEED_BASE;
+      if (c.flow_speed_mode === 'auto') {
+        const w = Math.abs(watt) * (/^k/i.test(S[c.watt_entity]?.attributes?.unit_of_measurement || '') ? 1000 : 1);
+        const mx = flow === 'up' ? c.flow_max_charge_w : c.flow_max_discharge_w;
+        g = speedAt(w / Math.max(1, mx)) * c.flow_speed_auto * SPEED_BASE;
+      }
+      if (Math.abs(g - this._rateG) > this._rateG * .05) { this._rateG = g; rateDirty = true; }
+    }
+    if ((this._card.dataset.flow || '') !== flow) {
+      if (flow) this._card.dataset.flow = flow; else delete this._card.dataset.flow;
+      this._applyColors(flow);
+      rateDirty = true;
+    }
+    if (flow && rateDirty) this._setRates();
+
     let minV = Infinity, maxV = -Infinity, minI = null, maxI = null;
     this._cells.forEach((cell, i) => {
       const st = S[cell.entity], mv = toMv(st?.state, st?.attributes?.unit_of_measurement);
       if (mv == null) { put(cell.num, '-'); put(cell.unit, ''); }
       else if (c.cell_unit === 'V') { put(cell.num, (mv / 1000).toFixed(3)); put(cell.unit, 'V'); }
       else { put(cell.num, String(Math.round(mv))); put(cell.unit, 'mV'); }
-      cell.ov.style.height = `${100 - fillPercent(this._scale.fill, mv)}%`;
+      const fp = fillPercent(this._scale.fill, mv), fk = fp.toFixed(2);
+      if (cell.fk !== fk) {
+        cell.fk = fk;
+        const fpc = Math.max(1, fp).toFixed(2);
+        cell.ov.style.height = `${100 - fp}%`;
+        if (cell.gl) cell.gl.style.height = `${fp}%`;
+        if (cell.ag) cell.ag.style.height = `${fp}%`;
+        [cell.gl, cell.ag, cell.tg, cell.tb].forEach(el => el?.style.setProperty('--fp', fpc));
+      }
       if (mv == null) return;
       if (mv < minV) { minV = mv; minI = i + 1; }
       if (mv > maxV) { maxV = mv; maxI = i + 1; }
     });
 
-    const idx = id => { const n = id ? parseInt(S[id]?.state, 10) : NaN; return Number.isFinite(n) ? n : null; };
-    let low = idx(c.pack_cell_low), high = idx(c.pack_cell_high);
-    if (c.auto_detect_low_high && maxV > minV) { low ??= minI; high ??= maxI; }
+    const idx = id => { const n = id ? parseInt(S[id]?.state, 10) : NaN; return Number.isFinite(n) && n >= 1 && n <= this._cells.length ? n : null; };
+    let low = null, high = null;
+    if (c.auto_detect_low_high) { if (maxV > minV) { low = minI; high = maxI; } }
+    else { low = idx(c.pack_cell_low); high = idx(c.pack_cell_high); }
     this._cells.forEach((cell, i) => {
-      cell.el.classList.toggle('low', i + 1 === low);
-      cell.el.classList.toggle('high', i + 1 !== low && i + 1 === high);
+      const cls = i + 1 === low ? 'low' : i + 1 === high ? 'high' : '';
+      if (cell.cls !== cls) { cell.cls = cls; cell.el.classList.remove('low', 'high'); if (cls) cell.el.classList.add(cls); }
     });
 
     const balancing = (c.balance_sensor && String(S[c.balance_sensor]?.state).toLowerCase() === 'on')
       || ((diff || 0) >= c.cell_diff && maxV >= c.cell_bal_over);
     const display = balancing ? 'block' : 'none';
     this._sync.forEach(el => { if (el.style.display !== display) el.style.display = display; });
+
+    if (c.show_balance_flow) {
+      const dmv = diff != null ? diff : (maxV > minV ? maxV - minV : 0);
+      this._bfSt = { on: !!balancing && low != null && high != null && low !== high, low: low || 0, high: high || 0, ratio: clamp(dmv / ANIM.flow.fullMv, .15, 1, .15) };
+      this._drawBf();
+    }
   }
 }
 if (!customElements.get('battery-cells-card')) customElements.define('battery-cells-card', BatteryCellsCard);
 
-/* ───────────── Editor ───────────── */
+/* ── Editor ── */
+/* de only lists the texts that differ from en (_t falls back to en) */
 const I18N = {
   en: {
     cells: 'Cells', add_cell: 'Add Cell', legend_sensors: 'Legend Sensors',
@@ -531,7 +747,14 @@ const I18N = {
     auto_detect_low_high: 'Auto-detect lowest / highest cell',
     pack_cell_low: 'Lowest cell sensor', pack_cell_high: 'Highest cell sensor',
     show_legend: 'Show legend', show_soc_value: 'Show SOC value', show_soc_icon: 'Show charge/discharge icon',
-    show_cell_diff: 'Show cell delta', show_sync_icon: 'Show sync icon',
+    show_cell_diff: 'Show cell delta', show_sync_icon: 'Show sync icon', show_balance_flow: 'Balancing energy flow',
+    show_anim_colors: 'Change animation colors',
+    flow_sync: 'Light up all cells simultaneously (instead of in sequence)',
+    animation: 'Animation', show_flow: 'Charge/discharge animation', flow_tip: 'Glowing cell top',
+    ft_off: 'Off', ft_tip1: 'Glow', ft_tip2: 'Glow (subtle)', ft_tip3: 'Glow (explosion)',
+    flow_bar: 'Running bar', fb_off: 'Off', fb_bar1: 'Running bar 1 (short tail)', fb_bar2: 'Running bar 2 (long tail)',
+    flow_glow: 'Pulse / wave', fg_off: 'Off', fg_pulse: 'Pulse (edge to center)', fg_wave: 'Cell wall energy',
+    flow_speed_mode: 'Speed', fs_manual: 'Constant', fs_auto: 'Power-dependent', flow_speed: 'Speed (×)', flow_speed_auto: 'Speed factor (power-dependent)', flow_max_charge_w: 'Max. charge power (W)', flow_max_discharge_w: 'Max. discharge power (W)',
     show_extra_sensors: 'Show additional sensors', use_3d: '3D frame',
     extra_font_scale: 'Font size for additional sensors',
     show_slices: 'Disc shading', slice_strength: 'Shading strength',
@@ -556,7 +779,7 @@ const I18N = {
     cells: 'Zellen', add_cell: 'Zelle hinzufügen', legend_sensors: 'Legenden-Sensoren',
     balancing_min_max: 'Balancing & Min. Zelle / Max. Zelle', display: 'Anzeige',
     additional_sensors: 'Zusätzliche Sensoren', add_sensor: 'Sensor hinzufügen',
-    title: 'Name', theme: 'Theme', default: 'Standard', name: 'Name', icon: 'Symbol', entity: 'Entität',
+    default: 'Standard', icon: 'Symbol', entity: 'Entität',
     edit: 'Bearbeiten', delete: 'Löschen', move: 'Verschieben',
     soc_entity: 'Ladezustand (SOC)', watt_entity: 'Leistung (W)',
     cell_diff_sensor: 'Zellspannungsdifferenz', balance_sensor: 'Balancing aktiv (optional)',
@@ -565,7 +788,14 @@ const I18N = {
     pack_cell_low: 'Sensor für niedrigste Zelle', pack_cell_high: 'Sensor für höchste Zelle',
     show_legend: 'Legende anzeigen', show_soc_value: 'SOC-Wert anzeigen',
     show_soc_icon: 'Laden-/Entladen-Symbol anzeigen', show_cell_diff: 'Zelldifferenz anzeigen',
-    show_sync_icon: 'Synchronisationssymbol anzeigen',
+    show_sync_icon: 'Synchronisationssymbol anzeigen', show_balance_flow: 'Balancing-Energiefluss',
+    show_anim_colors: 'Animationsfarben ändern',
+    flow_sync: 'Alle Zellen gleichzeitig aufleuchten (statt der Reihe nach)',
+    show_flow: 'Lade-/Entlade-Animation', flow_tip: 'Aufglühende Zellspitze',
+    ft_off: 'Aus', ft_tip1: 'Aufglühen', ft_tip2: 'Aufglühen (dezent)', ft_tip3: 'Aufglühen (Explosion)',
+    flow_bar: 'Laufbalken', fb_off: 'Aus', fb_bar1: 'Laufbalken 1 (kurzer Schweif)', fb_bar2: 'Laufbalken 2 (langer Schweif)',
+    flow_glow: 'Pulsieren / Wabern', fg_off: 'Aus', fg_pulse: 'Pulsieren (Rand zur Mitte)', fg_wave: 'Zellwandenergie',
+    flow_speed_mode: 'Geschwindigkeit', fs_manual: 'Gleichbleibend', fs_auto: 'Leistungsabhängig', flow_speed: 'Geschwindigkeit (×)', flow_speed_auto: 'Tempo-Faktor (leistungsabhängig)', flow_max_charge_w: 'Max. Ladeleistung (W)', flow_max_discharge_w: 'Max. Entladeleistung (W)',
     show_extra_sensors: 'Zusätzliche Sensoren anzeigen', use_3d: '3D-Rahmen',
     extra_font_scale: 'Schriftgröße für zusätzliche Sensoren',
     show_slices: 'Scheiben-Schatten', slice_strength: 'Schattenstärke',
@@ -578,25 +808,35 @@ const I18N = {
     chunk_size: 'Zellen pro Zeile', cell_height: 'Zellenhöhe (px)', min_cell_width: 'Min. Zellenbreite (px)',
     fallback_cell: 'Zelle', fallback_sensor: 'Sensor',
     battery_chemistry: 'Batterie-Chemie', battery_type: 'Batterietyp',
-    type_lifepo4: 'LiFePO4', type_nmc: 'NMC / NCM (Li-Ni-Mn-Co)', type_lead: 'Blei (2V-Zelle)', type_custom: 'Benutzerdefiniert',
+    type_lead: 'Blei (2V-Zelle)', type_custom: 'Benutzerdefiniert',
     preset: 'Farb-Skala-Preset', preset_none: 'Kein Preset', preset1: 'Preset 1 – LiFePO4 Standard', preset2: 'Preset 2 – LiFePO4 Lila / Rosa', preset3: 'Preset 3 – LiFePO4 Sunset', preset4: 'Preset 4 – LiFePO4 Neon', preset5: 'Preset 5 – LiFePO4 Ozean', preset6: 'Preset 6 – NMC / NCM', preset7: 'Preset 7 – Blei (2V-Zelle)',
     custom_min_mv: 'Eigene Min-Spannung (mV)', custom_max_mv: 'Eigene Max-Spannung (mV)',
     custom_scale: 'Benutzerdefinierte Skala', add_stop: 'Skalen-Stufe hinzufügen', scale_gradient: 'Farbverlauf (Zellen + Legende)',
     scale_hint: 'Reihenfolge = Legende von oben nach unten. Je Stufe: Spannung an der Oberkante des Segments (muss nach unten sinken) und Anteil (%) = Segmenthöhe (ergibt immer 100 %). Die Unterkante der untersten Stufe ist die eigene Min-Spannung (Batterie-Chemie). Alles wird automatisch angepasst. Mindestens 2 Stufen nötig, sonst gelten Min-/Max-Spannung.',
-    mv: 'Obergrenze mV', pct: 'Anteil %', top: 'Beschriftung oben', bottom: 'Beschriftung unten', stop_color: 'Farbe', hex: 'Hex-Farbe', h: 'Farbton', s: 'Sättigung', l: 'Helligkeit',
-    unit_mv: 'mV', unit_v: 'V'
+    mv: 'Obergrenze mV', pct: 'Anteil %', top: 'Beschriftung oben', bottom: 'Beschriftung unten', stop_color: 'Farbe', hex: 'Hex-Farbe', h: 'Farbton', s: 'Sättigung', l: 'Helligkeit'
   }
 };
+/* Colour labels: "<animation> – <direction>", built from the keys of FX_DEFAULT_RGB */
+const FX_NAME = {
+  en: { tip1: 'Glow', tip2: 'Glow (subtle)', tip3: 'Glow (explosion)', bar1: 'Running bar 1', bar2: 'Running bar 2', wave: 'Cell wall energy', pulse: 'Pulse', bf: 'Energy flow color' },
+  de: { tip1: 'Aufglühen', tip2: 'Aufglühen (dezent)', tip3: 'Aufglühen (Explosion)', bar1: 'Laufbalken 1', bar2: 'Laufbalken 2', wave: 'Zellwandenergie', pulse: 'Pulsieren', bf: 'Energiefluss – Farbe' }
+};
+const FX_DIR = { en: { up: 'charging color', down: 'discharging color' }, de: { up: 'Farbe Laden', down: 'Farbe Entladen' } };
+for (const l in FX_NAME) for (const k in FX_DEFAULT_RGB) {
+  const [n, d] = k.split('_');
+  I18N[l]['color_' + k] = d ? `${FX_NAME[l][n]} – ${FX_DIR[l][d]}` : FX_NAME[l][n];
+}
 
-const EDITOR_CSS = `.editor{display:flex;flex-direction:column;gap:var(--ha-space-4,8px);container-type:inline-size}.editor ha-form{display:block}.editor .list{display:flex;flex-direction:column;gap:var(--ha-space-2,4px)}.editor .row{display:grid;grid-template-columns:minmax(0,1fr) auto 37px auto;align-items:center;gap:0}.editor ha-icon-button{--ha-icon-button-size:44px;--mdc-icon-button-size:44px}.editor .entity{min-width:0}.editor .handle{width:37px;height:44px;display:flex;align-items:center;justify-content:center;cursor:grab;color:var(--secondary-text-color);touch-action:none}.editor .handle:active{cursor:grabbing}.editor .handle ha-svg-icon{width:24px;height:24px}.editor .detail{grid-column:1/-1}.editor .detail[hidden]{display:none}.editor .hint{color:var(--secondary-text-color);font-size:12px;padding:0 0 8px}.editor .sw{display:flex;align-items:center;gap:4px;padding-right:4px}.editor .sw ha-form{flex:0 0 50%;min-width:0}.editor .sw ha-form+ha-form{flex:0 0 30%}.editor .sample{width:40px;height:56px;flex:none;box-sizing:border-box;border:1px solid var(--divider-color);border-radius:6px;cursor:pointer}.editor .add{padding-top:8px}@container (max-width:480px){.editor .row:has(>.sw){grid-template-columns:minmax(0,1fr) 10cqw 8cqw 10cqw}.editor .row:has(>.sw)>ha-icon-button{--ha-icon-button-size:10cqw;--mdc-icon-button-size:10cqw}.editor .row:has(>.sw)>.handle{width:8cqw}.editor .sw{gap:1cqw;padding-right:0}.editor .sample{flex:0 0 14%;width:auto}.editor .sw ha-form{flex:0 0 44%;--text-field-padding:0 4cqw}.editor .sw ha-form+ha-form{flex:0 0 32%}}`;
+const EDITOR_CSS = `.editor{display:flex;flex-direction:column;gap:var(--ha-space-4,8px);container-type:inline-size}.editor ha-form{display:block}.editor .list{display:flex;flex-direction:column;gap:var(--ha-space-2,4px)}.editor .row{display:grid;grid-template-columns:minmax(0,1fr) auto 37px auto;align-items:center;gap:0}.editor ha-icon-button{--ha-icon-button-size:44px;--mdc-icon-button-size:44px}.editor .entity{min-width:0}.editor .handle{width:37px;height:44px;display:flex;align-items:center;justify-content:center;cursor:grab;color:var(--secondary-text-color);touch-action:none}.editor .handle:active{cursor:grabbing}.editor .handle ha-svg-icon{width:24px;height:24px}.editor .detail{grid-column:1/-1}.editor .detail[hidden]{display:none}.editor .hint{color:var(--secondary-text-color);font-size:12px;padding:0 0 8px}.editor .sw{display:flex;align-items:center;gap:4px;padding-right:4px}.editor .sw ha-form{flex:0 0 50%;min-width:0}.editor .sw ha-form+ha-form{flex:0 0 30%}.editor .sample{width:40px;height:56px;flex:none;box-sizing:border-box;border:1px solid var(--divider-color);border-radius:6px;cursor:pointer}.editor .add{padding-top:8px}.editor .colors{display:flex;flex-direction:column;gap:8px;padding:4px 4px 8px}.editor .colors[hidden]{display:none}.editor .crow{display:flex;align-items:center;gap:12px}.editor .csw{position:relative;width:40px;height:40px;flex:none;box-sizing:border-box;border:1px solid var(--divider-color);border-radius:6px;overflow:hidden;cursor:pointer}.editor .csw input{position:absolute;top:-8px;left:-8px;width:calc(100% + 16px);height:calc(100% + 16px);margin:0;padding:0;border:0;opacity:0;cursor:pointer}.editor .clab{min-width:0;color:var(--primary-text-color);font-size:14px}@container (max-width:480px){.editor .row:has(>.sw){grid-template-columns:minmax(0,1fr) 10cqw 8cqw 10cqw}.editor .row:has(>.sw)>ha-icon-button{--ha-icon-button-size:10cqw;--mdc-icon-button-size:10cqw}.editor .row:has(>.sw)>.handle{width:8cqw}.editor .sw{gap:1cqw;padding-right:0}.editor .sample{flex:0 0 14%;width:auto}.editor .sw ha-form{flex:0 0 44%;--text-field-padding:0 4cqw}.editor .sw ha-form+ha-form{flex:0 0 32%}}`;
 const ICON_EDIT = 'M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.13,5.12L18.88,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z';
 const ICON_DEL = 'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z';
 const ICON_DRAG = 'M6,5H18V7H6V5M6,11H18V13H6V11M6,17H18V19H6V17Z';
 const SENSOR_SELECTOR = { entity: { domain: 'sensor' } };
 const ENTITY_SCHEMA = [{ name: 'entity', selector: SENSOR_SELECTOR }];
 const TEXT_SEL = { text: {} };
-const SCHEMA_KEYS = ['chunk_cells', 'chunk_mode', 'battery_type', 'show_legend', 'show_slices', 'auto_detect_low_high'];
+const SCHEMA_KEYS = ['watt_entity', 'show_flow', 'show_balance_flow', 'flow_tip', 'flow_bar', 'flow_glow', 'flow_speed_mode', 'chunk_cells', 'chunk_mode', 'battery_type', 'show_legend', 'show_slices', 'auto_detect_low_high', 'pack_cell_low', 'pack_cell_high'];
 const ENTITY_KEYS = ['soc_entity', 'watt_entity', 'cell_diff_sensor', 'balance_sensor', 'pack_cell_low', 'pack_cell_high'];
+const CLEAR_DEFAULTS = { theme: 'default', battery_type: 'lifepo4', slice_strength: 'subtle', flow_tip: 'off', flow_bar: 'off', flow_glow: 'off', flow_speed_mode: 'manual', cell_unit: 'mV' };
 const bool = { boolean: {} };
 const numSel = (min, max, step) => ({ number: { min, max, ...(step && { step }), mode: 'box' } });
 const sliderSel = (min, max) => ({ number: { min, max, step: 1, mode: 'slider' } });
@@ -613,6 +853,7 @@ const toHex = c => {
   ctx.fillStyle = '#ffffff'; ctx.fillStyle = s; const v2 = ctx.fillStyle;
   return v1 === v2 && /^#[0-9a-f]{6}$/i.test(v1) ? v1.toLowerCase() : '#00aa00';
 };
+const rgbToHex = c => '#' + c.map(n => n.toString(16).padStart(2, '0')).join('');
 const hexToHsl = hex => {
   const n = parseInt(hex.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
   const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
@@ -634,27 +875,27 @@ const hslToHex = (h, sat, l) => {
 
 const PRESET_PCT = [5, 5, 10, 60, 10, 5, 5];
 const STD_COLORS = ['#ff0000', '#ffa500', '#ffff00', '#00ee00', '#ffff00', '#ffa500', '#ff0000'];
-const LFP_MV = [3650, 3550, 3450, 3380, 3200, 3000, 2800];
-const LFP_TOP = ['3.65V', '3.55V', '3.45V', '3.38V'], LFP_BOT = ['3.20V', '3.00V', '2.80V', '2.60V'];
-const mkPreset = (min, cols, mvs, tops, bots) => ({
-  min,
-  stops: cols.map((color, i) => ({ color, pct: PRESET_PCT[i], mv: mvs[i], top: i < 4 ? tops[i] : '', bottom: i > 2 ? bots[i - 3] : '' }))
-});
+/* Voltages and labels of the scale presets come from PRESETS; only preset 2 uses its own voltage steps */
+const mkPreset = (type, cols, mvs) => {
+  const p = PRESETS[type], mv = mvs || p.slice(1).reverse();
+  return { min: p[0], stops: cols.map((color, i) => ({ color, pct: PRESET_PCT[i], mv: mv[i], top: i < 4 ? volt(p[7 - i]) : '', bottom: i > 2 ? volt(p[6 - i]) : '' })) };
+};
 const SCALE_PRESETS = {
-  preset1: mkPreset(2600, STD_COLORS, LFP_MV, LFP_TOP, LFP_BOT),
-  preset2: mkPreset(2600, ['#380070', '#8d00eb', '#ff05d5', '#ff99f0', '#ff05d5', '#8d00eb', '#380070'], [3650, 3542, 3450, 3380, 3200, 3000, 2800], LFP_TOP, ['3.20V', '3.00V', '2.80V', '2.60V']),
-  preset3: mkPreset(2600, ['#be123c', '#f97316', '#fbbf24', '#10b981', '#fbbf24', '#f97316', '#be123c'], LFP_MV, LFP_TOP, LFP_BOT),
-  preset4: mkPreset(2600, ['#f472b6', '#d946ef', '#a981e9', '#22d3ee', '#a981e9', '#d946ef', '#f472b6'], LFP_MV, LFP_TOP, LFP_BOT),
-  preset5: mkPreset(2600, ['#fd8b8b', '#2563eb', '#38bdf8', '#34d399', '#38bdf8', '#2563eb', '#fd8b8b'], LFP_MV, LFP_TOP, LFP_BOT),
-  preset6: mkPreset(3000, STD_COLORS, [4200, 4100, 4000, 3700, 3500, 3300, 3100], ['4.20V', '4.10V', '4.00V', '3.70V'], ['3.50V', '3.30V', '3.10V', '3.00V']),
-  preset7: mkPreset(1800, STD_COLORS, [2450, 2350, 2250, 2100, 2000, 1900, 1850], ['2.45V', '2.35V', '2.25V', '2.10V'], ['2.00V', '1.90V', '1.85V', '1.80V'])
+  preset1: mkPreset('lifepo4', STD_COLORS),
+  preset2: mkPreset('lifepo4', ['#380070', '#8d00eb', '#ff05d5', '#ff99f0', '#ff05d5', '#8d00eb', '#380070'], [3650, 3542, 3450, 3380, 3200, 3000, 2800]),
+  preset3: mkPreset('lifepo4', ['#be123c', '#f97316', '#fbbf24', '#10b981', '#fbbf24', '#f97316', '#be123c']),
+  preset4: mkPreset('lifepo4', ['#f472b6', '#d946ef', '#a981e9', '#22d3ee', '#a981e9', '#d946ef', '#f472b6']),
+  preset5: mkPreset('lifepo4', ['#fd8b8b', '#2563eb', '#38bdf8', '#34d399', '#38bdf8', '#2563eb', '#fd8b8b']),
+  preset6: mkPreset('nmc', STD_COLORS),
+  preset7: mkPreset('lead', STD_COLORS)
 };
 
 class BatteryCellsCardEditor extends HTMLElement {
   constructor() {
     super();
     this._config = {}; this._hass = null; this._built = false; this._local = ''; this._lang = 'en'; this._forms = [];
-    this._presetForm = this._scalePanel = null; this._stopRefs = [];
+    this._presetForm = this._scalePanel = this._animPanel = this._colorsBox = null; this._balReady = false; this._pwrReady = false; this._hk = null; this._stopRefs = [];
+    this._showColors = false; this._colorsSig = ''; this._colorRefs = [];
   }
   set hass(hass) {
     const first = !this._hass;
@@ -663,8 +904,18 @@ class BatteryCellsCardEditor extends HTMLElement {
     const langChanged = lang !== this._lang;
     this._lang = lang;
     if (langChanged && this._built) return this._build();
-    this.querySelectorAll('ha-form').forEach(f => { f.hass = hass; });
+    this._pushHass(hass, first);
     if (first && this._built) this._syncForms(true);
+    else if (this._built) {
+      if (this._balanceReady() !== this._balReady || this._powerReady() !== this._pwrReady) this._syncForms(true);
+      else this._syncAnim();
+    }
+  }
+  _pushHass(hass, force) {
+    const k = [hass?.locale, hass?.themes, hass?.entities, hass?.devices, hass?.areas, hass?.localize];
+    if (!force && this._hk && !k.some((v, i) => v !== this._hk[i])) return;
+    this._hk = k;
+    this.querySelectorAll('ha-form').forEach(f => { f.hass = hass; });
   }
   setConfig(config) {
     const fresh = !this._built && !Object.keys(this._config).length;
@@ -694,8 +945,9 @@ class BatteryCellsCardEditor extends HTMLElement {
     return {
       ...c,
       theme: c.theme || 'default',
-      cells: arr(c.cells).map(x => ({ name: x?.name || '', entity: x?.entity || '' })),
-      extra_sensors: arr(c.extra_sensors).map(x => ({ name: x?.name || '', entity: x?.entity || '', icon: x?.icon || '' })),
+      ...Object.fromEntries(COLOR_KEYS.map(k => [k, parseRgb(c[k])])),
+      cells: arr(c.cells).map(normCell),
+      extra_sensors: arr(c.extra_sensors).map(normExtra),
       legend_stops: arr(c.legend_stops).map(x => ({
         color: x?.color || '#00aa00',
         pct: Number.isFinite(Number(x?.pct)) && Number(x?.pct) > 0 ? Number(x.pct) : 10,
@@ -706,7 +958,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     };
   }
   _formData() {
-    return { ...this._config, overlay_opacity_pct: Math.round((Number(this._config.overlay_opacity) || 0) * 100) };
+    return { ...this._config, overlay_opacity_pct: Math.round((Number(this._config.overlay_opacity) || 0) * 100), show_anim_colors: this._showColors };
   }
   _entityName(entity, fallback) { return this._hass?.states?.[entity]?.attributes?.friendly_name || fallback; }
   _form(schema, data, onChange, ctx = {}) {
@@ -722,7 +974,6 @@ class BatteryCellsCardEditor extends HTMLElement {
     return form;
   }
 
-  /* ── Schemata ── */
   _topSchema() {
     const themes = Object.keys(this._hass?.themes?.themes || {}).filter(t => t !== 'default').sort().map(t => ({ value: t, label: t }));
     return [
@@ -744,6 +995,74 @@ class BatteryCellsCardEditor extends HTMLElement {
       { name: 'balance_sensor', selector: { entity: {} } }
     ];
   }
+  _animSchema() {
+    const c = this._config, opt = (list, pre) => dropdown(list.map(v => ({ value: v, label: this._t(pre + v) })));
+    const s = [];
+    if (this._balanceReady()) s.push({ name: 'show_balance_flow', selector: bool });
+    if (this._powerReady()) {
+      s.push({ name: 'show_flow', selector: bool });
+      if (c.show_flow) {
+        s.push({ name: 'flow_tip', selector: opt(FLOW_TIPS, 'ft_') }, { name: 'flow_bar', selector: opt(FLOW_BARS, 'fb_') }, { name: 'flow_glow', selector: opt(FLOW_GLOWS, 'fg_') }, { name: 'flow_sync', selector: bool });
+        if (c.flow_tip !== 'off' || c.flow_bar !== 'off' || c.flow_glow !== 'off') {
+          s.push({ name: 'flow_speed_mode', selector: opt(FLOW_SPEEDS, 'fs_') });
+          if (c.flow_speed_mode === 'manual') s.push({ name: 'flow_speed', selector: { number: { min: 0.1, max: 2, step: 0.1, mode: 'slider', unit_of_measurement: '×' } } });
+          else {
+            const w = { number: { min: 100, max: 100000, step: 10, mode: 'box', unit_of_measurement: 'W' } };
+            s.push({ name: 'flow_max_charge_w', selector: w }, { name: 'flow_max_discharge_w', selector: w }, { name: 'flow_speed_auto', selector: { number: { min: 0.2, max: 2, step: 0.1, mode: 'slider', unit_of_measurement: '×' } } });
+          }
+        }
+      }
+    }
+    return s;
+  }
+  _animColorKeys() {
+    const c = this._config, keys = [];
+    if (this._powerReady() && c.show_flow) {
+      for (const k of [c.flow_tip, c.flow_bar, c.flow_glow]) if (k !== 'off') keys.push(`color_${k}_up`, `color_${k}_down`);
+    }
+    if (this._balanceReady() && c.show_balance_flow) keys.push('color_bf');
+    return keys;
+  }
+  _animColorSchema() { return this._animColorKeys().length ? [{ name: 'show_anim_colors', selector: bool }] : []; }
+  _colorHex(key) { return rgbToHex(parseRgb(this._config[key]) || FX_DEFAULT_RGB[key.slice(6)]); }
+  _colorRow(key) {
+    const row = mk('div', 'crow'), sw = mk('div', 'csw'), input = document.createElement('input'), lab = mk('span', 'clab');
+    input.type = 'color';
+    input.addEventListener('input', () => { sw.style.background = input.value; });
+    input.addEventListener('change', () => this._commit({ [key]: parseRgb(input.value) }, [key]));
+    lab.textContent = this._t(key);
+    sw.append(input);
+    row.append(sw, lab);
+    return { key, row, sw, input };
+  }
+  _renderAnimColors() {
+    const box = this._colorsBox;
+    if (!box) return;
+    const keys = this._showColors ? this._animColorKeys() : [];
+    box.hidden = !keys.length;
+    const k = keys.join('|');
+    if (k !== this._colorsSig) {
+      this._colorsSig = k;
+      this._colorRefs = keys.map(key => this._colorRow(key));
+      box.replaceChildren(...this._colorRefs.map(r => r.row));
+    }
+    this._colorRefs.forEach(r => {
+      const hex = this._colorHex(r.key);
+      if (r.input.value !== hex) r.input.value = hex;
+      r.sw.style.background = hex;
+    });
+  }
+  _numOk(id) { const st = id && this._hass?.states?.[id]; return !!st && num1(st.state) != null; }
+  _powerReady() {
+    const id = this._config.watt_entity;
+    return this._numOk(id) || (this._pwrReady && !!id);
+  }
+  _animReady() { return this._powerReady() || this._balanceReady(); }
+  _syncAnim() {
+    if (!this._animPanel) return;
+    const d = this._animReady() ? '' : 'none';
+    if (this._animPanel.style.display !== d) this._animPanel.style.display = d;
+  }
   _balanceSchema() {
     const s = [
       { name: 'cell_diff', selector: numSel(1, 200) },
@@ -752,6 +1071,10 @@ class BatteryCellsCardEditor extends HTMLElement {
     ];
     if (!this._config.auto_detect_low_high) s.push({ name: 'pack_cell_low', selector: SENSOR_SELECTOR }, { name: 'pack_cell_high', selector: SENSOR_SELECTOR });
     return s;
+  }
+  _balanceReady() {
+    const c = this._config;
+    return !!c.auto_detect_low_high || (this._numOk(c.pack_cell_low) && this._numOk(c.pack_cell_high)) || (this._balReady && !!c.pack_cell_low && !!c.pack_cell_high);
   }
   _displaySchema() {
     const cfg = this._config;
@@ -783,7 +1106,6 @@ class BatteryCellsCardEditor extends HTMLElement {
     return [{ name: 'extra_font_scale', selector: { number: { min: 0.7, max: 1.5, step: 0.05, mode: 'slider' } } }];
   }
 
-  /* ── Farbpresets ── */
   _presetKey() {
     const cur = JSON.stringify(this._config.legend_stops || []), min = Number(this._config.custom_min_mv);
     return Object.keys(SCALE_PRESETS).find(k => SCALE_PRESETS[k].min === min && JSON.stringify(SCALE_PRESETS[k].stops) === cur) || '';
@@ -802,7 +1124,6 @@ class BatteryCellsCardEditor extends HTMLElement {
     );
   }
 
-  /* ── Aufbau ── */
   _build() {
     const open = [...this.querySelectorAll('ha-expansion-panel')].map(p => !!p.expanded);
     this.style.display = 'block';
@@ -830,6 +1151,14 @@ class BatteryCellsCardEditor extends HTMLElement {
     addBtn.addEventListener('click', () => this._addStop());
     addStop.append(addBtn);
     this._scalePanel = panel('custom_scale', hint, this._scalePresetForm(), form(this._scaleSchema, ['scale_gradient']), this._sortable('legend_stops'), addStop);
+
+    /* Colour toggle is editor state only (not saved in the config) */
+    const colorFn = this._animColorSchema.bind(this);
+    const colorToggle = this._form(colorFn(), this._formData(), v => { this._showColors = !!v.show_anim_colors; this._syncForms(false); });
+    this._forms.push([colorToggle, colorFn]);
+    this._colorsBox = mk('div', 'colors');
+    this._colorsSig = ''; this._colorRefs = [];
+
     const root = mk('div', 'editor');
     root.append(
       form(this._topSchema, ['title', 'theme']),
@@ -847,6 +1176,10 @@ class BatteryCellsCardEditor extends HTMLElement {
         ...LEGEND_TOGGLES, 'show_legend', 'show_extra_sensors', 'use_3d', 'show_slices', 'slice_strength',
         'cell_unit', 'font_size', 'cell_gap', 'container_padding', 'top_padding', 'overlay_opacity'
       ])),
+      this._animPanel = panel('animation',
+        form(this._animSchema, ['show_balance_flow', 'show_flow', 'flow_tip', 'flow_bar', 'flow_glow', 'flow_sync', 'flow_speed_mode', 'flow_speed', 'flow_speed_auto', 'flow_max_charge_w', 'flow_max_discharge_w']),
+        colorToggle,
+        this._colorsBox),
       panel('chunk_panel', form(this._chunkSchema, ['chunk_cells', 'chunk_mode', 'cell_height', 'min_cell_width', 'chunk_size'])),
       panel('additional_sensors',
         form(this._extraSchema, ['extra_font_scale']),
@@ -860,14 +1193,26 @@ class BatteryCellsCardEditor extends HTMLElement {
         }))
     );
     this.append(style, root);
+    this._accordion(root);
     this._built = true;
-    this.querySelectorAll('ha-expansion-panel').forEach((p, i) => { if (open[i]) p.expanded = true; });
+    const first = open.indexOf(true);
+    if (first >= 0) { const ps = this.querySelectorAll('ha-expansion-panel'); if (ps[first]) ps[first].expanded = true; }
     ['cells', 'extra_sensors', 'legend_stops'].forEach(k => this._renderList(k));
     this._syncForms(false);
     this._local = sig(this._config);
   }
 
+  _accordion(root) {
+    const panels = [...root.querySelectorAll(':scope > ha-expansion-panel')];
+    panels.forEach(p => p.addEventListener('expanded-changed', e => {
+      if (e.target !== p || !e.detail?.expanded) return;
+      panels.forEach(o => { if (o !== p && o.expanded) o.expanded = false; });
+    }));
+  }
+
   _syncForms(schema) {
+    this._balReady = this._balanceReady();
+    this._pwrReady = this._powerReady();
     const data = this._formData();
     this._forms.forEach(([f, fn]) => {
       if (schema) f.schema = fn();
@@ -875,9 +1220,10 @@ class BatteryCellsCardEditor extends HTMLElement {
     });
     if (this._presetForm) this._presetForm.data = { preset: this._presetKey() };
     if (this._scalePanel) this._scalePanel.style.display = this._config.battery_type === 'custom' ? '' : 'none';
+    this._renderAnimColors();
+    this._syncAnim();
   }
 
-  /* ── Listen (Zellen, Zusatzsensoren, Skalenstufen) ── */
   _sortable(kind) {
     const sortable = document.createElement('ha-sortable');
     sortable.setAttribute('handle-selector', '.handle');
@@ -1019,6 +1365,11 @@ class BatteryCellsCardEditor extends HTMLElement {
   }
 
   _commit(partial, fields) {
+    /* Clearing a dropdown (X) falls back to its off/default value */
+    const empty = v => v == null || v === '';
+    partial = { ...partial };
+    fields.forEach(f => { if (f in CLEAR_DEFAULTS && empty(partial[f])) partial[f] = CLEAR_DEFAULTS[f]; });
+    if (fields.includes('chunk_mode') && empty(partial.chunk_mode)) { partial.chunk_mode = this._config.chunk_mode; partial.chunk_cells = false; }
     if (partial.overlay_opacity_pct !== undefined && partial.overlay_opacity_pct !== Math.round((Number(this._config.overlay_opacity) || 0) * 100)) {
       partial = { ...partial, overlay_opacity: partial.overlay_opacity_pct / 100 };
     }
@@ -1028,6 +1379,7 @@ class BatteryCellsCardEditor extends HTMLElement {
       if (partial[f] !== undefined) next[f] = partial[f];
       else if (ENTITY_KEYS.includes(f)) next[f] = null;
     });
+    COLOR_KEYS.forEach(k => { const v = parseRgb(next[k]); next[k] = v && J(v) !== J(FX_DEFAULT_RGB[k.slice(6)]) ? v : null; });
     if (partial.custom_min_mv !== undefined && next.battery_type === 'custom' && next.legend_stops?.length) {
       next.custom_min_mv = Math.min(next.custom_min_mv, Number(next.legend_stops[next.legend_stops.length - 1].mv) - 1);
     }
@@ -1055,7 +1407,7 @@ class BatteryCellsCardEditor extends HTMLElement {
 }
 if (!customElements.get('battery-cells-card-editor')) customElements.define('battery-cells-card-editor', BatteryCellsCardEditor);
 
-/* ───────────── Registrierung ───────────── */
+/* ── Registration ── */
 window.customCards = window.customCards || [];
 if (!window.customCards.some(x => x.type === 'battery-cells-card')) {
   window.customCards.push({
