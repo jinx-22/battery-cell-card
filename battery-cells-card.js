@@ -63,7 +63,7 @@ const flick = p => {
 };
 const FLOW_TIPS = ['off', 'tip1', 'tip2', 'tip3'], FLOW_BARS = ['off', 'bar1', 'bar2'], FLOW_GLOWS = ['off', 'pulse', 'wave'], FLOW_SPEEDS = ['manual', 'auto'];
 const LEGEND_TOGGLES = ['show_soc_value', 'show_soc_icon', 'show_cell_diff', 'show_sync_icon'];
-const MIN_CELL_W_FLOOR = 40, DEFAULT_MIN_CELL_W = 50, DEFAULT_CELL_H = 340, CELL_H_MIN = 200, CELL_H_MAX = 800;
+const MIN_CELL_W_FLOOR = 40, DEFAULT_MIN_CELL_W = 50, DEFAULT_CELL_H = 340, CELL_H_MIN = 280, CELL_H_MAX = 800;
 const RANGES = { cell_height: [CELL_H_MIN, CELL_H_MAX], min_cell_width: [MIN_CELL_W_FLOOR, 120], flow_max_charge_w: [100, 100000], flow_max_discharge_w: [100, 100000] };
 const GRADIENT_BLEND = 1.1;
 const MV_MAX = 6000, MAX_STOPS = 20, PLACEHOLDER_CELLS = 4;
@@ -88,7 +88,7 @@ const sortKeys = (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Obj
 const sig = o => JSON.stringify(o, sortKeys);
 /* Settings that only change CSS variables or live values: applying them does not rebuild the DOM
    (animations keep running, no flicker in the editor preview while a slider is dragged) */
-const LIVE_KEYS = ['flow_speed', 'flow_speed_auto', 'flow_speed_mode', 'flow_max_charge_w', 'flow_max_discharge_w', 'cell_diff', 'cell_bal_over', 'cell_unit', 'overlay_opacity', 'font_size', 'cell_gap', 'container_padding', 'top_padding', 'extra_font_scale', 'watt_entity', 'balance_sensor', 'auto_detect_low_high', 'pack_cell_low', 'pack_cell_high', 'grid_options', 'type', ...COLOR_KEYS];
+const LIVE_KEYS = ['flow_speed', 'flow_speed_auto', 'flow_speed_mode', 'flow_max_charge_w', 'flow_max_discharge_w', 'cell_diff', 'cell_bal_over', 'cell_unit', 'overlay_opacity', 'font_size', 'cell_gap', 'container_padding', 'top_padding', 'extra_font_scale', 'watt_entity', 'balance_sensor', 'auto_detect_low_high', 'pack_cell_low', 'pack_cell_high', 'grid_options', 'type', 'cell_height', ...COLOR_KEYS];
 const structSig = c => { const o = { ...c }; LIVE_KEYS.forEach(k => delete o[k]); return sig(o); };
 
 function roundPath(pts, r) {
@@ -115,6 +115,12 @@ const linesOf = c => {
   if (c.chunk_mode === 'manual') return Math.ceil(n / Math.min(c.chunk_size || 8, n));
   return Math.ceil(n / (c.chunk_mode === 'auto4' ? 4 : 8));
 };
+
+/* HA sections view: card height = rows * 56px + (rows - 1) * 8px. The cell height is the card height minus title, padding etc. */
+const HA_ROW = 56, HA_ROW_GAP = 8, MIN_ROWS = 6;
+const chromePx = c => 41 + c.top_padding + 2 * c.container_padding + (c.use_3d ? 8 : 0) + (c.show_extra_sensors && c.extra_sensors.length ? 32 : 0);
+const rowsFor = c => Math.max(MIN_ROWS, Math.round((c.cell_height + chromePx(c) + HA_ROW_GAP) / (HA_ROW + HA_ROW_GAP)));
+const heightFor = (rows, c) => Math.round(clamp(rows * (HA_ROW + HA_ROW_GAP) - HA_ROW_GAP - chromePx(c), CELL_H_MIN, CELL_H_MAX, DEFAULT_CELL_H));
 
 function fitStops(list, keep = -1, min = 0) {
   const n = list.length;
@@ -167,12 +173,12 @@ const stubConfig = () => ({
   slice_strength: 'subtle',
   chunk_cells: false,
   chunk_mode: 'auto8',
-  cell_height: CELL_H_MIN,
+  cell_height: 351,
   soc_entity: 'sensor.status_of_charge',
   watt_entity: 'sensor.pack_watt',
   cell_diff_sensor: 'sensor.delta_mvolts_between_cells',
   cells: Array.from({ length: 8 }, (_, i) => ({ name: `Cell ${i + 1}`, entity: `sensor.cell${i + 1}` })),
-  grid_options: { columns: 24, rows: 6 }
+  grid_options: { columns: 24, rows: 7 }
 });
 
 function normalizeConfig(config = {}) {
@@ -348,7 +354,7 @@ class BatteryCellsCard extends HTMLElement {
   }
   static getStubConfig() { return stubConfig(); }
   static getConfigElement() { return document.createElement('battery-cells-card-editor'); }
-  getGridOptions() { return { columns: this._c?.grid_options.columns ?? 12, rows: !this._c || this._c.chunk_cells ? 'auto' : 6, min_columns: 10, min_rows: 6 }; }
+  getGridOptions() { return { columns: this._c?.grid_options.columns ?? 12, rows: !this._c || this._c.chunk_cells ? 'auto' : rowsFor(this._c), min_columns: 10, min_rows: MIN_ROWS }; }
   getCardSize() {
     const c = this._c;
     if (!c) return 8;
@@ -616,7 +622,7 @@ class BatteryCellsCard extends HTMLElement {
       }
       if (chunk) size = Math.ceil(n / Math.ceil(n / size));
     }
-    return { compact, chunk, pad, size, sig: `${compact}|${chunk}|${size}|${minW}|${c.cell_height}|${c.chunk_mode}` };
+    return { compact, chunk, pad, size, sig: `${compact}|${chunk}|${size}|${minW}|${c.chunk_mode}` };
   }
 
   _legendHtml() {
@@ -681,7 +687,7 @@ class BatteryCellsCard extends HTMLElement {
     const env = this._env();
     if (env.sig !== this._sig) return false;
     const v = this._vars(env);
-    ['pad', 'top', 'gap', 'efs', 'fs', 'op', 'title'].forEach(k => this._card.style.setProperty(`--bcc-${k}`, v[k]));
+    ['pad', 'top', 'gap', 'efs', 'fs', 'op', 'title', 'base', 'cellh'].forEach(k => this._card.style.setProperty(`--bcc-${k}`, v[k]));
     this._applyColors(this._card.dataset.flow || '');
     this._measure();
     return true;
@@ -866,7 +872,7 @@ const I18N = {
     overlay_opacity_pct: 'Overlay opacity (%)',
     chunk_panel: 'Cell wrapping', chunk_cells: 'Enable cell wrapping', chunk_mode: 'Wrapping mode',
     chunk_auto4: 'Auto 4 cells', chunk_auto8: 'Auto 8 cells', chunk_manual: 'Manual',
-    chunk_size: 'Cells per row', cell_height: 'Cell height (px)', min_cell_width: 'Min. cell width (px)',
+    chunk_size: 'Cells per row', cell_height: 'Cell height', min_cell_width: 'Min. cell width (px)',
     fallback_cell: 'Cell', fallback_sensor: 'Sensor',
     battery_chemistry: 'Battery Chemistry', battery_type: 'Battery type',
     type_lifepo4: 'LiFePO4', type_nmc: 'NMC / NCM (Li-Ni-Mn-Co)', type_lead: 'Lead-Acid (2V cell)', type_custom: 'Custom',
@@ -907,7 +913,7 @@ const I18N = {
     overlay_opacity_pct: 'Deckkraft des Overlays (%)',
     chunk_panel: 'Zellen-Umbruch', chunk_cells: 'Zellen umbrechen aktivieren', chunk_mode: 'Umbruch-Modus',
     chunk_auto4: 'Auto 4 Zellen', chunk_auto8: 'Auto 8 Zellen', chunk_manual: 'Manuell',
-    chunk_size: 'Zellen pro Zeile', cell_height: 'Zellenhöhe (px)', min_cell_width: 'Min. Zellenbreite (px)',
+    chunk_size: 'Zellen pro Zeile', cell_height: 'Zellenhöhe', min_cell_width: 'Min. Zellenbreite (px)',
     fallback_cell: 'Zelle', fallback_sensor: 'Sensor',
     battery_chemistry: 'Batterie-Chemie', battery_type: 'Batterietyp',
     type_lead: 'Blei (2V-Zelle)', type_custom: 'Benutzerdefiniert',
@@ -1027,11 +1033,23 @@ class BatteryCellsCardEditor extends HTMLElement {
     const lists = c => sig([c.cells, c.extra_sensors, c.legend_stops]);
     const listsChanged = lists(this._config) !== lists(next);
     const isOwnEcho = sig(next) === this._local;
+    /* Sections layout <-> cell height: rows changed in HA's layout tab move the slider (the slider moves the rows in _commit) */
+    const rows = next.grid_options?.rows;
+    let synced = false;
+    if (!next.chunk_cells && Number.isFinite(rows)) {
+      if (!this._built) { if (defined.cell_height === undefined && !(fresh && empty)) next.cell_height = heightFor(rows, next); }
+      else if (!isOwnEcho && rows !== this._config.grid_options?.rows) {
+        const h = heightFor(rows, next);
+        synced = h !== this._config.cell_height;
+        next.cell_height = h;
+      }
+    }
     this._config = next;
     if (!this._built) return this._build();
     if (isOwnEcho) return;
     if (listsChanged) ['cells', 'extra_sensors', 'legend_stops'].forEach(k => this._renderList(k));
     this._syncForms(true);
+    if (synced) this._emit();
   }
   _t(key) { return I18N[this._lang]?.[key] ?? I18N.en[key] ?? key; }
   _computeLabel(schema, ctx = {}) {
@@ -1181,6 +1199,7 @@ class BatteryCellsCardEditor extends HTMLElement {
   _displaySchema() {
     const cfg = this._config;
     return [
+      { name: 'cell_height', selector: { number: { min: CELL_H_MIN, max: CELL_H_MAX, step: 1, mode: 'slider', unit_of_measurement: 'px' } } },
       { name: 'font_size', selector: numSel(4, 16, .5) },
       { name: 'overlay_opacity_pct', selector: { number: { min: 0, max: 100, step: 1, mode: 'slider', unit_of_measurement: '%' } } },
       { name: 'cell_gap', selector: numSel(0, 16) },
@@ -1199,7 +1218,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     const cfg = this._config, s = [{ name: 'chunk_cells', selector: bool }];
     if (cfg.chunk_cells) {
       s.push({ name: 'chunk_mode', selector: dropdown(CHUNK_MODES.map(v => ({ value: v, label: this._t('chunk_' + v) }))) });
-      s.push({ name: 'cell_height', selector: numSel(CELL_H_MIN, CELL_H_MAX, 10) }, { name: 'min_cell_width', selector: numSel(MIN_CELL_W_FLOOR, 120) });
+      s.push({ name: 'min_cell_width', selector: numSel(MIN_CELL_W_FLOOR, 120) });
       if (cfg.chunk_mode === 'manual') s.push({ name: 'chunk_size', selector: numSel(2, 32) });
     }
     return s;
@@ -1276,13 +1295,13 @@ class BatteryCellsCardEditor extends HTMLElement {
       panel('balancing_min_max', form(this._balanceSchema, ['cell_diff', 'cell_bal_over', 'auto_detect_low_high', 'pack_cell_low', 'pack_cell_high'])),
       panel('display', form(this._displaySchema, [
         ...LEGEND_TOGGLES, 'show_legend', 'show_extra_sensors', 'use_3d', 'show_slices', 'slice_strength',
-        'cell_unit', 'font_size', 'cell_gap', 'container_padding', 'top_padding', 'overlay_opacity'
+        'cell_unit', 'cell_height', 'font_size', 'cell_gap', 'container_padding', 'top_padding', 'overlay_opacity'
       ])),
       this._animPanel = panel('animation',
         form(this._animSchema, ['show_balance_flow', 'show_flow', 'flow_tip', 'flow_bar', 'flow_glow', 'flow_sync', 'flow_speed_mode', 'flow_speed', 'flow_speed_auto', 'flow_max_charge_w', 'flow_max_discharge_w']),
         colorToggle,
         this._colorsBox),
-      panel('chunk_panel', form(this._chunkSchema, ['chunk_cells', 'chunk_mode', 'cell_height', 'min_cell_width', 'chunk_size'])),
+      panel('chunk_panel', form(this._chunkSchema, ['chunk_cells', 'chunk_mode', 'min_cell_width', 'chunk_size'])),
       panel('additional_sensors',
         form(this._extraSchema, ['extra_font_scale']),
         this._sortable('extra_sensors'),
@@ -1492,7 +1511,10 @@ class BatteryCellsCardEditor extends HTMLElement {
     if ('chunk_cells' in partial && !!partial.chunk_cells !== !!this._config.chunk_cells) {
       const go = { ...this._config.grid_options };
       delete go.rows;
-      next.grid_options = partial.chunk_cells ? go : { ...go, rows: 8 };
+      next.grid_options = partial.chunk_cells ? go : { ...go, rows: rowsFor(next) };
+    }
+    if (!next.chunk_cells && partial.cell_height !== undefined && partial.cell_height !== this._config.cell_height) {
+      next.grid_options = { ...next.grid_options, rows: rowsFor(next) };
     }
     if (partial.battery_type && partial.battery_type !== this._config.battery_type) {
       next.cell_bal_over = BAL_DEFAULT[partial.battery_type] ?? 3000;
