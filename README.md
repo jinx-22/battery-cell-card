@@ -62,7 +62,7 @@ New cards start with 351 px (7 layout rows). Details: [changelog.md](https://git
 - 7 custom battery scale presets - create your own favorite!
 - Toggleable scale color gradient.
 
-[![Skala](https://github.com/user-attachments/assets/2543b511-668d-4fda-9fff-d4b35d1e1805)](https://github.com/user-attachments/assets/2543b511-668d-4fda-9fff-d4b35d1e1805)
+<img width="60%" height="auto" alt="Skala" src="https://github.com/user-attachments/assets/2543b511-668d-4fda-9fff-d4b35d1e1805" />
 
 - Disc-style scale with three intensity levels – Subtle, Medium, and Strong.
 - Chunk mode completely reworked. (Please provide feedback on whether it displays correctly on iPhone!)
