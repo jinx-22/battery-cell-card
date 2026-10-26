@@ -8,8 +8,8 @@
 [![Donate Bitcoin](https://img.shields.io/badge/Bitcoin-Donate-F7931A?style=flat&logo=bitcoin&logoColor=white)](#bitcoin)
 [![Donate Lightning](https://img.shields.io/badge/%E2%9A%A1-Lightning-FFD700?style=flat)](#lightning)
 
-# Battery Cells Card - Cell-(real-time) monitoring
-
+**Description:** A Home Assistant custom card to visualize battery cells, cell voltages, SOC, balancing status, and differences.  
+Ideal for LiFePO₄ battery systems, also for NMC/NCM and lead-acid.
 *(Link to German version: [Deutsch](README_DE.md))*
 
 **Version:** 0.9.3
