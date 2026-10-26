@@ -56,7 +56,7 @@ New cards start with 351 px (7 layout rows). Details: [changelog.md](https://git
 
 - New 3D look → chrome-finished battery housing.
 
-[![3d-w](https://github.com/user-attachments/assets/0fcbeab4-91fe-4651-b412-3fd7f194c292)](https://github.com/user-attachments/assets/0fcbeab4-91fe-4651-b412-3fd7f194c292)[![3d](https://github.com/user-attachments/assets/7342d1fd-bfd2-45d1-8b37-cf5ead4f8f74)](https://github.com/user-attachments/assets/7342d1fd-bfd2-45d1-8b37-cf5ead4f8f74)
+<img width="30%" height="auto" alt="3d-w" src="https://github.com/user-attachments/assets/0fcbeab4-91fe-4651-b412-3fd7f194c292" /><img width="30%" height="auto" alt="3d" src="https://github.com/user-attachments/assets/7342d1fd-bfd2-45d1-8b37-cf5ead4f8f74" />
 
 - Create a fully customized battery scale directly in the visual editor (voltage points, colors, segment heights, labels).
 - 7 custom battery scale presets - create your own favorite!
