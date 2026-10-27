@@ -312,7 +312,7 @@ const FX_ANIM = [
 const FX_ANIM_CSS = `[data-flow=up]{--dur:${ANIM.top.upSec}s}[data-flow=down]{--dur:${ANIM.top.downSec}s}`
   + `[data-flow] :is(.tg,.tb,.tl,.pvi,.pt),[data-flow] :is(.tg,.tb)::before,[data-flow] :is(.tg,.tb)::after,[data-flow] .pv::before{animation-duration:var(--dur);animation-delay:calc(var(--ci,0) * -${ANIM.top.stagger}s);animation-timing-function:linear;animation-iteration-count:infinite}`
   + FX_ANIM.map(([sel, base]) => `[data-flow=up] ${sel}{animation-name:${base}-up}[data-flow=down] ${sel}{animation-name:${base}-dn}`).join('');
-const CARD_STYLE = withCycleGap(`:host{display:block;width:100%;box-sizing:border-box}:host([fill]){height:100%}.card>*{--u:min(1vw,3.2cqw)}.compact>*{--u:min(1vw,1.8cqw)}.card{position:relative;container-type:inline-size;isolation:isolate;width:100%;box-sizing:border-box;border-radius:var(--ha-card-border-radius,12px);box-shadow:var(--ha-card-box-shadow,0 2px 4px rgba(0,0,0,.1));overflow:hidden;display:flex;flex-direction:column;padding:var(--bcc-pad)}.fill{height:100%}.sl-subtle{--slh:.1;--sll:.1;--slg:.25;--sla:92%;--slb:95%}.sl-medium{--slh:.2;--sll:.2;--slg:.5;--sla:88%;--slb:92%}.sl-strong{--slh:.4;--sll:.4;--slg:.85;--sla:84%;--slb:86%}.title{color:var(--primary-text-color);font-size:var(--bcc-title);font-weight:400;padding:12px 0 var(--bcc-top) 16px;margin:0;flex-shrink:0}.extra{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:0 8px 10px 12px;flex-shrink:0}.extra[hidden]{display:none}.xi{display:inline-flex;align-items:center;gap:6px;color:var(--primary-text-color);font-family:var(--ha-font-family-body,var(--paper-font-body1_-_font-family,Roboto,Noto,sans-serif));font-size:calc(var(--ha-font-size-m,14px) * var(--bcc-efs,1));font-weight:500;line-height:1.3;padding:2px 4px;border-radius:4px}.xi:hover{background:rgba(127,127,127,.12)}.xi ha-state-icon{--mdc-icon-size:1.35em;color:var(--primary-color)}.xn{color:var(--secondary-text-color);font-weight:400;margin-right:2px}.xv{font-weight:600;font-variant-numeric:tabular-nums}.xu{color:var(--secondary-text-color);font-size:.9em;margin-left:2px}[data-e]{cursor:pointer}[data-e]:focus-visible{outline:2px solid var(--primary-color);outline-offset:1px}.content{display:flex;flex-direction:column;gap:12px;width:100%;--sh:clamp(1.5px,0.9cqw,6px);--bl:clamp(3px,1.15cqw,9px);--side:max(3px,min(1.2cqw,8px));--frame:clamp(7px,2.2cqw,32px)}.d3 .content{padding-top:max(8px,calc(var(--frame)*0.45));box-sizing:border-box}.fill .content{flex:1 1 auto;min-height:0}.row{display:flex;gap:var(--bcc-gap);align-items:flex-end;width:100%;box-sizing:border-box;height:var(--bcc-cellh);min-height:var(--bcc-cellh);flex:0 0 auto}.fill .row{height:auto;min-height:${CELL_H_MIN}px;flex:1 1 var(--bcc-base)}.fill .w{display:flex;height:auto;align-self:stretch}.fill .bar,.fill .inner{height:auto;flex:1 1 auto}.w{position:relative;border-radius:4px;overflow:hidden;box-sizing:border-box;height:100%;flex:1 1 0;min-width:0;padding-block:9px;padding-inline:var(--side)}.bar,.inner{position:relative;width:100%;height:100%;border-radius:1px;overflow:hidden}.bar{background:var(--bcc-grad)}.inner{display:flex;flex-direction:column}.d3 .bar,.d3 .inner{border-radius:2px}.bar::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,.1) 14%,rgba(255,255,255,0) 32%,rgba(0,0,0,0) 66%,rgba(0,0,0,.22) 100%);mix-blend-mode:overlay}.d3 .bar::after,.d3 .inner::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:1;box-shadow:inset 0 2px 3px rgba(0,0,0,.45),inset 0 -1px 2px rgba(255,255,255,.1),inset var(--sh) 0 var(--bl) rgba(0,0,0,.55),inset calc(-1*var(--sh)) 0 var(--bl) rgba(0,0,0,.55),inset calc(var(--sh)*2) 0 calc(var(--bl)*1.6) rgba(0,0,0,.28),inset calc(-2*var(--sh)) 0 calc(var(--bl)*1.6) rgba(0,0,0,.28)}.sl .bar::after,.sl .inner::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:1;background:linear-gradient(180deg,rgba(255,255,255,var(--slh)) 0,rgba(255,255,255,calc(var(--slh)*.3)) 18%,rgba(255,255,255,0) 40%,rgba(0,0,0,.05) 62%,rgba(0,0,0,var(--sll)) var(--sla),rgba(0,0,0,var(--slg)) var(--slb),rgba(0,0,0,var(--slg)) 100%) 0 0/100% 5% repeat-y}.ov{position:absolute;inset:0;background:rgba(0,0,0,var(--bcc-op));z-index:2;pointer-events:none}.name,.val{position:absolute;left:50%;transform:translateX(-50%);z-index:3;width:90%;pointer-events:none;text-align:center;color:#fff;text-shadow:0 0 6px #000;font-weight:700;line-height:1.1}.name{top:4px;white-space:normal;word-break:break-word;font-size:calc(var(--bcc-fs)*1.2px + .6*var(--u))}.val{bottom:4px;display:flex;flex-direction:column;align-items:center;white-space:nowrap;text-shadow:0 1px 2px #000,0 0 4px #000}.num{font-size:calc(var(--bcc-fs)*1.5px + .6*var(--u))}.unit{font-size:.85em;line-height:1}.seg{position:relative;overflow:hidden;pointer-events:none}.lab{position:absolute;left:0;right:0;text-align:center;font-weight:700;color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000;pointer-events:none;font-size:calc(var(--bcc-fs)*1.2px + .5*var(--u));z-index:3}.lab.t{top:-3px}.lab.b{bottom:-4px}
+const CARD_STYLE = withCycleGap(`:host{display:block;width:100%;box-sizing:border-box}:host([fill]){height:100%}.card>*{--u:min(1vw,3.2cqw)}.compact>*{--u:min(1vw,1.8cqw)}.card{position:relative;container-type:inline-size;isolation:isolate;width:100%;box-sizing:border-box;border-radius:var(--ha-card-border-radius,12px);box-shadow:var(--ha-card-box-shadow,0 2px 4px rgba(0,0,0,.1));overflow:hidden;display:flex;flex-direction:column;padding:var(--bcc-pad)}.fill{height:100%}.sl-subtle{--slh:.1;--sll:.1;--slg:.25;--sla:92%;--slb:95%}.sl-medium{--slh:.2;--sll:.2;--slg:.5;--sla:88%;--slb:92%}.sl-strong{--slh:.4;--sll:.4;--slg:.85;--sla:84%;--slb:86%}.title{color:var(--ha-card-header-color,var(--primary-text-color));font-family:var(--ha-card-header-font-family,inherit);font-size:var(--ha-card-header-font-size,var(--ha-font-size-2xl,24px));font-weight:var(--ha-font-weight-normal,400);line-height:var(--ha-line-height-condensed,1.25);padding:12px 0 var(--bcc-top) 16px;margin:0;flex-shrink:0}.extra{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:0 8px 10px 12px;flex-shrink:0}.extra[hidden]{display:none}.xi{display:inline-flex;align-items:center;gap:6px;color:var(--primary-text-color);font-family:var(--ha-font-family-body,var(--paper-font-body1_-_font-family,Roboto,Noto,sans-serif));font-size:calc(var(--ha-font-size-m,14px) * var(--bcc-efs,1));font-weight:500;line-height:1.3;padding:2px 4px;border-radius:4px}.xi:hover{background:rgba(127,127,127,.12)}.xi ha-state-icon{--mdc-icon-size:1.35em;color:var(--primary-color)}.xn{color:var(--secondary-text-color);font-weight:400;margin-right:2px}.xv{font-weight:600;font-variant-numeric:tabular-nums}.xu{color:var(--secondary-text-color);font-size:.9em;margin-left:2px}[data-e]{cursor:pointer}[data-e]:focus-visible{outline:2px solid var(--primary-color);outline-offset:1px}.content{display:flex;flex-direction:column;gap:12px;width:100%;--sh:clamp(1.5px,0.9cqw,6px);--bl:clamp(3px,1.15cqw,9px);--side:max(3px,min(1.2cqw,8px));--frame:clamp(7px,2.2cqw,32px)}.d3 .content{padding-top:max(8px,calc(var(--frame)*0.45));box-sizing:border-box}.fill .content{flex:1 1 auto;min-height:0}.row{display:flex;gap:var(--bcc-gap);align-items:flex-end;width:100%;box-sizing:border-box;height:var(--bcc-cellh);min-height:var(--bcc-cellh);flex:0 0 auto}.fill .row{height:auto;min-height:${CELL_H_MIN}px;flex:1 1 var(--bcc-base)}.fill .w{display:flex;height:auto;align-self:stretch}.fill .bar,.fill .inner{height:auto;flex:1 1 auto}.w{position:relative;border-radius:4px;overflow:hidden;box-sizing:border-box;height:100%;flex:1 1 0;min-width:0;padding-block:9px;padding-inline:var(--side)}.bar,.inner{position:relative;width:100%;height:100%;border-radius:1px;overflow:hidden}.bar{background:var(--bcc-grad)}.inner{display:flex;flex-direction:column}.d3 .bar,.d3 .inner{border-radius:2px}.bar::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,.1) 14%,rgba(255,255,255,0) 32%,rgba(0,0,0,0) 66%,rgba(0,0,0,.22) 100%);mix-blend-mode:overlay}.d3 .bar::after,.d3 .inner::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:1;box-shadow:inset 0 2px 3px rgba(0,0,0,.45),inset 0 -1px 2px rgba(255,255,255,.1),inset var(--sh) 0 var(--bl) rgba(0,0,0,.55),inset calc(-1*var(--sh)) 0 var(--bl) rgba(0,0,0,.55),inset calc(var(--sh)*2) 0 calc(var(--bl)*1.6) rgba(0,0,0,.28),inset calc(-2*var(--sh)) 0 calc(var(--bl)*1.6) rgba(0,0,0,.28)}.sl .bar::after,.sl .inner::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:1;background:linear-gradient(180deg,rgba(255,255,255,var(--slh)) 0,rgba(255,255,255,calc(var(--slh)*.3)) 18%,rgba(255,255,255,0) 40%,rgba(0,0,0,.05) 62%,rgba(0,0,0,var(--sll)) var(--sla),rgba(0,0,0,var(--slg)) var(--slb),rgba(0,0,0,var(--slg)) 100%) 0 0/100% 5% repeat-y}.ov{position:absolute;inset:0;background:rgba(0,0,0,var(--bcc-op));z-index:2;pointer-events:none}.name,.val{position:absolute;left:50%;transform:translateX(-50%);z-index:3;width:90%;pointer-events:none;text-align:center;color:#fff;text-shadow:0 0 6px #000;font-weight:700;line-height:1.1}.name{top:4px;white-space:normal;word-break:break-word;font-size:min(calc(var(--bcc-fs)*1.2px + .6*var(--u)),calc(var(--bcc-nummax,999px)*.8))}.val{width:100%;bottom:4px;display:flex;flex-direction:column;align-items:center;white-space:nowrap;text-shadow:0 1px 2px #000,0 0 4px #000}.num{font-size:min(calc(var(--bcc-fs)*1.5px + .6*var(--u)),var(--bcc-nummax,999px))}.unit{font-size:min(.85em,calc(var(--bcc-nummax,999px)*.7));line-height:1}.seg{position:relative;overflow:hidden;pointer-events:none}.lab{position:absolute;left:0;right:0;text-align:center;font-weight:700;color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000;pointer-events:none;white-space:nowrap;font-size:min(calc(var(--bcc-fs)*1.2px + .5*var(--u)),var(--bcc-labmax,999px));z-index:3}.lab.t{top:-3px}.lab.b{bottom:-4px}
 .bar{--th:clamp(17.5px,calc((${ANIM.top.thickPx * 2}px + var(--bcc-cellh) * ${ANIM.top.thickK * 2}) * 1.25),45px)}[data-flow=up] .bar{--t1:var(--ov-t1,44,88,140);--t2:var(--ov-t2,80,160,255);--t3:var(--ov-t3,159,203,255);--t4:var(--ov-t4,229,241,255);--fc:var(--ov-fc,20,130,255);--fg:var(--ov-fg,138,193,255);--fh:var(--ov-fh,#e8f3ff);--fdir:bottom;--fpos:50% 0%}[data-flow=down] .bar{--t1:var(--ov-t1,150,25,12);--t2:var(--ov-t2,255,95,22);--t3:var(--ov-t3,255,175,60);--t4:var(--ov-t4,255,235,175);--fc:var(--ov-fc,255,110,30);--fg:var(--ov-fg,255,190,120);--fh:var(--ov-fh,#fff1d6);--fdir:top;--fpos:50% 100%}
 .tg{--h1:max(5%,8px);display:none;position:absolute;left:0;right:0;bottom:calc(var(--fp,100) * 1% - var(--h1));height:var(--h1);transform-origin:50% 0;z-index:2;pointer-events:none;opacity:0;background-image:linear-gradient(to bottom,rgba(var(--t4),1) 0,rgba(var(--t3),1) 22%,rgba(var(--t2),.92) 70%,rgba(var(--t1),0) 100%)}.tg:not(.t2):not(.t3)::after{content:'';position:absolute;left:0;right:0;top:0;height:70%;pointer-events:none;opacity:0;background:linear-gradient(to bottom,rgba(255,255,255,1) 0,rgba(var(--t4),.85) 35%,rgba(var(--t3),.3) 75%,rgba(var(--t3),0) 100%)}.tg.t2{bottom:calc(var(--fp,100) * 1% - var(--th));height:var(--th);background-image:linear-gradient(to bottom,rgba(var(--t4),.98) 0,rgba(var(--t3),.88) 10%,rgba(var(--t2),.7) 50%,rgba(var(--t2),.26) 78%,rgba(var(--t1),0) 100%)}.tg.t2::before{content:'';position:absolute;left:0;right:0;top:0;height:70%;pointer-events:none;opacity:0;background:linear-gradient(to bottom,rgba(255,255,255,.6) 0,rgba(var(--t4),.4) 40%,rgba(var(--t4),0) 100%)}.tg.t2::after{content:'';position:absolute;left:0;right:0;top:0;height:2px;pointer-events:none;background:rgba(var(--t4),.95);box-shadow:0 0 6px 1px rgba(var(--t3),.8)}.tg.t3{--h3:clamp(9px,3.6%,26px);bottom:calc(var(--fp,100) * 1% - var(--h3));height:var(--h3);background-image:linear-gradient(to bottom,rgba(var(--t4),1) 0,rgba(var(--t3),.92) 20%,rgba(var(--t2),.62) 58%,rgba(var(--t1),0) 100%)}.tg.t3::before{content:'';position:absolute;left:6%;right:6%;bottom:100%;height:calc(var(--th) * 1.7);transform-origin:50% 100%;opacity:0;pointer-events:none;background:radial-gradient(circle at 10% 70%,#fff 0 1.2px,transparent 2.2px),radial-gradient(circle at 24% 38%,rgba(var(--t4),1) 0 1.4px,transparent 2.4px),radial-gradient(circle at 37% 78%,#fff 0 1px,transparent 2px),radial-gradient(circle at 50% 22%,rgba(var(--t4),1) 0 1.6px,transparent 2.6px),radial-gradient(circle at 63% 62%,#fff 0 1.2px,transparent 2.2px),radial-gradient(circle at 76% 30%,rgba(var(--t4),1) 0 1.4px,transparent 2.4px),radial-gradient(circle at 90% 74%,#fff 0 1px,transparent 2px)}.tg.t3::after{content:'';position:absolute;left:0;right:0;top:0;height:2px;pointer-events:none;background:rgba(var(--t4),1);box-shadow:0 0 8px 2px rgba(var(--t3),.9)}.tg.t2.gwn,.tg.t3.gwn,.tb.gwn{left:2px;right:2px}.tb{display:none;position:absolute;left:0;right:0;bottom:calc(var(--fp,100) * 1%);height:calc(var(--th) * .9);z-index:2;pointer-events:none;opacity:0;background:linear-gradient(to top,rgba(var(--t4),.75) 0,rgba(var(--t3),.4) 40%,rgba(var(--t3),0) 100%)}.tb.t1{height:calc(var(--th) * 1.1);background:linear-gradient(to top,rgba(var(--t4),.95) 0,rgba(var(--t3),.55) 40%,rgba(var(--t3),0) 100%)}.tb.t3{height:calc(var(--th) * 1.1)}.tb.t3::before{content:'';position:absolute;left:-6%;right:-6%;bottom:calc(var(--th) * -.9);height:calc(var(--th) * 1.8);opacity:0;pointer-events:none;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(255,255,255,.95) 0,rgba(var(--t4),.8) 18%,rgba(var(--t3),.45) 42%,rgba(var(--t2),0) 75%)}.tb.t3::after{content:'';position:absolute;left:8%;right:8%;bottom:calc(var(--th) * -.5);height:var(--th);box-sizing:border-box;border:2px solid rgba(var(--t4),.95);border-radius:50%;box-shadow:0 0 8px 1px rgba(var(--t3),.8),inset 0 0 6px rgba(var(--t3),.6);opacity:0;pointer-events:none}[data-flow=up] .tg,[data-flow=down] .tg,[data-flow=up] .tb,[data-flow=down] .tb{display:block}
 .ag{display:none;position:absolute;left:0;right:0;bottom:0;height:0;overflow:hidden;z-index:2;pointer-events:none}[data-flow=up] .ag,[data-flow=down] .ag{display:block}.tl{--ft:clamp(2px,calc(var(--bcc-cellh) * .015),8px);--ft2:max(1.5px,calc(var(--ft)*.35));position:absolute;left:0;right:0;top:0;height:100%;opacity:0}.tl::before,.tl::after{content:'';position:absolute;left:0;right:0;pointer-events:none}.tl::before{height:var(--tn,${ANIM.tail.bar1}%);background:linear-gradient(to var(--fdir),rgba(var(--fc),.8) 0,rgba(var(--fc),.58) 10%,rgba(var(--fc),.4) 20%,rgba(var(--fc),.26) 30%,rgba(var(--fc),.16) 40%,rgba(var(--fc),.09) 50%,rgba(var(--fc),.045) 60%,rgba(var(--fc),.018) 70%,rgba(var(--fc),.005) 80%,rgba(var(--fc),0) 100%);-webkit-mask-image:radial-gradient(ellipse 85% 130% at var(--fpos),#000 40%,transparent 100%);mask-image:radial-gradient(ellipse 85% 130% at var(--fpos),#000 40%,transparent 100%)}[data-flow=up] .tl::before{top:0}[data-flow=down] .tl::before{bottom:0}.tl.l2::before{--tn:min(100%,calc(var(--fp,100) * ${ANIM.tail.bar1 * ANIM.tail.bar2 / 100}%))}.tl::after{height:var(--ft2);background:var(--fh);box-shadow:0 0 4px 1px rgba(var(--fg),.9),0 0 12px 3px rgba(var(--fc),.6)}[data-flow=up] .tl::after{top:0}[data-flow=down] .tl::after{bottom:0}.tl.l2{top:auto;bottom:0;height:calc(100% * 100 / var(--fp,100))}
@@ -472,6 +472,15 @@ class BatteryCellsCard extends HTMLElement {
   _measure() {
     const row = !this._c?.chunk_cells && this._card?.querySelector('.row');
     if (row) this._card.style.setProperty('--bcc-cellh', Math.max(CELL_H_MIN, row.offsetHeight) + 'px');
+    /* Largest font size at which the voltage value (4 characters, 4.6 with V) still fits into the bar */
+    const bar = this._cells[0]?.el.querySelector('.bar');
+    if (bar && this._card) this._card.style.setProperty('--bcc-nummax', Math.max(5, bar.clientWidth * .98 / ((this._c.cell_unit === 'V' ? 4.6 : 4) * .6)).toFixed(1) + 'px');
+    /* Largest font size at which the longest scale label still fits into the legend width */
+    const inner = this._card?.querySelector('.inner');
+    if (inner && this._scale) {
+      const len = Math.max(1, ...this._scale.legend.flatMap(l => [l[2], l[3]]).map(t => String(t ?? '').length));
+      this._card.style.setProperty('--bcc-labmax', Math.max(5, inner.clientWidth * .98 / (len * .62)).toFixed(1) + 'px');
+    }
     this._layoutBf();
   }
 
@@ -676,7 +685,6 @@ class BatteryCellsCard extends HTMLElement {
       efs: c.extra_font_scale,
       fs: env.compact ? Math.min(c.font_size, 8) : c.font_size,
       op: c.overlay_opacity,
-      title: env.compact ? '14px' : '24px',
       grad: this._scale.gradient,
       base: c.cell_height + 'px',
       cellh: c.cell_height + 'px'
@@ -687,7 +695,7 @@ class BatteryCellsCard extends HTMLElement {
     const env = this._env();
     if (env.sig !== this._sig) return false;
     const v = this._vars(env);
-    ['pad', 'top', 'gap', 'efs', 'fs', 'op', 'title', 'base', 'cellh'].forEach(k => this._card.style.setProperty(`--bcc-${k}`, v[k]));
+    ['pad', 'top', 'gap', 'efs', 'fs', 'op', 'base', 'cellh'].forEach(k => this._card.style.setProperty(`--bcc-${k}`, v[k]));
     this._applyColors(this._card.dataset.flow || '');
     this._measure();
     return true;
@@ -851,7 +859,7 @@ const I18N = {
     edit: 'Edit', delete: 'Delete', move: 'Move',
     soc_entity: 'State of charge (SOC)', watt_entity: 'Power (W)',
     cell_diff_sensor: 'Cell voltage delta', balance_sensor: 'Balancing active (optional)',
-    cell_diff: 'Delta threshold (mV)', cell_bal_over: 'Balancing from cell voltage (mV)',
+    cell_diff: 'Delta threshold', cell_bal_over: 'Balancing from cell voltage',
     auto_detect_low_high: 'Auto-detect lowest / highest cell',
     pack_cell_low: 'Lowest cell sensor', pack_cell_high: 'Highest cell sensor',
     show_legend: 'Show legend', show_soc_value: 'Show SOC value', show_soc_icon: 'Show charge/discharge icon',
@@ -862,22 +870,23 @@ const I18N = {
     ft_off: 'Off', ft_tip1: 'Glow', ft_tip2: 'Glow (subtle)', ft_tip3: 'Glow (explosion)',
     flow_bar: 'Running bar', fb_off: 'Off', fb_bar1: 'Running bar 1 (short tail)', fb_bar2: 'Running bar 2 (long tail)',
     flow_glow: 'Cell wall animation', fg_off: 'Off', fg_pulse: 'Pulse (edge to center)', fg_wave: 'Cell wall energy',
-    flow_speed_mode: 'Speed', fs_manual: 'Constant', fs_auto: 'Power-dependent', flow_speed: 'Speed (×)', flow_speed_auto: 'Speed factor (×, power-dependent)', flow_max_charge_w: 'Max. charge power (W)', flow_max_discharge_w: 'Max. discharge power (W)',
+    flow_speed_mode: 'Speed', fs_manual: 'Constant', fs_auto: 'Power-dependent', flow_speed: 'Speed factor', flow_speed_auto: 'Speed factor (power-dependent)', flow_max_charge_w: 'Max. charge power', flow_max_discharge_w: 'Max. discharge power',
     show_extra_sensors: 'Show additional sensors', use_3d: '3D frame',
     extra_font_scale: 'Font size for additional sensors',
     show_slices: 'Disc shading', slice_strength: 'Shading strength',
     slice_subtle: 'Subtle', slice_medium: 'Medium', slice_strong: 'Strong',
-    cell_unit: 'Cell unit', font_size: 'Font size', cell_gap: 'Cell gap (px)',
-    container_padding: 'Card padding (px)', top_padding: 'Title spacing (px)',
-    overlay_opacity_pct: 'Overlay opacity (%)',
+    cell_unit: 'Cell unit', font_size: 'Font size', cell_gap: 'Cell gap',
+    container_padding: 'Card padding', top_padding: 'Title spacing',
+    overlay_opacity_pct: 'Overlay opacity',
     chunk_panel: 'Cell wrapping', chunk_cells: 'Enable cell wrapping', chunk_mode: 'Wrapping mode',
     chunk_auto4: 'Auto 4 cells', chunk_auto8: 'Auto 8 cells', chunk_manual: 'Manual',
-    chunk_size: 'Cells per row', cell_height: 'Cell height (px)', min_cell_width: 'Min. cell width (px)',
+    chunk_size: 'Cells per row', cell_height: 'Cell height', min_cell_width: 'Min. cell width',
     fallback_cell: 'Cell', fallback_sensor: 'Sensor',
     battery_chemistry: 'Battery Chemistry', battery_type: 'Battery type',
     type_lifepo4: 'LiFePO4', type_nmc: 'NMC / NCM (Li-Ni-Mn-Co)', type_lead: 'Lead-Acid (2V cell)', type_custom: 'Custom',
     preset: 'Color preset', preset_none: 'No preset', preset1: 'Preset 1 – LiFePO4 Standard', preset2: 'Preset 2 – LiFePO4 Purple / Pink', preset3: 'Preset 3 – LiFePO4 Sunset', preset4: 'Preset 4 – LiFePO4 Neon', preset5: 'Preset 5 – LiFePO4 Ocean', preset6: 'Preset 6 – NMC / NCM', preset7: 'Preset 7 – Lead-Acid (2V cell)',
-    custom_min_mv: 'Min. voltage = lower edge of the bottom step (mV)', sec_cells: 'Cell appearance',
+    custom_min_mv: 'Min. voltage = lower edge of the bottom step', sec_cells: 'Cell appearance',
+    hint_bf: 'The energy flow only appears while balancing is detected live – via the “Balancing active” sensor or because the values under “Balancing detection” are reached.',
     sec_bal: 'Balancing detection', hint_bal: 'Balancing is active when the cell delta reaches the threshold and a cell is above the balancing voltage.',
     sec_lowhigh: 'Lowest / highest cell', hint_lowhigh: 'These cells are framed and linked by the energy flow. Automatic, or via two sensors that report the cell number.',
     custom_scale: 'Custom scale', add_stop: 'Add scale step', scale_gradient: 'Smooth color gradient (cells + legend)',
@@ -893,7 +902,7 @@ const I18N = {
     edit: 'Bearbeiten', delete: 'Löschen', move: 'Verschieben',
     soc_entity: 'Ladezustand (SOC)', watt_entity: 'Leistung (W)',
     cell_diff_sensor: 'Zellspannungsdifferenz', balance_sensor: 'Balancing aktiv (optional)',
-    cell_diff: 'Differenzschwellwert (mV)', cell_bal_over: 'Balancing ab Zellspannung (mV)',
+    cell_diff: 'Differenzschwellwert', cell_bal_over: 'Balancing ab Zellspannung',
     auto_detect_low_high: 'Niedrigste / höchste Zelle automatisch erkennen',
     pack_cell_low: 'Sensor für niedrigste Zelle', pack_cell_high: 'Sensor für höchste Zelle',
     show_legend: 'Legende anzeigen', show_soc_value: 'SOC-Wert anzeigen',
@@ -905,22 +914,23 @@ const I18N = {
     ft_off: 'Aus', ft_tip1: 'Aufglühen', ft_tip2: 'Aufglühen (dezent)', ft_tip3: 'Aufglühen (Explosion)',
     flow_bar: 'Laufbalken', fb_off: 'Aus', fb_bar1: 'Laufbalken 1 (kurzer Schweif)', fb_bar2: 'Laufbalken 2 (langer Schweif)',
     flow_glow: 'Zellwand-Animation', fg_off: 'Aus', fg_pulse: 'Pulsieren (Rand zur Mitte)', fg_wave: 'Zellwandenergie',
-    flow_speed_mode: 'Geschwindigkeit', fs_manual: 'Gleichbleibend', fs_auto: 'Leistungsabhängig', flow_speed: 'Geschwindigkeit (×)', flow_speed_auto: 'Tempo-Faktor (×, leistungsabhängig)', flow_max_charge_w: 'Max. Ladeleistung (W)', flow_max_discharge_w: 'Max. Entladeleistung (W)',
+    flow_speed_mode: 'Geschwindigkeit', fs_manual: 'Gleichbleibend', fs_auto: 'Leistungsabhängig', flow_speed: 'Tempo-Faktor', flow_speed_auto: 'Tempo-Faktor (leistungsabhängig)', flow_max_charge_w: 'Max. Ladeleistung', flow_max_discharge_w: 'Max. Entladeleistung',
     show_extra_sensors: 'Zusätzliche Sensoren anzeigen', use_3d: '3D-Rahmen',
     extra_font_scale: 'Schriftgröße für zusätzliche Sensoren',
     show_slices: 'Scheiben-Schatten', slice_strength: 'Schattenstärke',
     slice_subtle: 'Dezent', slice_medium: 'Mittel', slice_strong: 'Stark',
-    cell_unit: 'Zelleneinheit', font_size: 'Schriftgröße', cell_gap: 'Zellenabstand (px)',
-    container_padding: 'Kartenrand-Abstand (px)', top_padding: 'Abstand zum Titel (px)',
-    overlay_opacity_pct: 'Deckkraft des Overlays (%)',
+    cell_unit: 'Zelleneinheit', font_size: 'Schriftgröße', cell_gap: 'Zellenabstand',
+    container_padding: 'Abstand Rand', top_padding: 'Abstand Titel',
+    overlay_opacity_pct: 'Deckkraft des Overlays',
     chunk_panel: 'Zellen-Umbruch', chunk_cells: 'Zellen umbrechen aktivieren', chunk_mode: 'Umbruch-Modus',
     chunk_auto4: 'Auto 4 Zellen', chunk_auto8: 'Auto 8 Zellen', chunk_manual: 'Manuell',
-    chunk_size: 'Zellen pro Zeile', cell_height: 'Zellenhöhe (px)', min_cell_width: 'Min. Zellenbreite (px)',
+    chunk_size: 'Zellen pro Zeile', cell_height: 'Zellenhöhe', min_cell_width: 'Min. Zellenbreite',
     fallback_cell: 'Zelle', fallback_sensor: 'Sensor',
     battery_chemistry: 'Batterie-Chemie', battery_type: 'Batterietyp',
     type_lead: 'Blei (2V-Zelle)', type_custom: 'Benutzerdefiniert',
     preset: 'Farb-Skala-Preset', preset_none: 'Kein Preset', preset1: 'Preset 1 – LiFePO4 Standard', preset2: 'Preset 2 – LiFePO4 Lila / Rosa', preset3: 'Preset 3 – LiFePO4 Sunset', preset4: 'Preset 4 – LiFePO4 Neon', preset5: 'Preset 5 – LiFePO4 Ozean', preset6: 'Preset 6 – NMC / NCM', preset7: 'Preset 7 – Blei (2V-Zelle)',
-    custom_min_mv: 'Min-Spannung = Unterkante der untersten Stufe (mV)', sec_cells: 'Zellendarstellung',
+    custom_min_mv: 'Min-Spannung = Unterkante der untersten Stufe', sec_cells: 'Zellendarstellung',
+    hint_bf: 'Der Energiefluss erscheint nur, solange ein Balancing live erkannt wird – über den Sensor „Balancing aktiv“ oder weil die Werte unter „Balancing-Erkennung“ erreicht sind.',
     sec_bal: 'Balancing-Erkennung', hint_bal: 'Balancing ist aktiv, wenn die Zelldifferenz den Schwellwert erreicht und eine Zelle über der Balancing-Spannung liegt.',
     sec_lowhigh: 'Niedrigste / höchste Zelle', hint_lowhigh: 'Diese Zellen werden umrandet und vom Energiefluss verbunden. Automatisch oder über zwei Sensoren, die die Zellnummer liefern.',
     custom_scale: 'Benutzerdefinierte Skala', add_stop: 'Skalen-Stufe hinzufügen', scale_gradient: 'Farbverlauf (Zellen + Legende)',
@@ -939,7 +949,7 @@ for (const l in FX_NAME) for (const k in FX_DEFAULT_RGB) {
   I18N[l]['color_' + k] = d ? `${FX_NAME[l][n]} – ${FX_DIR[l][d]}` : FX_NAME[l][n];
 }
 
-const EDITOR_CSS = `.editor ha-expansion-panel{scroll-margin-top:8px}.editor .sep{height:0;border-top:1px solid var(--divider-color);margin:12px 0}.editor .sh{color:var(--primary-text-color);font-size:16px;font-weight:500;padding:8px 0 4px}.editor{display:flex;flex-direction:column;gap:var(--ha-space-4,8px);container-type:inline-size}.editor ha-form{display:block}.editor .list{display:flex;flex-direction:column;gap:var(--ha-space-2,4px)}.editor .row{display:grid;grid-template-columns:minmax(0,1fr) auto 37px auto;align-items:center;gap:0}.editor ha-icon-button{--ha-icon-button-size:44px;--mdc-icon-button-size:44px}.editor .entity{min-width:0}.editor .handle{width:37px;height:44px;display:flex;align-items:center;justify-content:center;cursor:grab;color:var(--secondary-text-color);touch-action:none}.editor .handle:active{cursor:grabbing}.editor .handle ha-svg-icon{width:24px;height:24px}.editor .detail{grid-column:1/-1}.editor .detail[hidden]{display:none}.editor .hint{color:var(--secondary-text-color);font-size:12px;padding:0 0 8px}.editor .sw{display:flex;align-items:center;gap:4px;padding-right:4px}.editor .sw ha-form{flex:0 0 50%;min-width:0}.editor .sw ha-form+ha-form{flex:0 0 30%}.editor .sample{width:40px;height:56px;flex:none;box-sizing:border-box;border:1px solid var(--divider-color);border-radius:6px;cursor:pointer}.editor .add{padding-top:8px}.editor .colors{display:flex;flex-direction:column;gap:8px;padding:4px 4px 8px}.editor .colors[hidden]{display:none}.editor .crow{display:flex;align-items:center;gap:12px}.editor .csw{position:relative;width:40px;height:40px;flex:none;box-sizing:border-box;border:1px solid var(--divider-color);border-radius:6px;overflow:hidden;cursor:pointer}.editor .csw input{position:absolute;top:-8px;left:-8px;width:calc(100% + 16px);height:calc(100% + 16px);margin:0;padding:0;border:0;opacity:0;cursor:pointer}.editor .clab{min-width:0;color:var(--primary-text-color);font-size:14px}@container (max-width:480px){.editor .row:has(>.sw){grid-template-columns:minmax(0,1fr) 10cqw 8cqw 10cqw}.editor .row:has(>.sw)>ha-icon-button{--ha-icon-button-size:10cqw;--mdc-icon-button-size:10cqw}.editor .row:has(>.sw)>.handle{width:8cqw}.editor .sw{gap:1cqw;padding-right:0}.editor .sample{flex:0 0 14%;width:auto}.editor .sw ha-form{flex:0 0 44%;--text-field-padding:0 4cqw}.editor .sw ha-form+ha-form{flex:0 0 32%}}`;
+const EDITOR_CSS = `.editor .sep{height:0;border-top:1px solid var(--divider-color);margin:12px 0}.editor .sh{color:var(--primary-text-color);font-size:16px;font-weight:500;padding:8px 0 4px}.editor{display:flex;flex-direction:column;gap:var(--ha-space-4,8px);container-type:inline-size}.editor ha-form{display:block}.editor .list{display:flex;flex-direction:column;gap:var(--ha-space-2,4px)}.editor .row{display:grid;grid-template-columns:minmax(0,1fr) auto 37px auto;align-items:center;gap:0}.editor ha-icon-button{--ha-icon-button-size:44px;--mdc-icon-button-size:44px}.editor .entity{min-width:0}.editor .handle{width:37px;height:44px;display:flex;align-items:center;justify-content:center;cursor:grab;color:var(--secondary-text-color);touch-action:none}.editor .handle:active{cursor:grabbing}.editor .handle ha-svg-icon{width:24px;height:24px}.editor .detail{grid-column:1/-1}.editor .detail[hidden]{display:none}.editor .hint{color:var(--secondary-text-color);font-size:12px;padding:0 0 8px}.editor .sw{display:flex;align-items:center;gap:4px;padding-right:4px}.editor .sw ha-form{flex:0 0 50%;min-width:0}.editor .sw ha-form+ha-form{flex:0 0 30%}.editor .sample{width:40px;height:56px;flex:none;box-sizing:border-box;border:1px solid var(--divider-color);border-radius:6px;cursor:pointer}.editor .add{padding-top:8px}.editor .colors{display:flex;flex-direction:column;gap:8px;padding:4px 4px 8px}.editor .colors[hidden]{display:none}.editor .crow{display:flex;align-items:center;gap:12px}.editor .csw{position:relative;width:40px;height:40px;flex:none;box-sizing:border-box;border:1px solid var(--divider-color);border-radius:6px;overflow:hidden;cursor:pointer}.editor .csw input{position:absolute;top:-8px;left:-8px;width:calc(100% + 16px);height:calc(100% + 16px);margin:0;padding:0;border:0;opacity:0;cursor:pointer}.editor .clab{min-width:0;color:var(--primary-text-color);font-size:14px}@container (max-width:480px){.editor .row:has(>.sw){grid-template-columns:minmax(0,1fr) 10cqw 8cqw 10cqw}.editor .row:has(>.sw)>ha-icon-button{--ha-icon-button-size:10cqw;--mdc-icon-button-size:10cqw}.editor .row:has(>.sw)>.handle{width:8cqw}.editor .sw{gap:1cqw;padding-right:0}.editor .sample{flex:0 0 14%;width:auto}.editor .sw ha-form{flex:0 0 44%;--text-field-padding:0 4cqw}.editor .sw ha-form+ha-form{flex:0 0 32%}}`;
 const ICON_EDIT = 'M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.13,5.12L18.88,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z';
 const ICON_DEL = 'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z';
 const ICON_DRAG = 'M6,5H18V7H6V5M6,11H18V13H6V11M6,17H18V19H6V17Z';
@@ -948,9 +958,10 @@ const ENTITY_SCHEMA = [{ name: 'entity', selector: SENSOR_SELECTOR }];
 const TEXT_SEL = { text: {} };
 const SCHEMA_KEYS = ['watt_entity', 'show_flow', 'show_balance_flow', 'flow_tip', 'flow_bar', 'flow_glow', 'flow_speed_mode', 'chunk_cells', 'chunk_mode', 'battery_type', 'show_legend', 'show_slices', 'auto_detect_low_high', 'pack_cell_low', 'pack_cell_high'];
 const ENTITY_KEYS = ['soc_entity', 'watt_entity', 'cell_diff_sensor', 'balance_sensor', 'pack_cell_low', 'pack_cell_high'];
+const NUM_KEYS = ['font_size', 'cell_gap', 'top_padding', 'container_padding', 'cell_height', 'min_cell_width', 'overlay_opacity', 'custom_min_mv', 'cell_diff', 'cell_bal_over', 'chunk_size', 'flow_speed', 'flow_speed_auto', 'flow_max_charge_w', 'flow_max_discharge_w', 'extra_font_scale'];
 const CLEAR_DEFAULTS = { theme: 'default', battery_type: 'lifepo4', slice_strength: 'subtle', flow_tip: 'off', flow_bar: 'off', flow_glow: 'off', flow_speed_mode: 'manual', cell_unit: 'mV' };
 const bool = { boolean: {} };
-const numSel = (min, max, step) => ({ number: { min, max, ...(step && { step }), mode: 'box' } });
+const numSel = (min, max, step, unit) => ({ number: { min, max, ...(step && { step }), ...(unit && { unit_of_measurement: unit }), mode: 'box' } });
 const sliderSel = (min, max) => ({ number: { min, max, step: 1, mode: 'slider' } });
 const dropdown = options => ({ select: { mode: 'dropdown', options } });
 const mk = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
@@ -1106,7 +1117,7 @@ class BatteryCellsCardEditor extends HTMLElement {
   _chemSchema() {
     return [{ name: 'battery_type', selector: dropdown(BATTERY_TYPES.map(v => ({ value: v, label: this._t('type_' + v) }))) }];
   }
-  _customMinSchema() { return [{ name: 'custom_min_mv', selector: numSel(1000, 5000) }]; }
+  _customMinSchema() { return [{ name: 'custom_min_mv', selector: numSel(1000, 5000, 1, 'mV') }]; }
   _scaleSchema() { return [{ name: 'scale_gradient', selector: bool }]; }
   _animBalSchema() { return this._balanceReady() ? [{ name: 'show_balance_flow', selector: bool }] : []; }
   _animFlowSchema() {
@@ -1118,10 +1129,10 @@ class BatteryCellsCardEditor extends HTMLElement {
         s.push({ name: 'flow_tip', selector: opt(FLOW_TIPS, 'ft_') }, { name: 'flow_bar', selector: opt(FLOW_BARS, 'fb_') }, { name: 'flow_glow', selector: opt(FLOW_GLOWS, 'fg_') }, { name: 'flow_sync', selector: bool });
         if (c.flow_tip !== 'off' || c.flow_bar !== 'off' || c.flow_glow !== 'off') {
           s.push({ name: 'flow_speed_mode', selector: opt(FLOW_SPEEDS, 'fs_') });
-          if (c.flow_speed_mode === 'manual') s.push({ name: 'flow_speed', selector: { number: { min: 0.1, max: 2, step: 0.1, mode: 'slider' } } });
+          if (c.flow_speed_mode === 'manual') s.push({ name: 'flow_speed', selector: { number: { min: 0.1, max: 2, step: 0.1, mode: 'slider', unit_of_measurement: '×' } } });
           else {
             const w = { number: { min: 100, max: 100000, step: 10, mode: 'box', unit_of_measurement: 'W' } };
-            s.push({ name: 'flow_max_charge_w', selector: w }, { name: 'flow_max_discharge_w', selector: w }, { name: 'flow_speed_auto', selector: { number: { min: 0.2, max: 2, step: 0.1, mode: 'slider' } } });
+            s.push({ name: 'flow_max_charge_w', selector: w }, { name: 'flow_max_discharge_w', selector: w }, { name: 'flow_speed_auto', selector: { number: { min: 0.2, max: 2, step: 0.1, mode: 'slider', unit_of_measurement: '×' } } });
           }
         }
       }
@@ -1176,7 +1187,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     const d = this._animReady() ? '' : 'none';
     if (this._animPanel.style.display !== d) this._animPanel.style.display = d;
   }
-  _balanceSchema() { return [{ name: 'cell_diff', selector: numSel(1, 200) }, { name: 'cell_bal_over', selector: numSel(1500, 4500) }]; }
+  _balanceSchema() { return [{ name: 'cell_diff', selector: numSel(1, 200, 1, 'mV') }, { name: 'cell_bal_over', selector: numSel(1500, 4500, 1, 'mV') }]; }
   _lowHighSchema() {
     const s = [{ name: 'auto_detect_low_high', selector: bool }];
     if (!this._config.auto_detect_low_high) s.push({ name: 'pack_cell_low', selector: SENSOR_SELECTOR }, { name: 'pack_cell_high', selector: SENSOR_SELECTOR });
@@ -1194,9 +1205,9 @@ class BatteryCellsCardEditor extends HTMLElement {
   }
   _gapSchema() {
     return [{ type: 'grid', name: '', column_min_width: '90px', schema: [
-      { name: 'cell_gap', selector: numSel(0, 16) },
-      { name: 'top_padding', selector: numSel(0, 60) },
-      { name: 'container_padding', selector: numSel(0, 40) }
+      { name: 'cell_gap', selector: numSel(0, 16, 1, 'px') },
+      { name: 'top_padding', selector: numSel(0, 60, 1, 'px') },
+      { name: 'container_padding', selector: numSel(0, 40, 1, 'px') }
     ] }];
   }
   _switchSchema() {
@@ -1220,7 +1231,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     return s;
   }
   _extraSchema() {
-    return [{ name: 'extra_font_scale', selector: { number: { min: 0.7, max: 1.5, step: 0.05, mode: 'slider' } } }];
+    return [{ name: 'extra_font_scale', selector: { number: { min: 0.7, max: 1.5, step: 0.05, mode: 'slider', unit_of_measurement: '×' } } }];
   }
 
   _presetKey() {
@@ -1274,7 +1285,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     /* Divider that is only visible while both neighbouring forms have fields */
     const sepBetween = (a, b) => { const d = sep(); this._condSeps.push([d, a, b]); return d; };
     const one = (name, selector, field = name) => form(() => [{ name, selector }], [field]);
-    const slider = (name, min, max) => one(name, { number: { min, max, step: 1, mode: 'slider' } });
+    const slider = (name, min, max, unit) => one(name, { number: { min, max, step: 1, mode: 'slider', unit_of_measurement: unit } });
     /* Custom scale lives inside the chemistry panel and is only shown for battery type "custom" */
     this._scalePanel = mk('div', 'custom');
     this._scalePanel.append(
@@ -1291,6 +1302,8 @@ class BatteryCellsCardEditor extends HTMLElement {
     this._colorsSig = ''; this._colorRefs = [];
 
     const balForm = form(this._animBalSchema, ['show_balance_flow']);
+    const bfNote = note('hint_bf');
+    this._condSeps.push([bfNote, balForm, balForm]);
     const flowForm = form(this._animFlowSchema, ['show_flow', 'flow_tip', 'flow_bar', 'flow_glow', 'flow_sync', 'flow_speed_mode', 'flow_speed', 'flow_speed_auto', 'flow_max_charge_w', 'flow_max_discharge_w']);
     const chunkOn = form(this._chunkSchema, ['chunk_cells']);
     const chunkOpt = form(this._chunkOptSchema, ['chunk_mode', 'chunk_size']);
@@ -1320,15 +1333,15 @@ class BatteryCellsCardEditor extends HTMLElement {
         head('sec_cells'),
         form(this._fontUnitSchema, ['font_size', 'cell_unit']),
         form(this._gapSchema, ['cell_gap', 'top_padding', 'container_padding']),
-        sep(), slider('cell_height', CELL_H_MIN, CELL_H_MAX),
-        sep(), slider('min_cell_width', MIN_CELL_W_FLOOR, 120),
-        sep(), one('overlay_opacity_pct', { number: { min: 0, max: 100, step: 1, mode: 'slider' } }, 'overlay_opacity'),
+        sep(), slider('cell_height', CELL_H_MIN, CELL_H_MAX, 'px'),
+        sep(), slider('min_cell_width', MIN_CELL_W_FLOOR, 120, 'px'),
+        sep(), one('overlay_opacity_pct', { number: { min: 0, max: 100, step: 1, mode: 'slider', unit_of_measurement: '%' } }, 'overlay_opacity'),
         sep(),
         form(this._switchSchema, [...LEGEND_TOGGLES, 'show_legend', 'show_extra_sensors', 'use_3d', 'show_slices', 'slice_strength']),
         sep(),
         form(this._themeSchema, ['theme'])),
       this._animPanel = panel('animation',
-        balForm, sepBetween(balForm, flowForm), flowForm,
+        balForm, bfNote, sepBetween(balForm, flowForm), flowForm,
         sepBetween(flowForm, colorToggle), colorToggle,
         this._colorsBox),
       panel('chunk_panel', chunkOn, sepBetween(chunkOn, chunkOpt), chunkOpt),
@@ -1355,14 +1368,32 @@ class BatteryCellsCardEditor extends HTMLElement {
     this._local = sig(this._config);
   }
 
+  /* Scrollable ancestor of the editor (also across shadow roots) */
+  _scroller() {
+    let n = this;
+    while (n) {
+      n = n.assignedSlot || n.parentElement || n.getRootNode?.().host || null;
+      if (n && n.nodeType === 1) {
+        const oy = getComputedStyle(n).overflowY;
+        if ((oy === 'auto' || oy === 'scroll') && n.scrollHeight > n.clientHeight) return n;
+      }
+    }
+    return document.scrollingElement;
+  }
+
+  /* Only one panel is open. While the other panels collapse, the opened panel is held at its screen position
+     (corrected every frame), so nothing jumps and no delayed scrolling is needed */
   _accordion(root) {
     const panels = [...root.querySelectorAll(':scope > ha-expansion-panel')];
     panels.forEach(p => p.addEventListener('expanded-changed', e => {
-      if (e.target !== p || !e.detail?.expanded) return;
+      if (e.target !== p || !(e.detail?.expanded ?? p.expanded)) return;
+      const sp = this._scroller(), y = p.getBoundingClientRect().top, t0 = performance.now();
       panels.forEach(o => { if (o !== p && o.expanded) o.expanded = false; });
-      /* The panel that was open collapses above and shifts the page: scroll to the opened panel once that is done */
-      clearTimeout(this._scrollT);
-      this._scrollT = setTimeout(() => p.scrollIntoView({ block: 'start', behavior: 'smooth' }), 350);
+      const fix = () => {
+        if (sp) sp.scrollTop += p.getBoundingClientRect().top - y;
+        if (performance.now() - t0 < 500) requestAnimationFrame(fix);
+      };
+      fix();
     }));
   }
 
@@ -1524,6 +1555,7 @@ class BatteryCellsCardEditor extends HTMLElement {
   _commit(partial, fields) {
     /* Clearing a dropdown (X) falls back to its off/default value */
     const empty = v => v == null || v === '';
+    if (fields.some(k => NUM_KEYS.includes(k) && !Number.isFinite(parseFloat(k === 'overlay_opacity' ? partial.overlay_opacity_pct : partial[k])))) return;
     partial = { ...partial };
     fields.forEach(f => { if (f in CLEAR_DEFAULTS && empty(partial[f])) partial[f] = CLEAR_DEFAULTS[f]; });
     if (fields.includes('chunk_mode') && empty(partial.chunk_mode)) { partial.chunk_mode = this._config.chunk_mode; partial.chunk_cells = false; }
