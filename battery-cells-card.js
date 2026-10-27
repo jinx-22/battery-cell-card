@@ -1198,7 +1198,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     return !!c.auto_detect_low_high || (this._numOk(c.pack_cell_low) && this._numOk(c.pack_cell_high)) || (this._balReady && !!c.pack_cell_low && !!c.pack_cell_high);
   }
   _fontUnitSchema() {
-    return [{ type: 'grid', name: '', schema: [
+    return [{ type: 'grid', name: '', column_min_width: '60px', schema: [
       { name: 'font_size', selector: numSel(4, 16, .5) },
       { name: 'cell_unit', selector: dropdown([{ value: 'mV', label: this._t('unit_mv') }, { value: 'V', label: this._t('unit_v') }]) }
     ] }];
