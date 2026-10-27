@@ -1,215 +1,177 @@
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5?style=flat&logo=homeassistantcommunitystore&logoColor=white)](https://github.com/hacs/integration) [![GitHub total downloads](https://img.shields.io/github/downloads/jinx-22/battery-cell-card/total?style=flat&color=red&logo=github&logoColor=white)](https://github.com/jinx-22/battery-cell-card/releases) [![GitHub release](https://img.shields.io/github/release/jinx-22/battery-cell-card?include_prereleases=&sort=semver&color=blue&style=flat&logo=github&logoColor=white)](https://github.com/jinx-22/battery-cell-card/releases/) [![File size](https://img.shields.io/github/size/jinx-22/battery-cell-card/battery-cells-card.js?label=Card%20Size&style=flat&logo=javascript&logoColor=white)](https://github.com/jinx-22/battery-cell-card/blob/main/battery-cells-card.js) [![Editor Setting - Doku](https://img.shields.io/badge/Editor%20Setting-Doku-e91e63?style=flat&logo=readthedocs&logoColor=white)](#editor-documentation) [![README deutsch](https://img.shields.io/badge/README-DE-blue?style=flat&logo=googletranslate&logoColor=white)](https://github.com/jinx-22/battery-cell-card/blob/main/README_DE.md) [![stars](https://img.shields.io/github/stars/jinx-22/battery-cell-card?style=flat&logo=github&logoColor=white)](https://github.com/jinx-22/battery-cell-card/stargazers) [![Donate Bitcoin](https://img.shields.io/badge/Bitcoin-Donate-F7931A?style=flat&logo=bitcoin&logoColor=white)](#bitcoin) [![Donate Lightning](https://img.shields.io/badge/%E2%9A%A1-Lightning-FFD700?style=flat)](#lightning)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5?style=flat&logo=homeassistantcommunitystore&logoColor=white)](https://github.com/hacs/integration)
+[![GitHub total downloads](https://img.shields.io/github/downloads/jinx-22/battery-cell-card/total?style=flat&color=red&logo=github&logoColor=white)](https://github.com/jinx-22/battery-cell-card/releases)
+[![GitHub release](https://img.shields.io/github/release/jinx-22/battery-cell-card?include_prereleases=&sort=semver&color=blue&style=flat&logo=github&logoColor=white)](https://github.com/jinx-22/battery-cell-card/releases/)
+[![File size](https://img.shields.io/github/size/jinx-22/battery-cell-card/battery-cells-card.js?label=Card%20Size&style=flat&logo=javascript&logoColor=white)](https://github.com/jinx-22/battery-cell-card/blob/main/battery-cells-card.js)
+[![Editor Settings - Docs](https://img.shields.io/badge/Editor%20Settings-Docs-e91e63?style=flat&logo=readthedocs&logoColor=white)](#editor-documentation)
+[![README deutsch](https://img.shields.io/badge/README-DE-blue?style=flat&logo=googletranslate&logoColor=white)](README_DE.md)
+[![stars](https://img.shields.io/github/stars/jinx-22/battery-cell-card?style=flat&logo=github&logoColor=white)](https://github.com/jinx-22/battery-cell-card/stargazers)
+[![Donate Bitcoin](https://img.shields.io/badge/Bitcoin-Donate-F7931A?style=flat&logo=bitcoin&logoColor=white)](#bitcoin)
+[![Donate Lightning](https://img.shields.io/badge/%E2%9A%A1-Lightning-FFD700?style=flat)](#lightning)
 
-# Battery Cells Card - Cell-(real-time) monitoring
+# Battery Cells Card - Cell Voltage Monitoring in Real Time
 
-*(Link to German version: [Deutsch](https://github.com/jinx-22/battery-cell-card/blob/main/README_DE.md))*
+*(Link to German version: [Deutsch](README_DE.md))*
 
 **Version:** 0.9.5
 
-**Description:** A Home Assistant custom card to visualize battery cells, cell voltages, SOC, balancing status, and differences.  
-Ideal for LiFePO₄ battery systems, also for NMC/NCM and lead-acid.
+**Description:** A custom Home Assistant card for visualizing battery cells, cell voltages, SOC, balancing status and differences.  
+Ideal for LiFePO₄ battery systems, also suitable for NMC/NCM and lead-acid batteries.
 
-## ✨ New
+### ✨ New in v0.9.5
 
-### ✨ New in 0.9.5
+---
 
-**Animations**
+<img width="50%" height="auto" alt="firefox_BlMrAtUIUM" src="https://github.com/user-attachments/assets/7c10b71a-4cf2-4f18-8212-059047c8a453" /><img width="50%" height="auto" alt="brave_qZR7FbmqRH" src="https://github.com/user-attachments/assets/f77792e3-4cbd-475a-8ec7-5744177e5e5e" />
 
-- Charge / discharge animation: glowing cell top, running bar and cell wall animation (pulse or cell wall energy), constant or power-dependent speed.
-- Balancing energy flow: an animated energy line from the highest to the lowest cell while balancing.
-- Own animation colors, selectable in the editor.
-- Pulse animation redesigned: soft glow from both cell walls and a horizontal glow at the fill level.
-- No more flickering in the Home Assistant Companion App.
+---
 
-**Editor**
+* **Charge/Discharge Animations** (require a power sensor):
+  * Glowing cell top (3 styles)
+  * Running bar (2 styles)
+  * Cell wall animation (2 styles)
+  * Animation mode: synchronized – all cells at the same time – or sequential – the animation runs through the cells one after another.
+  * The three charge/discharge animations are time-synchronized, work together and complement each other to create a harmonious overall effect.
+  * Adjustable animation speed: constant (0.1×–2×) or power-dependent.
+  * Separate animation colors for charging, discharging and balancing energy flow (`color_*`).
+* **Balancing Energy Flow:** Animated energy line between the highest and the lowest cell, also across wrapped rows.
+* **Cell Height:** Adjustable from 280 to 800 px in the Display panel, synchronized with the layout rows in the Home Assistant Sections view.
+* **Minimum Cell Width:** Adjustable from 40 to 120 px.
+* Short headings and hint texts in the Balancing and Min. Cell / Max. Cell panels.
+* Editor reorganized: Theme moved to Display panel, custom voltage scale moved to Battery Chemistry panel (only for type Custom), `custom_max_mv` removed from the editor (still configurable via YAML), cell height and min. cell width moved to Display panel, settings regrouped and dividers added.
+* Minimum cell height raised from 200 to 280 px; default cell height for new cards is 351 px (7 layout rows).
+* Layout rows are derived from `cell_height` if `grid_options.rows` is not explicitly set (minimum 6 rows).
 
-- Cell height as slider with px input, linked with the layout rows of the sections dashboard (in both directions). Minimum 280 px.
-- Min. cell width as slider.
-- Display panel re-sorted: cell appearance, switches and theme are grouped.
-- Custom scale integrated into the panel *Battery Chemistry*.
-- Headings and hint texts in the balancing panel, dividers between all settings, the editor scrolls to the opened panel.
+### Full Changelog: [changelog.md](https://github.com/jinx-22/battery-cell-card/blob/main/changelog.md)
 
-New cards start with 351 px (7 layout rows). Details: [changelog.md](https://github.com/jinx-22/battery-cell-card/blob/main/changelog.md)
-
-### ✨ New in 0.9.4
-
-**Added**
-
-- Empty cards now display 4 non-clickable placeholder cells
-- Improved accessibility with labels for icons
-
-**Changed**
-
-- Cleaner YAML output with only non-default values
-- Balancing range expanded to 1500–4500 mV
-- Corrected loading/unloading symbol label
-
-**Improved**
-
-- More reliable High/Low cell detection
-- Improved click and keyboard focus handling
-- More efficient extra sensor updates
-- Editor state is preserved when changing language
-- Prevented duplicate card registration and loading
-
-### ✨ New in 0.9.3
-
-- New 3D look → chrome-finished battery housing.
-
-<img width="30%" height="auto" alt="3d-w" src="https://github.com/user-attachments/assets/0fcbeab4-91fe-4651-b412-3fd7f194c292" /><img width="30%" height="auto" alt="3d" src="https://github.com/user-attachments/assets/7342d1fd-bfd2-45d1-8b37-cf5ead4f8f74" />
-
-- Create a fully customized battery scale directly in the visual editor (voltage points, colors, segment heights, labels).
-- 7 custom battery scale presets - create your own favorite!
-- Toggleable scale color gradient.
-
-<img width="60%" height="auto" alt="Skala" src="https://github.com/user-attachments/assets/2543b511-668d-4fda-9fff-d4b35d1e1805" />
-
-- Disc-style scale with three intensity levels – Subtle, Medium, and Strong.
-- Chunk mode completely reworked. (Please provide feedback on whether it displays correctly on iPhone!)
-- Selectable battery type completely reworked and further enhanced.
-- Visual editor expanded and redesigned.
-- Native Home Assistant editor components for a better editing experience.
-- Cells and additional sensors can now be added, edited, removed, and sorted directly in the visual editor.
-- Custom names and icons for cells and additional sensors.
-- Editor available in German and English.
-- Auto-Chunk mode → Auto4, Auto8, or Manual.
-- Chunk height can be adjusted manually in the editor.
-- Chunk cell width can be adjusted manually in the editor.
-- Optional smooth color gradients for custom scales.
-- Adjustable font size for additional sensors.
-- Improved automatic detection of the lowest and highest cell voltage.
-- Improved balancing and cell voltage difference display.
-- Improved support for voltage sensors using V or mV.
-- `grid_options` for controlling the card size.
-- Significant performance improvements and many other small changes and enhancements.
-
-### Full changelog: [changelog.md](https://github.com/jinx-22/battery-cell-card/blob/main/changelog.md)
-
-* * *
+---
 
 > [!CAUTION]
-> **Note:** The bar heights indicate cell voltage, not state of charge. The percentage SOC can be read in the legend if an SOC sensor is assigned.
+> **Note:** The bar height shows the cell voltage, not the state of charge.  
+> The SOC in percent can be read in the legend if an SOC sensor is assigned.
 
-* * *
+---
 
 > [!TIP]
-> ### 📖 Editor documentation
+> ### 📖 Editor Documentation
+> Every setting of the visual editor is explained step by step, including the purpose of the option and when it is visible.
 >
-> Every setting of the visual editor is explained step by step, with the purpose of each option and when it is visible.
->
-> **👉 [Editor documentation](#editor-documentation)**
+> **👉 [Editor Documentation](#editor-documentation)**
 
-* * *
+---
 
 ## Table of Contents
 
-01. [What does this card do?](#what-does-this-card-do)
-02. [Planned Features](#-planned-features)
-03. [Features](#features)
-04. [Installation](#installation)
-05. [Support & Donations](#-support--donations)
-06. [Configuration Options](#configuration-options)
-07. [Example Configuration](#example-configuration)
-08. [Editor documentation](#editor-documentation)
-09. [Screenshots](#screenshots)
+1. [What does this card do?](#what-does-this-card-do)
+2. [Planned Features](#-planned-features)
+3. [Features](#features)
+4. [Installation](#installation)
+5. [Support & Donations](#-support--donations)
+6. [Configuration Options](#configuration-options)
+7. [Example Configuration](#example-configuration)
+8. [Editor Documentation](#editor-documentation)
+9. [Screenshots](#screenshots)
 10. [License](#license)
 
-* * *
+---
 
 ## What does this card do?
 
-Depending on the configuration, this custom card can display:
+Depending on the configuration, this card can display:
 
-- Individual cell voltages (V or mV)
-- Cell voltage difference (Δ mV)
-- Charge/discharge power (W)
-- Charge/discharge icons
-- Charge/discharge animation with several effects
-- Balancing status and an animated balancing energy flow
-- SOC value and SOC icon
-- Color-coded voltage scale
-- Optional smooth scale color gradient
-- Additional sensors with custom names and icons
-- Responsive scaling
-- Optional row wrapping for smaller displays (chunking)
-- Optional 3D metal frame and disc-style scale
-- Custom battery voltage scales and presets
-- Adjustable cell and row dimensions
-- Visual editor for easy configuration
-- card-mod ready (V0.5.9.8)
+* Individual cell voltages (V or mV)
+* Cell voltage difference (Δ mV)
+* Charge/discharge power (W)
+* Charge/discharge icons
+* Balancing status
+* SOC value and SOC icon
+* Color-coded voltage scale
+* Optional smooth color gradient of the scale
+* Additional sensors with custom names and icons
+* Responsive scaling
+* Optional row wrapping for smaller displays (Chunking)
+* Optional 3D metal frame and disc-style scale
+* Custom battery voltage scales and presets
+* Adjustable cell and row dimensions
+* Charge/discharge animations (glow, running bar, cell wall) with synchronized or sequential mode
+* Balancing energy flow as an animated line between highest and lowest cell
+* Adjustable animation speed and separate colors for charging, discharging and balancing
+* Visual editor for easy configuration
+* card-mod ready (V0.5.9.8)
 
 Compatible with all BMS that provide individual cell sensors, e.g.:
 
-- Daly
-- JK-BMS
-- smartBMS smartlabs dongle
-- All sensors reporting individual cell voltages (V or mV)
+* Daly
+* JK-BMS
+* smartBMS smartlabs Dongle
+* All sensors that report individual cell voltages (V or mV)
 
-* * *
+---
 
 ## 🔜 Planned Features
 
-All planned features are realized. Ideas and feature requests are welcome – please open an [issue](https://github.com/jinx-22/battery-cell-card/issues).
+All planned features have been implemented. Ideas and feature requests are welcome – please open an [Issue](https://github.com/jinx-22/battery-cell-card/issues).
 
-* * *
+---
 
 ## Features
 
 ### Cell Visualization
 
-- Color scale: Red → Orange → Yellow → Green
-- Lowest and highest cell highlighted with a ring
-- Battery types: LiFePO4, NMC/NCM, Lead-Acid (2V cell), Custom
-- Custom scale with 7 presets, own colors, labels and optional smooth gradient
+* Color scale: Red → Orange → Yellow → Green
+* Lowest and highest cell highlighted with a ring
+* Battery types: LiFePO4, NMC/NCM, Lead-Acid (2V cell), Custom
+* Custom scale with 7 presets, own colors, labels and optional smooth gradient
 
-[![0 8](https://github.com/user-attachments/assets/ae1a84b7-b2c6-4e85-a39a-7528715f04eb)](https://github.com/user-attachments/assets/ae1a84b7-b2c6-4e85-a39a-7528715f04eb)
+<img width="33%" height="auto" alt="0 8" src="https://github.com/user-attachments/assets/ae1a84b7-b2c6-4e85-a39a-7528715f04eb" />
 
 ### Battery Status
 
-- SOC text & icon
-- Plus/minus symbol depending on charge/discharge
+* SOC text & icon
+* Plus/minus symbol depending on charge/discharge
 
 ### Balancing
 
-- Sync icon when balancing is active
-- Δ voltage display between cells
-- Optional balancing energy flow: animated line from the highest to the lowest cell
+* Sync icon when balancing is active
+* Display of the voltage difference Δ between the cells
+* Optional animated balancing energy flow between highest and lowest cell (also across wrapped rows)
 
-### Animations
+### Charge/Discharge Animations
 
-- Charge/discharge animation (needs the power sensor), direction follows the power sign
-- Glowing cell top in 3 styles, running bar in 2 styles, cell wall animation (pulse or cell wall energy)
-- Speed constant or power-dependent
-- Own colors for charging, discharging and the balancing flow
-- Animations pause while the card is not visible
+* Glowing cell top (3 styles)
+* Running bar (2 styles)
+* Cell wall animation (2 styles: Pulse / Cell wall energy)
+* Synchronized (all cells at the same time) or sequential (one after another through the cells)
+* Speed constant or power-dependent
+* Separate colors for charging, discharging and balancing energy flow
 
 ### Flexible Layout
 
-- Auto-scaling
-- Responsive for mobile and desktop
-- Cell height linked with the layout rows of the sections dashboard
-- Optional cell wrapping (chunking) in Auto 4, Auto 8 or Manual mode
+* Automatic scaling
+* Responsive for mobile and desktop
+* Optional cell wrapping (Chunking) in Auto 4, Auto 8 or Manual mode
+* Adjustable cell height (280–800 px) and minimum cell width (40–120 px)
+* Layout rows are derived from the cell height (Home Assistant Sections)
 
 ### Display Options
 
-- Legend toggle
-- SOC value & icon toggle separately
-- 3D metal frame toggle
-- **Disc look for the scale** in three strengths: Subtle, Medium, Strong (works with and without the 3D frame)
-- Adjustable font size
-- Additional sensors with name, icon and font size
+* Legend on/off
+* SOC value & icon separately switchable
+* 3D metal frame switchable
+* **Disc look of the scale** in three levels: Subtle, Medium, Strong (with and without 3D frame)
+* Adjustable font size
+* Additional sensors with name, icon and font size
 
 ### Sensor Support
 
-- SOC sensor
-- Power (W) sensor
-- Cell difference sensor
-- Balancing sensor (optional)
-- Lowest & highest cell sensor
-- Individual cells **{name, entity}**
-- Additional sensors **{name, entity, icon}**
+* SOC sensor
+* Power sensor (W)
+* Cell difference sensor
+* Balancing sensor (optional)
+* Sensor for lowest & highest cell
+* Individual cells **{name, entity}**
+* Additional sensors **{name, entity, icon}**
 
-* * *
+---
 
 ## Installation
 
@@ -224,7 +186,6 @@ Click the button to add the repository in HACS, download the card and reload you
 1. Download **battery-cells-card.js**
 2. Copy it to `/config/www/community/battery-cell-card/`
 3. In Home Assistant:
-
    - Settings
    - Dashboards
    - Three-dot menu
@@ -232,64 +193,80 @@ Click the button to add the repository in HACS, download the card and reload you
    - Add Resource
    - URL: **/local/community/battery-cell-card/battery-cells-card.js**
    - Type: **JavaScript Module**
-4. Reload browser (CTRL + F5). In the Home Assistant app also clear the app cache (Settings → Companion App → Troubleshooting) after an update.
+4. Reload the browser (CTRL + F5)
 
-The card is now selectable and visible in the GUI.
+The card is now selectable and visible in the UI.
 
-* * *
+---
 
 ## 🧡 Support & Donations
 
 If you like this integration and it adds real value to your Home Assistant setup,  
-I’d appreciate a small donation — every contribution helps further development 🚀
+I would appreciate a small donation — every contribution helps with further development 🚀
 
-### Lightning
+<div align="center">
 
-[![Lightning](https://github.com/user-attachments/assets/0bff59d2-7986-46cf-9d39-17fe0dbb128a)](https://github.com/user-attachments/assets/0bff59d2-7986-46cf-9d39-17fe0dbb128a)
+### <a id="lightning"></a>Lightning
+
+<img width="32" alt="Lightning" src="https://github.com/user-attachments/assets/0bff59d2-7986-46cf-9d39-17fe0dbb128a" />
 
 `usefulplay52@walletofsatoshi.com`
 
-[![Lightning - Wallet of Satoshi](https://github.com/user-attachments/assets/65cc18d9-05d1-4a00-8ccc-9922fdb54baf)](https://github.com/user-attachments/assets/65cc18d9-05d1-4a00-8ccc-9922fdb54baf)
+<img height="300" alt="Lightning - Wallet of Satoshi" src="https://github.com/user-attachments/assets/65cc18d9-05d1-4a00-8ccc-9922fdb54baf" />
 
-### Bitcoin
+### <a id="bitcoin"></a>Bitcoin
 
-[![Bitcoin](https://github.com/user-attachments/assets/f74cad36-8c05-4a33-89cd-b998075af33b)](https://github.com/user-attachments/assets/f74cad36-8c05-4a33-89cd-b998075af33b)
+<img width="32" alt="Bitcoin" src="https://github.com/user-attachments/assets/f74cad36-8c05-4a33-89cd-b998075af33b" />
 
 `bc1qkz7mtp23cmshxnru96lzgeayu0urlysvqk5vry`
 
-[![Bitcoin donation](https://github.com/user-attachments/assets/196f68e4-b0e8-4f27-bded-8c4fe13b9d45)](https://github.com/user-attachments/assets/196f68e4-b0e8-4f27-bded-8c4fe13b9d45)
+<img height="300" alt="Bitcoin donation" src="https://github.com/user-attachments/assets/196f68e4-b0e8-4f27-bded-8c4fe13b9d45" />
+
+</div>
 
 **Thank you very much**, and please leave a free [![GitHub stars](https://img.shields.io/github/stars/jinx-22/battery-cell-card?style=social)](https://github.com/jinx-22/battery-cell-card/stargazers) so others can find this project too — thanks!
 
-* * *
+---
 
 ## Configuration Options
 
-The card has a visual editor (English / German, follows your Home Assistant language). Every option can also be set in YAML. Numeric values outside the allowed range are clamped automatically.
+The card has a visual editor (English / German, follows the Home Assistant language). Every option can also be set in YAML. Numeric values outside the allowed range are automatically clamped.
 
 | Option | Default | Type | Range / Values | Description |
-|---|---|---|---|---|
+| ------ | -------- | --- | --------------- | ------------ |
 | `title` | `'Battery Cells'` | string | – | Card title. |
-| `theme` | `''` | string | theme name | Home Assistant theme for this card (empty = default theme). |
+| `theme` | `''` | string | Theme name | Home Assistant theme for this card (empty = default theme). |
 | `battery_type` | `lifepo4` | string | `lifepo4`, `nmc`, `lead`, `custom` | Battery chemistry and voltage scale. |
 | `custom_min_mv` | `2600` | number | 1000 – 5000 | `custom` only: minimum cell voltage (mV). With `legend_stops` it is the lower edge of the bottom step. |
-| `custom_max_mv` | `3650` | number | 1000 – 5000 | `custom` only, YAML only: maximum cell voltage (mV). Used when fewer than 2 `legend_stops` exist. |
-| `legend_stops` | `[]` | array | 2 – 20 steps | `custom` only: own scale steps `{color, mv, pct, top, bottom}` (see below). |
-| `scale_gradient` | `false` | boolean | – | `custom` scale: smooth color gradient instead of hard segments (cells + legend). |
+| `custom_max_mv` | `3650` | number | 1000 – 5000 | `custom` only: maximum cell voltage (mV). Used when fewer than 2 `legend_stops` exist. YAML only (not in the editor). |
+| `legend_stops` | `[]` | array | 2 – 20 steps | `custom` only: custom scale steps `{color, mv, pct, top, bottom}` (see note below). |
+| `scale_gradient` | `false` | boolean | – | `custom` scale: soft color gradient instead of hard segments (cells + legend). |
 | `show_legend` | `true` | boolean | – | Show the legend column. |
-| `soc_entity` | `null` | string / null | sensor | State of charge sensor (%). |
-| `watt_entity` | `null` | string / null | sensor | Power sensor (W or kW). Positive = charging, negative = discharging. |
-| `cell_diff_sensor` | `null` | string / null | sensor | Cell voltage difference (Δ). Unit `V` / `mV` is detected; without a unit, values below 0.1 count as V. |
-| `balance_sensor` | `null` | string / null | entity | Optional "balancing active" entity (state `on`). |
+| `soc_entity` | `null` | string / null | Sensor | Sensor for the state of charge (%). |
+| `watt_entity` | `null` | string / null | Sensor | Power sensor (W). Positive = charging, negative = discharging. Required for charge/discharge animations. |
+| `cell_diff_sensor` | `null` | string / null | Sensor | Cell voltage difference (Δ). Unit `V` / `mV` is detected; without unit, values below 0.1 are treated as V. |
+| `balance_sensor` | `null` | string / null | Entity | Optional “balancing active” entity (state `on`). |
 | `cell_diff` | `8` | number | 0 – 1000 | Minimum Δ (mV) for the balancing (sync) icon. |
-| `cell_bal_over` | `3000` | number | 0 – 6000 | Balancing icon only appears when the highest cell is at least this voltage (mV). |
-| `auto_detect_low_high` | `true` | boolean | – | Detect the lowest / highest cell automatically. |
-| `pack_cell_low` | `null` | string / null | sensor | Sensor with the number of the lowest cell (auto-detect off). |
-| `pack_cell_high` | `null` | string / null | sensor | Sensor with the number of the highest cell (auto-detect off). |
+| `cell_bal_over` | `3000` | number | 0 – 6000 | The balancing icon only appears when the highest cell is at least this voltage (mV). |
+| `auto_detect_low_high` | `true` | boolean | – | Automatically detect lowest / highest cell. |
+| `pack_cell_low` | `null` | string / null | Sensor | Sensor with the number of the lowest cell (auto off). |
+| `pack_cell_high` | `null` | string / null | Sensor | Sensor with the number of the highest cell (auto off). |
 | `show_soc_value` | `true` | boolean | – | SOC value in the legend. |
 | `show_soc_icon` | `true` | boolean | – | Battery icon in the legend (changes with power). |
 | `show_cell_diff` | `true` | boolean | – | Cell difference (Δ mV) in the legend. |
-| `show_sync_icon` | `true` | boolean | – | Sync icon while balancing. |
+| `show_sync_icon` | `true` | boolean | – | Sync icon during balancing. |
+| `show_balance_flow` | `false` | boolean | – | Animated balancing energy flow between highest and lowest cell. |
+| `show_flow` | `false` | boolean | – | Enable charge/discharge animations (requires `watt_entity`). |
+| `flow_tip` | `tip1` | string | `off`, `tip1`, `tip2`, `tip3` | Glowing cell top: off, Glow, Glow (subtle), Glow (Explosion). |
+| `flow_bar` | `off` | string | `off`, `bar1`, `bar2` | Running bar: off, short tail, long tail. |
+| `flow_glow` | `off` | string | `off`, `pulse`, `wave` | Cell wall animation: off, Pulse (edge to center), Cell wall energy. |
+| `flow_sync` | `false` | boolean | – | `true` = all cells simultaneously; `false` = sequential one after another. |
+| `flow_speed_mode` | `manual` | string | `manual`, `auto` | Speed constant or power-dependent. |
+| `flow_speed` | `1` | number | 0.1 – 2 | Speed factor for constant speed. |
+| `flow_speed_auto` | `1` | number | 0.2 – 2 | Speed factor for power-dependent speed. |
+| `flow_max_charge_w` | `3000` | number | 100 – 100000 | Max. charge power (W) for power-dependent speed. |
+| `flow_max_discharge_w` | `3000` | number | 100 – 100000 | Max. discharge power (W) for power-dependent speed. |
+| `color_tip1_up` / `color_tip1_down` … | `null` | string / array | RGB or Hex | Animation colors for charging (`_up`) and discharging (`_down`). Keys: `color_tip1_*`, `color_tip2_*`, `color_tip3_*`, `color_bar1_*`, `color_bar2_*`, `color_pulse_*`, `color_wave_*`, `color_bf`. `null` = default color. |
 | `cell_unit` | `mV` | string | `mV`, `V` | Unit of the cell values. |
 | `font_size` | `8` | number | 4 – 16 | Base font size. |
 | `overlay_opacity` | `0.7` | number | 0 – 1 | Darkening of the empty part of each cell. |
@@ -297,76 +274,45 @@ The card has a visual editor (English / German, follows your Home Assistant lang
 | `container_padding` | `10` | number | 0 – 40 | Padding around the cells (px). |
 | `top_padding` | `20` | number | 0 – 60 | Spacing below the title (px). |
 | `use_3d` | `false` | boolean | – | 3D metal frame. |
-| `show_slices` | `false` | boolean | – | Disc look for the scale. |
+| `show_slices` | `false` | boolean | – | Disc look of the scale. |
 | `slice_strength` | `subtle` | string | `subtle`, `medium`, `strong` | Strength of the disc look. |
-| `show_flow` | `false` | boolean | – | Charge / discharge animation (needs `watt_entity`). |
-| `flow_tip` | `tip1` | string | `off`, `tip1`, `tip2`, `tip3` | Glowing cell top: Glow, Glow (subtle), Glow (explosion). |
-| `flow_bar` | `off` | string | `off`, `bar1`, `bar2` | Running bar: short tail / long tail. |
-| `flow_glow` | `off` | string | `off`, `pulse`, `wave` | Cell wall animation: Pulse (edge to center, with glow at the cell top) or cell wall energy (waves). |
-| `flow_sync` | `false` | boolean | – | Light up all cells simultaneously instead of cell by cell. |
-| `flow_speed_mode` | `manual` | string | `manual`, `auto` | Constant or power-dependent animation speed. |
-| `flow_speed` | `1` | number | 0.1 – 2 | Speed factor for `manual`. |
-| `flow_speed_auto` | `1` | number | 0.2 – 2 | Speed factor for `auto` (0.2× at low power up to 1.6× at maximum power, multiplied by this value). |
-| `flow_max_charge_w` | `3000` | number | 100 – 100000 | `auto`: charging power (W) at which the speed is at its maximum. |
-| `flow_max_discharge_w` | `3000` | number | 100 – 100000 | `auto`: discharging power (W) at which the speed is at its maximum. |
-| `show_balance_flow` | `false` | boolean | – | Animated energy line from the highest to the lowest cell while balancing. |
-| `color_*` | `null` | `[R, G, B]` | 0 – 255 | Animation colors, see the table below. `null` = default color. |
-| `chunk_cells` | `false` | boolean | – | Wrap cells into several rows on narrow displays. |
+| `chunk_cells` | `false` | boolean | – | Wrap cells into multiple rows on narrow displays. |
 | `chunk_mode` | `auto8` | string | `auto4`, `auto8`, `manual` | Wrapping mode. |
-| `chunk_size` | `8` | number | 2 – 32 | Cells per row, `manual` mode only (upper limit). |
-| `cell_height` | `340` | number | 280 – 800 | Height of the cell row (px). With wrapping: height of each row. In the sections dashboard the layout rows apply; without `grid_options.rows` they are derived from this value. The editor keeps both in sync. |
-| `min_cell_width` | `50` | number | 40 – 120 | Minimum cell width (px); smaller widths wrap earlier (only with `chunk_cells: true`). |
+| `chunk_size` | `8` | number | 2 – 32 | Cells per row, only in `manual` mode (upper limit). |
+| `cell_height` | `340` | number | 280 – 800 | Cell height (px). Synchronized with layout rows in the Sections view (without wrapping). Default for new cards: 351. |
+| `min_cell_width` | `50` | number | 40 – 120 | Minimum cell width (px); smaller widths trigger wrapping earlier. |
 | `show_extra_sensors` | `false` | boolean | – | Show additional sensors above the cells. |
 | `extra_sensors` | `[]` | array | – | List of `{name, entity, icon}`. Without `icon` the entity icon is used. |
 | `extra_font_scale` | `1` | number | 0.7 – 1.5 | Font size factor for additional sensors. |
 | `cells` | `[]` | array | – | List of cells `{name, entity}` in display order (V or mV is detected). |
-| `grid_options` | `columns: 12` | object | `columns`, `rows` | Home Assistant layout. Without wrapping: min. 6 rows, default derived from `cell_height` (7 rows at 340 px). With wrapping: `rows: auto`. |
+| `grid_options` | `columns: 12` | object | `columns`, `rows` | Home Assistant layout. Without wrapping: `rows` is derived from `cell_height` (minimum 6). With wrapping: `rows: auto`. |
 
-**`legend_stops` keys** (only with `battery_type: custom`, first step = top of the legend):
+**Keys of `legend_stops`** (only with `battery_type: custom`, first step = top edge of the legend):
 
 | Key | Description |
-|---|---|
+| --------- | ------------ |
 | `color` | Any CSS color, e.g. `'#00ee00'`. |
 | `mv` | Voltage (mV) at the **upper edge** of the segment. Must decrease from top to bottom. |
 | `pct` | Segment height in %. All steps always add up to 100 %. |
 | `top` / `bottom` | Optional labels at the top / bottom of the segment. |
 
-**Animation colors** (`[R, G, B]` list or `'#rrggbb'`, charging = `_up`, discharging = `_down`; only set a color if you want to change the default):
-
-| Option | Default color |
-|---|---|
-| `color_tip1_up` | `[80, 160, 255]` |
-| `color_tip1_down` | `[255, 95, 22]` |
-| `color_tip2_up` | `[80, 160, 255]` |
-| `color_tip2_down` | `[255, 95, 22]` |
-| `color_tip3_up` | `[80, 160, 255]` |
-| `color_tip3_down` | `[255, 95, 22]` |
-| `color_bar1_up` | `[20, 130, 255]` |
-| `color_bar1_down` | `[255, 110, 30]` |
-| `color_bar2_up` | `[20, 130, 255]` |
-| `color_bar2_down` | `[255, 40, 50]` |
-| `color_pulse_up` | `[140, 195, 255]` |
-| `color_pulse_down` | `[255, 30, 30]` |
-| `color_wave_up` | `[140, 195, 255]` |
-| `color_wave_down` | `[255, 30, 30]` |
-| `color_bf` | `[45, 115, 255]` |
-
-The prefix names the effect: `tip1` – `tip3` = glowing cell top, `bar1` / `bar2` = running bar, `pulse` / `wave` = cell wall animation, `bf` = balancing energy flow.
-
 **Battery types**
 
 | `battery_type` | Voltage range (per cell) |
-|---|---|
+| -------------- | ---------------------------- |
 | `lifepo4` | 2.60 V – 3.65 V |
 | `nmc` | 3.00 V – 4.20 V |
 | `lead` | 1.80 V – 2.45 V (2 V cell) |
 | `custom` | `custom_min_mv` – `custom_max_mv` or own `legend_stops` |
 
-**Balancing icon:** shown when `balance_sensor` is `on`, or when Δ ≥ `cell_diff` and the highest cell ≥ `cell_bal_over`.
+**Balancing icon:** is shown when `balance_sensor` is `on`, or when Δ ≥ `cell_diff` and the highest cell ≥ `cell_bal_over`.
 
-> Cards created through the card picker are pre-filled with the example sensors `sensor.status_of_charge`, `sensor.pack_watt` and `sensor.delta_mvolts_between_cells`. `card_height` and `background` are no longer supported (since 0.7.0).
+**Balancing energy flow:** only appears while balancing is currently detected (via `balance_sensor` or the values under Balancing Detection).
 
-* * *
+> Cards created via the card picker are pre-filled with the example sensors `sensor.status_of_charge`, `sensor.pack_watt` and `sensor.delta_mvolts_between_cells`.  
+> `card_height` and `background` are no longer supported (since 0.7.0).
+
+---
 
 ## Example Configuration
 
@@ -392,6 +338,16 @@ show_cell_diff: true
 use_3d: true
 show_slices: true
 slice_strength: medium
+show_flow: true
+flow_tip: tip1
+flow_bar: bar1
+flow_glow: wave
+flow_sync: false
+flow_speed_mode: auto
+flow_max_charge_w: 3000
+flow_max_discharge_w: 3000
+show_balance_flow: true
+cell_height: 351
 cells:
   - name: Cell 1
     entity: sensor.cell1
@@ -411,30 +367,7 @@ cells:
     entity: sensor.cell8
 grid_options:
   columns: 24
-  rows: 8
-```
-
-### With animations
-
-```yaml
-type: custom:battery-cells-card
-title: Battery Cells
-soc_entity: sensor.status_of_charge
-watt_entity: sensor.pack_watt
-cell_diff_sensor: sensor.delta_mvolts_between_cells
-auto_detect_low_high: true
-show_flow: true            # charge / discharge animation (needs watt_entity)
-flow_tip: tip1             # off | tip1 | tip2 | tip3
-flow_bar: bar1             # off | bar1 | bar2
-flow_glow: pulse           # off | pulse | wave
-flow_speed_mode: auto      # manual | auto (power-dependent)
-flow_max_charge_w: 3000
-flow_max_discharge_w: 3000
-show_balance_flow: true    # energy line from highest to lowest cell while balancing
-color_bf: [45, 115, 255]   # optional: own color [R, G, B]
-cells:
-  - { name: Cell 1, entity: sensor.cell1 }
-  - { name: Cell 2, entity: sensor.cell2 }
+  rows: 7
 ```
 
 ### With cell wrapping (16 cells)
@@ -477,519 +410,362 @@ cells:
 
 * * *
 
-## Editor documentation
+## Editor Documentation
 
-The editor consists of collapsible panels, numbered in the order they appear. Every change is applied to the preview immediately. Between the settings of a panel thin dividers separate the groups.
+The editor consists of collapsible panels, numbered in the order they appear. Every change is applied immediately in the preview. Only one panel is open at a time (accordion).
 
-Items with a badge ([![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square) [![visible when 8.1 on](https://img.shields.io/badge/visible%20when-8.1%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-8.1%20on-blue?style=flat-square)) are only shown in the editor when the stated setting is selected. Orange = battery type *Custom*, blue = another switch or mode.
+Items with a badge (![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat) ![visible when 7.1 on](https://img.shields.io/badge/visible%20when-7.1%20on-blue?style=flat)) are only shown in the editor when the stated setting is selected. Orange = battery type *Custom*, Blue = another switch or mode.
 
 ### Contents
 
 1. [Name](#1-name)
-   - [1.1 Name](#11-name)
+
 2. [Battery Chemistry](#2-battery-chemistry)
    - [2.1 Battery type](#21-battery-type)
-   - [2.2 Color preset](#22-color-preset) [![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-   - [2.3 Smooth color gradient](#23-smooth-color-gradient) [![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-   - [2.4 Scale step](#24-scale-step) [![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-   - [2.5 Step color](#25-step-color) [![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-   - [2.6 Step labels](#26-step-labels) [![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-   - [2.7 Reorder and delete](#27-reorder-and-delete) [![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-   - [2.8 Add scale step](#28-add-scale-step) [![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-   - [2.9 Min. voltage](#29-min-voltage) [![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-   - [2.10 Automatic corrections](#210-automatic-corrections) [![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
+   - [2.2 Custom scale](#22-custom-scale) ![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat)
+   - [2.3 Custom min voltage](#23-custom-min-voltage) ![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat)
+
 3. [Cells](#3-cells)
    - [3.1 Add cell](#31-add-cell)
    - [3.2 Change entity and name](#32-change-entity-and-name)
    - [3.3 Reorder and delete](#33-reorder-and-delete)
+
 4. [Legend Sensors](#4-legend-sensors)
    - [4.1 State of charge (SOC)](#41-state-of-charge-soc)
    - [4.2 Power (W)](#42-power-w)
-   - [4.3 Cell voltage delta](#43-cell-voltage-delta)
+   - [4.3 Cell voltage difference](#43-cell-voltage-difference)
    - [4.4 Balancing active](#44-balancing-active)
+
 5. [Balancing and Min. Cell / Max. Cell](#5-balancing-and-min-cell--max-cell)
-   - [5.1 Delta threshold](#51-delta-threshold)
-   - [5.2 Balancing from cell voltage](#52-balancing-from-cell-voltage)
-   - [5.3 Auto-detect lowest / highest cell](#53-auto-detect-lowest--highest-cell)
-   - [5.4 Lowest cell sensor](#54-lowest-cell-sensor) [![visible when 5.3 off](https://img.shields.io/badge/visible%20when-5.3%20off-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-5.3%20off-blue?style=flat-square)
-   - [5.5 Highest cell sensor](#55-highest-cell-sensor) [![visible when 5.3 off](https://img.shields.io/badge/visible%20when-5.3%20off-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-5.3%20off-blue?style=flat-square)
+   - [5.1 Balancing detection](#51-balancing-detection)
+   - [5.2 Difference threshold](#52-difference-threshold)
+   - [5.3 Balancing from cell voltage](#53-balancing-from-cell-voltage)
+   - [5.4 Lowest / highest cell](#54-lowest--highest-cell)
+   - [5.5 Automatically detect](#55-automatically-detect)
+   - [5.6 Sensor for lowest cell](#56-sensor-for-lowest-cell) ![visible when 5.5 off](https://img.shields.io/badge/visible%20when-5.5%20off-blue?style=flat)
+   - [5.7 Sensor for highest cell](#57-sensor-for-highest-cell) ![visible when 5.5 off](https://img.shields.io/badge/visible%20when-5.5%20off-blue?style=flat)
+
 6. [Display](#6-display)
-   - [6.1 Font size](#61-font-size)
-   - [6.2 Cell unit](#62-cell-unit)
-   - [6.3 Cell gap](#63-cell-gap)
-   - [6.4 Title spacing](#64-title-spacing)
-   - [6.5 Card padding](#65-card-padding)
-   - [6.6 Cell height](#66-cell-height)
-   - [6.7 Min. cell width](#67-min-cell-width)
-   - [6.8 Overlay opacity](#68-overlay-opacity)
-   - [6.9 Show legend](#69-show-legend)
-   - [6.10 Legend items](#610-legend-items) [![visible when 6.9 on](https://img.shields.io/badge/visible%20when-6.9%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-6.9%20on-blue?style=flat-square)
-   - [6.11 Show additional sensors](#611-show-additional-sensors)
-   - [6.12 3D frame](#612-3d-frame)
-   - [6.13 Disc shading](#613-disc-shading)
-   - [6.14 Shading strength](#614-shading-strength) [![visible when 6.13 on](https://img.shields.io/badge/visible%20when-6.13%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-6.13%20on-blue?style=flat-square)
-   - [6.15 Theme](#615-theme)
+   - [6.1 Font size and cell unit](#61-font-size-and-cell-unit)
+   - [6.2 Cell gap, title spacing, card padding](#62-cell-gap-title-spacing-card-padding)
+   - [6.3 Cell height](#63-cell-height)
+   - [6.4 Min. cell width](#64-min-cell-width)
+   - [6.5 Overlay opacity](#65-overlay-opacity)
+   - [6.6 Legend and legend elements](#66-legend-and-legend-elements)
+   - [6.7 Show additional sensors](#67-show-additional-sensors)
+   - [6.8 3D frame](#68-3d-frame)
+   - [6.9 Disc shadows and strength](#69-disc-shadows-and-strength)
+   - [6.10 Theme](#610-theme)
+
 7. [Animation](#7-animation)
-   - [7.1 Balancing energy flow](#71-balancing-energy-flow) [![visible when 5.3 on or 5.4 + 5.5 set](https://img.shields.io/badge/visible%20when-5.3%20on%20or%205.4%20%2B%205.5%20set-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-5.3%20on%20or%205.4%20%2B%205.5%20set-blue?style=flat-square)
-   - [7.2 Charge / discharge animation](#72-charge--discharge-animation) [![visible when 4.2 set](https://img.shields.io/badge/visible%20when-4.2%20set-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-4.2%20set-blue?style=flat-square)
-   - [7.3 Glowing cell top](#73-glowing-cell-top) [![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)
-   - [7.4 Running bar](#74-running-bar) [![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)
-   - [7.5 Cell wall animation](#75-cell-wall-animation) [![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)
-   - [7.6 Light up all cells simultaneously](#76-light-up-all-cells-simultaneously) [![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)
-   - [7.7 Speed](#77-speed) [![visible when 7.2 on + one effect on](https://img.shields.io/badge/visible%20when-7.2%20on%20%2B%20one%20effect%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.2%20on%20%2B%20one%20effect%20on-blue?style=flat-square)
-   - [7.8 Speed (×)](#78-speed-) [![visible when 7.7 = Constant](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Constant-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Constant-blue?style=flat-square)
-   - [7.9 Max. charge / discharge power (W)](#79-max-charge--discharge-power-w) [![visible when 7.7 = Power-dependent](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Power--dependent-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Power--dependent-blue?style=flat-square)
-   - [7.10 Speed factor](#710-speed-factor) [![visible when 7.7 = Power-dependent](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Power--dependent-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Power--dependent-blue?style=flat-square)
-   - [7.11 Change animation colors](#711-change-animation-colors) [![visible when 7.1 or 7.2 on](https://img.shields.io/badge/visible%20when-7.1%20or%207.2%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.1%20or%207.2%20on-blue?style=flat-square)
+   - [7.1 Balancing energy flow](#71-balancing-energy-flow)
+   - [7.2 Charge/Discharge animation](#72-chargedischarge-animation) ![visible when power sensor](https://img.shields.io/badge/visible%20when-power%20sensor-blue?style=flat)
+   - [7.3 Glow / Running bar / Cell wall](#73-glow--running-bar--cell-wall) ![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat)
+   - [7.4 All cells simultaneously](#74-all-cells-simultaneously) ![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat)
+   - [7.5 Speed](#75-speed) ![visible when 7.2 on and animation active](https://img.shields.io/badge/visible%20when-7.2%20on%20%2B%20animation-blue?style=flat)
+   - [7.6 Animation colors](#76-animation-colors)
+
 8. [Cell Wrapping](#8-cell-wrapping)
    - [8.1 Enable cell wrapping](#81-enable-cell-wrapping)
-   - [8.2 Wrapping mode](#82-wrapping-mode) [![visible when 8.1 on](https://img.shields.io/badge/visible%20when-8.1%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-8.1%20on-blue?style=flat-square)
-   - [8.3 Cells per row](#83-cells-per-row) [![visible when 8.1 on + 8.2 = Manual](https://img.shields.io/badge/visible%20when-8.1%20on%20%2B%208.2%20%3D%20Manual-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-8.1%20on%20%2B%208.2%20%3D%20Manual-blue?style=flat-square)
+   - [8.2 Wrapping mode](#82-wrapping-mode) ![visible when 8.1 on](https://img.shields.io/badge/visible%20when-8.1%20on-blue?style=flat)
+   - [8.3 Cells per row](#83-cells-per-row) ![visible when 8.1 on + 8.2 = Manual](https://img.shields.io/badge/visible%20when-8.1%20on%20%2B%208.2%20%3D%20Manual-blue?style=flat)
+
 9. [Additional Sensors](#9-additional-sensors)
    - [9.1 Add sensor](#91-add-sensor)
    - [9.2 Name and icon](#92-name-and-icon)
    - [9.3 Reorder and delete](#93-reorder-and-delete)
    - [9.4 Font size](#94-font-size)
 
-* * *
+---
 
 ### 1. Name
 
 #### 1.1 Name
-
 > **Setting:** Free text for the card title (`title`). Default: `Battery Cells`.
 >
-> **Purpose:** The title is shown at the top of the card. It helps to tell several battery packs apart on one dashboard.
+> **Purpose:** The title is displayed at the top of the card. It helps distinguish multiple batteries on a dashboard.
 
-* * *
+---
 
 ### 2. Battery Chemistry
 
-The custom scale (2.2 – 2.10) is part of this panel and is only shown when the battery type is *Custom*.
-
 #### 2.1 Battery type
-
-> **Setting:** *LiFePO4*, *NMC / NCM (Li-Ni-Mn-Co)*, *Lead-Acid (2V cell)* or *Custom* (`battery_type`).
+> **Setting:** *LiFePO4*, *NMC / NCM (Li-Ni-Mn-Co)*, *Lead (2V cell)* or *Custom* (`battery_type`).
 >
-> **Purpose:** Defines the voltage range that is mapped to the bar height and the legend colors and labels (LiFePO4 2.60 – 3.65 V, NMC 3.00 – 4.20 V, lead 1.80 – 2.45 V per cell). Changing the type also suggests a fitting value for [5.2](#52-balancing-from-cell-voltage). *Custom* unlocks the custom scale below.
+> **Purpose:** Defines the voltage range that is mapped to the bar height as well as the colors and labels of the legend (LiFePO4 2.60 – 3.65 V, NMC 3.00 – 4.20 V, Lead 1.80 – 2.45 V per cell). When changing the type, a suitable value for [5.3](#53-balancing-from-cell-voltage) is also suggested. *Custom* unlocks the custom scale and the min voltage.
 
-#### 2.2 Color preset
+#### <a id="22-custom-scale"></a>2.2 Custom scale ![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat)
+> Only shown in the editor when the battery type (2.1) is *Custom*.
 
-[![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-
-> **Setting:** Dropdown with *No preset* and 7 ready-made scales: LiFePO4 Standard, Purple / Pink, Sunset, Neon, Ocean, NMC / NCM, Lead-Acid.
+##### Color Scale Preset
+> **Setting:** Dropdown with *No Preset* and 7 ready-made scales: LiFePO4 Standard, Purple / Pink, Sunset, Neon, Ocean, NMC / NCM, Lead (2V cell).
 >
-> **Purpose:** Quick start for your own scale. A preset replaces all steps and sets the min. voltage. You can edit the steps afterwards; the dropdown switches back to *No preset* as soon as they differ.
+> **Purpose:** Quick start for your own scale. A preset replaces all steps and sets the min voltage. You can adjust the steps afterwards; the dropdown jumps to *No Preset* as soon as they differ.
 
-#### 2.3 Smooth color gradient
-
-[![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-
+##### Color Gradient
 > **Setting:** Switch on / off (`scale_gradient`). Default: off.
 >
-> **Purpose:** Off = hard color segments like the legend. On = soft transitions between the colors, in the cells and in the legend. The labels in the legend stay at their position.
+> **Purpose:** Off = hard color segments as in the legend. On = soft transitions between the colors, in the cells and in the legend. The legend labels stay in their position.
 
-#### 2.4 Scale step
-
-[![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-
-> **Setting:** One row per color segment, from the top of the legend downwards. Each row has the color swatch, the **top edge voltage in mV** (`mv`) and the **share in %** (`pct`) of the segment.
+##### Scale Step
+> **Setting:** One row per color segment, from top to bottom in the legend. Each row has the color field, the **upper limit in mV** (`mv`) and the **share in %** (`pct`) of the segment.
 >
-> **Purpose:** Defines where the colors change. The voltage is the value at the upper edge of the segment, the share is its height in the legend. Tap the swatch or the pencil to open the color and label settings.
+> **Purpose:** Defines where the colors change. The voltage is the value at the upper edge of the segment, the share is its height in the legend. Tap the color field or the pencil to open color and labels.
 
-#### 2.5 Step color
-
-[![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-
-> **Setting:** Hex color (e.g. `#00ee00`) or the sliders *Hue*, *Saturation* and *Lightness* (`color`).
+##### Step Color
+> **Setting:** Hex color (e.g. `#00ee00`) or the sliders *Hue*, *Saturation* and *Brightness* (`color`).
 >
-> **Purpose:** Color of the segment in cells and legend. Hex field and sliders stay in sync, so you can start from a hex value and fine-tune with the sliders.
+> **Purpose:** Color of the segment in cells and legend. Hex field and sliders stay in sync.
 
-#### 2.6 Step labels
-
-[![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-
-> **Setting:** Optional texts *Top label* and *Bottom label* (`top`, `bottom`), e.g. `3.65V`.
+##### Labels
+> **Setting:** Optional texts *Label top* and *Label bottom* (`top`, `bottom`), e.g. `3.65V`.
 >
-> **Purpose:** Labels at the upper and lower edge of the segment in the legend. Typically only the important voltages are labelled.
+> **Purpose:** Labels at the upper and lower edge of the segment in the legend.
 
-#### 2.7 Reorder and delete
-
-[![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-
-> **Setting:** Drag handle to move a step, cross to delete it.
+##### Reorder and Delete
+> **Setting:** Drag handle to move a step, cross to delete.
 >
-> **Purpose:** Brings the steps into the right order or removes unneeded ones. After moving, the voltage of the step is set between its new neighbours.
+> **Purpose:** Brings the steps into the correct order or removes unneeded ones. After moving, the voltage of the step is set between the new neighbors.
 
-#### 2.8 Add scale step
-
-[![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-
-> **Setting:** Button *Add scale step*. Maximum 20 steps, at least 2 are needed for a custom scale.
+##### Add Scale Step
+> **Setting:** Button *Add scale step*. Maximum 20 steps, at least 2 are required for a custom scale.
 >
-> **Purpose:** Adds a segment below the last one with a voltage 100 mV lower. Useful for finer scales with more color segments.
+> **Purpose:** Adds a segment with 100 mV lower voltage below the last step.
 
-#### 2.9 Min. voltage
+##### Automatic Corrections
+> **Purpose:** The editor prevents invalid scales: voltages always decrease from top to bottom, the shares always add up to 100 % and the lowest step ends at the custom min voltage.
 
-[![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-
-> **Setting:** Number in mV, 1000 – 5000, default 2600 (`custom_min_mv`). At the bottom of the custom scale section.
+#### <a id="23-custom-min-voltage"></a>2.3 Custom Min Voltage ![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat)
+> **Setting:** Number in mV, 1000 – 5000, default 2600 (`custom_min_mv`). Only for *Custom*.
 >
-> **Purpose:** Lower edge of the bottom step: the voltage at which a cell bar counts as empty. It is lowered automatically if it would collide with the bottom step. The upper end of the scale is the top edge of the first step. (`custom_max_mv` is only used when fewer than 2 steps exist and can be set in YAML.)
-
-#### 2.10 Automatic corrections
-
-[![visible when 2.1 = Custom](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)](https://img.shields.io/badge/visible%20when-2.1%20%3D%20Custom-orange?style=flat-square)
-
-> **Setting:** Nothing to set.
+> **Purpose:** Voltage at which a cell bar is considered empty. With custom scale steps it is the lower edge of the bottom step and is automatically lowered if it would otherwise collide with this step.
 >
-> **Purpose:** The editor prevents invalid scales: voltages always decrease from top to bottom, shares always add up to 100 % (the neighbouring step takes the difference) and the bottom step ends at the min. voltage.
+> **Note:** `custom_max_mv` is no longer present in the editor, but remains configurable via YAML and is used when fewer than 2 scale steps exist.
 
-* * *
+---
 
 ### 3. Cells
 
 #### 3.1 Add cell
-
-> **Setting:** Select a sensor in the field *Add Cell*.
+> **Setting:** Select a sensor in the field *Add cell*.
 >
-> **Purpose:** Adds one bar to the card. The name is taken from the friendly name of the entity. Values in V or mV are detected automatically. Tapping a cell on the dashboard opens the sensor details.
+> **Purpose:** Adds a bar to the card. The name is taken from the friendly name of the entity. Values in V or mV are automatically detected. Tapping a cell on the dashboard opens the sensor details.
 
 #### 3.2 Change entity and name
-
-> **Setting:** Change the sensor directly in the row; tap the pencil to edit the displayed name.
+> **Setting:** Change the sensor directly in the row; use the pencil to edit the displayed name.
 >
-> **Purpose:** Replaces a sensor or shortens the name that is shown at the top of the bar (e.g. `C1`).
+> **Purpose:** Replaces a sensor or shortens the name shown at the top of the bar (e.g. `C1`).
 
 #### 3.3 Reorder and delete
-
-> **Setting:** Drag handle to move a cell, cross to delete it.
+> **Setting:** Drag handle to move a cell, cross to delete.
 >
 > **Purpose:** The order in the list is the order of the bars from left to right.
 
-* * *
+---
 
 ### 4. Legend Sensors
 
 #### 4.1 State of charge (SOC)
-
 > **Setting:** Sensor entity (`soc_entity`).
 >
-> **Purpose:** Shows the charge level in percent in the legend. Tapping it opens the sensor details.
+> **Purpose:** Shows the state of charge in percent in the legend. Tapping it opens the sensor details.
 
 #### 4.2 Power (W)
-
 > **Setting:** Sensor entity (`watt_entity`).
 >
-> **Purpose:** Controls the battery icon in the legend: green plus while charging, red minus while discharging, blue neutral icon at 0 W. It also drives the charge / discharge animation (see panel [7](#7-animation)).
+> **Purpose:** Controls the battery icon in the legend: green plus when charging, red minus when discharging, blue neutral icon at 0 W. Required for the charge/discharge animations in the Animation panel.
 
-#### 4.3 Cell voltage delta
-
+#### 4.3 Cell voltage difference
 > **Setting:** Sensor entity in V or mV (`cell_diff_sensor`).
 >
-> **Purpose:** Shows the difference between the highest and lowest cell as `Δ x mV` in the legend. It is also used to decide when the sync icon appears (see [5.1](#51-delta-threshold)).
+> **Purpose:** Shows the difference between the highest and lowest cell as `Δ x mV` in the legend. It also decides when the sync icon appears (see [5.2](#52-difference-threshold)).
 
 #### 4.4 Balancing active
-
 > **Setting:** Optional entity of any type (`balance_sensor`).
 >
-> **Purpose:** If its state is `on`, the sync icon is shown. Use it when your BMS reports balancing directly. Without it the icon is derived from the delta and the cell voltage ([5.1](#51-delta-threshold), [5.2](#52-balancing-from-cell-voltage)).
+> **Purpose:** If its state is `on`, the sync icon is displayed. Use it if your BMS reports balancing directly. Without it the icon is derived from difference and cell voltage ([5.2](#52-difference-threshold), [5.3](#53-balancing-from-cell-voltage)).
 
-* * *
+---
 
 ### 5. Balancing and Min. Cell / Max. Cell
 
-Two groups: *Balancing detection* (5.1, 5.2) and *Lowest / highest cell* (5.3 – 5.5).
+#### 5.1 Balancing detection
+> Short heading and hint text: Balancing is active when the cell difference reaches the threshold and a cell is above the balancing voltage.
 
-#### 5.1 Delta threshold
-
+#### 5.2 Difference threshold
 > **Setting:** Number in mV, default 8 (`cell_diff`).
 >
-> **Purpose:** The sync icon is only shown when the difference between highest and lowest cell is at least this value.
+> **Purpose:** The sync icon only appears when the difference between highest and lowest cell reaches at least this value.
 
-#### 5.2 Balancing from cell voltage
-
-> **Setting:** Number in mV, default 3000 (`cell_bal_over`). Changing the battery type suggests 3000 (LiFePO4 / Custom), 3500 (NMC) or 2000 (lead).
+#### 5.3 Balancing from cell voltage
+> **Setting:** Number in mV, default 3000 (`cell_bal_over`). When changing the battery type, 3000 (LiFePO4 / Custom), 3500 (NMC) or 2000 (Lead) are suggested.
 >
-> **Purpose:** Most BMS only balance near the full state. The sync icon therefore also requires that the highest cell reaches this voltage.
+> **Purpose:** Most BMS only balance near the full state. The sync icon therefore additionally requires that the highest cell reaches this voltage.
 
-#### 5.3 Auto-detect lowest / highest cell
+#### 5.4 Lowest / highest cell
+> Short heading and hint text: These cells are outlined and connected by the energy flow. Automatically or via two sensors that provide the cell number.
 
+#### 5.5 Automatically detect
 > **Setting:** Switch on / off (`auto_detect_low_high`). Default: on.
 >
-> **Purpose:** On = the card finds the lowest cell (red ring) and highest cell (blue ring) itself from the cell values. Off = you provide your own sensors ([5.4](#54-lowest-cell-sensor), [5.5](#55-highest-cell-sensor)), e.g. the numbers reported by your BMS. The two cells are also the start and end of the balancing energy flow ([7.1](#71-balancing-energy-flow)).
+> **Purpose:** On = the card finds the lowest cell (red ring) and the highest cell (blue ring) itself based on the cell values. Off = you provide your own sensors (5.6, 5.7), e.g. the numbers reported by the BMS.
 
-#### 5.4 Lowest cell sensor
-
-[![visible when 5.3 off](https://img.shields.io/badge/visible%20when-5.3%20off-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-5.3%20off-blue?style=flat-square)
-
-> **Setting:** Sensor entity (`pack_cell_low`). Only visible with auto-detect off.
+#### <a id="56-sensor-for-lowest-cell"></a>5.6 Sensor for lowest cell ![visible when 5.5 off](https://img.shields.io/badge/visible%20when-5.5%20off-blue?style=flat)
+> **Setting:** Sensor entity (`pack_cell_low`). Only visible when automatic detection is off.
 >
-> **Purpose:** The sensor value is the number of the lowest cell (1 = first cell in your list) and gets the red ring.
+> **Purpose:** The sensor value is the number of the lowest cell (1 = first cell in your list) and receives the red ring.
 
-#### 5.5 Highest cell sensor
-
-[![visible when 5.3 off](https://img.shields.io/badge/visible%20when-5.3%20off-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-5.3%20off-blue?style=flat-square)
-
-> **Setting:** Sensor entity (`pack_cell_high`). Only visible with auto-detect off.
+#### <a id="57-sensor-for-highest-cell"></a>5.7 Sensor for highest cell ![visible when 5.5 off](https://img.shields.io/badge/visible%20when-5.5%20off-blue?style=flat)
+> **Setting:** Sensor entity (`pack_cell_high`). Only visible when automatic detection is off.
 >
-> **Purpose:** The sensor value is the number of the highest cell and gets the blue ring.
+> **Purpose:** The sensor value is the number of the highest cell and receives the blue ring.
 
-* * *
+---
 
 ### 6. Display
 
-Group *Cell appearance* (6.1 – 6.8), then the switches (6.9 – 6.14) and the theme (6.15).
-
-#### 6.1 Font size
-
-> **Setting:** Number 4 – 16 in steps of 0.5, default 8 (`font_size`).
+#### 6.1 Font size and cell unit
+> **Setting:** Font size 4 – 16, default 8 (`font_size`); unit *mV* or *V* (`cell_unit`).
 >
-> **Purpose:** Base size for names, values and legend texts. All texts scale with the card width; this value shifts them larger or smaller. On small displays it is limited to 8.
+> **Purpose:** Base size for names, values and legend texts. Unit of the value at the bottom of each cell: whole millivolts or volts with three decimal places.
 
-#### 6.2 Cell unit
-
-> **Setting:** *mV* or *V* (`cell_unit`). Default: mV.
+#### 6.2 Cell gap, title spacing, card padding
+> **Setting:** Cell gap 0 – 16 px (`cell_gap`), spacing to title 0 – 60 px (`top_padding`), card padding 0 – 40 px (`container_padding`).
 >
-> **Purpose:** Unit of the value at the bottom of each cell: whole millivolts (`3321 mV`) or volts with three decimals (`3.321 V`).
+> **Purpose:** Distances between cells, below the title and to the card edge.
 
-#### 6.3 Cell gap
-
-> **Setting:** Number 0 – 16 px, default 4 (`cell_gap`).
+#### 6.3 Cell height
+> **Setting:** Number 280 – 800 px, default 340 (`cell_height`). For new cards 351 px.
 >
-> **Purpose:** Distance between the cells. Smaller gaps leave more space for the bars.
+> **Purpose:** Height of the cell row. Without wrapping the number of layout rows in the Home Assistant Sections view is derived from it (minimum 6). With wrapping it is the fixed row height.
 
-#### 6.4 Title spacing
-
-> **Setting:** Number 0 – 60 px, default 20 (`top_padding`).
+#### 6.4 Min. cell width
+> **Setting:** Number 40 – 120 px, default 50 (`min_cell_width`).
 >
-> **Purpose:** Space between the title and the cells. On small displays it is limited to 8 px.
+> **Purpose:** Smallest allowed width of a cell. A higher value makes the card wrap earlier and keeps the cells wider.
 
-#### 6.5 Card padding
-
-> **Setting:** Number 0 – 40 px, default 10 (`container_padding`).
+#### 6.5 Overlay opacity
+> **Setting:** Number 0 – 100 %, default 70 % (`overlay_opacity`).
 >
-> **Purpose:** Inner margin between card edge and cells. On small displays it is limited to 6 px.
+> **Purpose:** Darkens the empty part of each bar above the voltage level.
 
-#### 6.6 Cell height
-
-> **Setting:** Slider with px input, 280 – 800 px, default 340 (`cell_height`).
+#### 6.6 Legend and legend elements
+> **Setting:** Switch show legend (`show_legend`); when legend is on: SOC value, SOC icon, cell difference, sync icon.
 >
-> **Purpose:** Height of the cell row. **Sections dashboard:** the card height comes from the layout rows (layout tab) and the slider is linked with them in both directions: moving the slider sets the rows, changing the rows in the layout tab moves the slider (1 row ≈ 64 px minus title and padding, so the value is an approximation). **Other dashboards:** the slider sets the card height directly. **With cell wrapping ([8.1](#81-enable-cell-wrapping)):** height of each row of cells.
+> **Purpose:** The legend is the first column with color scale and status elements. The four elements can be switched on and off individually.
 
-#### 6.7 Min. cell width
-
-> **Setting:** Slider with px input, 40 – 120 px, default 50 (`min_cell_width`).
->
-> **Purpose:** Smallest width a cell may have. A higher value makes the card wrap earlier and keeps the cells wider. Only has an effect with cell wrapping ([8.1](#81-enable-cell-wrapping)).
-
-#### 6.8 Overlay opacity
-
-> **Setting:** Slider 0 – 100 %, default 70 % (`overlay_opacity`, 0 – 1 in YAML).
->
-> **Purpose:** Darkens the empty part of each bar above the voltage level. Higher values make the fill level easier to read, lower values show more of the scale colors.
-
-#### 6.9 Show legend
-
-> **Setting:** Switch on / off (`show_legend`). Default: on.
->
-> **Purpose:** The legend is the first column with the color scale, voltage labels and the status items from [6.10](#610-legend-items). Off = only the cells are shown.
-
-#### 6.10 Legend items
-
-[![visible when 6.9 on](https://img.shields.io/badge/visible%20when-6.9%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-6.9%20on-blue?style=flat-square)
-
-> **Setting:** Four switches, only visible with the legend on: SOC value (`show_soc_value`), SOC icon (`show_soc_icon`), cell delta (`show_cell_diff`), sync icon (`show_sync_icon`).
->
-> **Purpose:** Choose which status items are shown on the legend: charge percentage, battery icon with charge direction, `Δ mV` and the sync icon during balancing.
-
-#### 6.11 Show additional sensors
-
+#### 6.7 Show additional sensors
 > **Setting:** Switch on / off (`show_extra_sensors`). Default: off.
 >
-> **Purpose:** Shows the sensors from panel [9](#9-additional-sensors) in a row above the cells. Adding a sensor in panel 9 switches it on automatically.
+> **Purpose:** Shows the sensors from panel [9](#9-additional-sensors) in a row above the cells. Adding a sensor in panel 9 automatically turns the switch on.
 
-#### 6.12 3D frame
-
+#### 6.8 3D frame
 > **Setting:** Switch on / off (`use_3d`). Default: off.
 >
-> **Purpose:** Metal housing with a pole on top around each cell. Off = flat frame with a thin border. The frame becomes thinner automatically on narrow cards.
+> **Purpose:** Metal housing with pole on top around each cell. Off = flat frame with thin border.
 
-#### 6.13 Disc shading
-
-> **Setting:** Switch on / off (`show_slices`). Default: off.
+#### 6.9 Disc shadows and strength
+> **Setting:** Switch on / off (`show_slices`); when on: *Subtle*, *Medium* or *Strong* (`slice_strength`).
 >
-> **Purpose:** Divides the colored bars into fine discs with shadow. Works with and without the 3D frame.
+> **Purpose:** Divides the colored bars into fine discs with shadows. Intensity of the shadow between the discs.
 
-#### 6.14 Shading strength
-
-[![visible when 6.13 on](https://img.shields.io/badge/visible%20when-6.13%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-6.13%20on-blue?style=flat-square)
-
-> **Setting:** *Subtle*, *Medium* or *Strong* (`slice_strength`). Only visible with [6.13](#613-disc-shading) on.
->
-> **Purpose:** Intensity of the shadow between the discs. *Subtle* is barely visible, *Strong* gives a pronounced stacked look.
-
-#### 6.15 Theme
-
+#### 6.10 Theme
 > **Setting:** Dropdown with *Default* and all themes installed in Home Assistant (`theme`).
 >
-> **Purpose:** Gives this card its own color scheme (text, accent and background colors) independent of the dashboard, e.g. a dark card on a light dashboard. *Default* follows the dashboard theme.
+> **Purpose:** Gives this card its own color scheme, independent of the dashboard. *Default* takes over the theme of the dashboard.
 
-* * *
+---
 
 ### 7. Animation
 
-The panel appears as soon as the power sensor ([4.2](#42-power-w)) delivers a value or the balancing detection ([5.3](#53-auto-detect-lowest--highest-cell)) is available. Animations pause while the card is not visible.
-
 #### 7.1 Balancing energy flow
-
-[![visible when 5.3 on or 5.4 + 5.5 set](https://img.shields.io/badge/visible%20when-5.3%20on%20or%205.4%20%2B%205.5%20set-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-5.3%20on%20or%205.4%20%2B%205.5%20set-blue?style=flat-square)
-
 > **Setting:** Switch on / off (`show_balance_flow`). Default: off.
 >
-> **Purpose:** While balancing is active and the lowest and highest cell are known, an animated energy line runs from the highest to the lowest cell (across wrapped rows as well). The speed grows with the cell difference (up to 80 mV). The line fades out when balancing ends and when one of the two cells changes.
+> **Purpose:** Animated energy line between the highest and the lowest cell, also across wrapped rows. Only appears while balancing is currently detected (via the “Balancing active” sensor or the values under Balancing Detection).
 
-#### 7.2 Charge / discharge animation
-
-[![visible when 4.2 set](https://img.shields.io/badge/visible%20when-4.2%20set-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-4.2%20set-blue?style=flat-square)
-
-> **Setting:** Switch on / off (`show_flow`). Default: off.
+#### <a id="72-chargedischarge-animation"></a>7.2 Charge/Discharge animation ![visible when power sensor](https://img.shields.io/badge/visible%20when-power%20sensor-blue?style=flat)
+> **Setting:** Switch on / off (`show_flow`). Only visible if a power sensor (4.2) is set.
 >
-> **Purpose:** Animates the cells while the battery charges (power > 0, effects move up) or discharges (power < 0, effects move down). At 0 W nothing is animated.
+> **Purpose:** Enables the charge/discharge animations. The three animation types (glow, running bar, cell wall) are time-synchronized and complement each other.
 
-#### 7.3 Glowing cell top
-
-[![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)
-
-> **Setting:** *Off*, *Glow*, *Glow (subtle)* or *Glow (explosion)* (`flow_tip`). Default: Glow.
+#### <a id="73-glow--running-bar--cell-wall"></a>7.3 Glow / Running bar / Cell wall ![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat)
+> **Setting:**
+> - Glow (`flow_tip`): *Off*, *Glow*, *Glow (subtle)*, *Glow (Explosion)*
+> - Running bar (`flow_bar`): *Off*, *Running bar 1 (short tail)*, *Running bar 2 (long tail)*
+> - Cell wall animation (`flow_glow`): *Off*, *Pulse (edge to center)*, *Cell wall energy*
 >
-> **Purpose:** Lights up the top edge of the fill level. *Glow* is a bright flash, *subtle* a thin soft band, *explosion* adds sparks and a ring burst.
+> **Purpose:** Select one or more animation effects. They run synchronized and together create a harmonious overall effect.
 
-#### 7.4 Running bar
-
-[![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)
-
-> **Setting:** *Off*, *Running bar 1 (short tail)* or *Running bar 2 (long tail)* (`flow_bar`). Default: off.
+#### <a id="74-all-cells-simultaneously"></a>7.4 All cells simultaneously ![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat)
+> **Setting:** Switch on / off (`flow_sync`).
 >
-> **Purpose:** A bright bar travels through the filled part of the cell in the direction of the energy flow and leaves a tail behind it.
+> **Purpose:** On = all cells animate simultaneously. Off = the animation runs sequentially through the cells.
 
-#### 7.5 Cell wall animation
-
-[![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)
-
-> **Setting:** *Off*, *Pulse (edge to center)* or *Cell wall energy* (`flow_glow`). Default: off.
+#### <a id="75-speed"></a>7.5 Speed ![visible when 7.2 on and animation active](https://img.shields.io/badge/visible%20when-7.2%20on%20%2B%20animation-blue?style=flat)
+> **Setting:** *Constant* or *Power-dependent* (`flow_speed_mode`).
+> - Constant: Speed factor 0.1× – 2× (`flow_speed`)
+> - Power-dependent: Max. charge power and Max. discharge power (W), plus speed factor 0.2× – 2× (`flow_speed_auto`)
 >
-> **Purpose:** *Pulse*: a soft glow runs from both cell walls towards the center and lights up the top edge of the fill level horizontally. *Cell wall energy*: waves run along the side walls.
+> **Purpose:** Controls how fast the animation runs. With power-dependent the speed is adjusted to the current power relative to the maximum values.
 
-#### 7.6 Light up all cells simultaneously
-
-[![visible when 7.2 on](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.2%20on-blue?style=flat-square)
-
-> **Setting:** Switch on / off (`flow_sync`). Default: off.
+#### 7.6 Animation colors
+> **Setting:** Switch *Change animation colors*; when on: color fields for the active effects (charging / discharging) and if applicable the energy flow color.
 >
-> **Purpose:** Off = the effect starts cell by cell, like a wave through the pack. On = all cells light up at the same time.
+> **Purpose:** Separate colors for charging and discharging per animation type as well as for the balancing energy flow. Default colors are used as long as nothing is overridden.
 
-#### 7.7 Speed
-
-[![visible when 7.2 on + one effect on](https://img.shields.io/badge/visible%20when-7.2%20on%20%2B%20one%20effect%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.2%20on%20%2B%20one%20effect%20on-blue?style=flat-square)
-
-> **Setting:** *Constant* or *Power-dependent* (`flow_speed_mode`). Default: Constant.
->
-> **Purpose:** Constant uses one speed for everything. Power-dependent adapts the speed to the current power: slow at low power, fast near your maximum power ([7.9](#79-max-charge--discharge-power-w)).
-
-#### 7.8 Speed (×)
-
-[![visible when 7.7 = Constant](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Constant-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Constant-blue?style=flat-square)
-
-> **Setting:** Slider 0.1 – 2, default 1 (`flow_speed`).
->
-> **Purpose:** Playback speed of the animations.
-
-#### 7.9 Max. charge / discharge power (W)
-
-[![visible when 7.7 = Power-dependent](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Power--dependent-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Power--dependent-blue?style=flat-square)
-
-> **Setting:** Two numbers, 100 – 100000 W, default 3000 (`flow_max_charge_w`, `flow_max_discharge_w`).
->
-> **Purpose:** The power at which the animation reaches its maximum speed. Set them to the power your system really reaches, otherwise the animation stays slow.
-
-#### 7.10 Speed factor
-
-[![visible when 7.7 = Power-dependent](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Power--dependent-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.7%20%3D%20Power--dependent-blue?style=flat-square)
-
-> **Setting:** Slider 0.2 – 2, default 1 (`flow_speed_auto`).
->
-> **Purpose:** Scales the power-dependent speed. With factor 1 the speed rises from 0.2× at almost no power to 1.6× at maximum power; factor 2 doubles it.
-
-#### 7.11 Change animation colors
-
-[![visible when 7.1 or 7.2 on](https://img.shields.io/badge/visible%20when-7.1%20or%207.2%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-7.1%20or%207.2%20on-blue?style=flat-square)
-
-> **Setting:** Switch (editor only) that shows color pickers (`color_*`).
->
-> **Purpose:** One color per active effect, separately for charging and discharging, plus the color of the balancing flow. Only colors that differ from the default are saved in the configuration.
-
-* * *
+---
 
 ### 8. Cell Wrapping
 
 #### 8.1 Enable cell wrapping
-
 > **Setting:** Switch on / off (`chunk_cells`). Default: off.
 >
-> **Purpose:** Wraps the cells into several rows when the card is too narrow, so they are never squeezed (ideal for phones and large packs). With wrapping on, the card height is calculated from the cell height ([6.6](#66-cell-height)) and the layout rows are set to *auto*. Switching it off sets the layout rows again from the cell height.
+> **Purpose:** Wraps the cells into multiple rows when the card is too narrow so that they are never squeezed (ideal for phones and large packs). With wrapping active the card height is calculated from the cell height and the layout rows are set to *Auto*. When switched off the layout rows are derived from the cell height again.
 
-#### 8.2 Wrapping mode
-
-[![visible when 8.1 on](https://img.shields.io/badge/visible%20when-8.1%20on-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-8.1%20on-blue?style=flat-square)
-
-> **Setting:** *Auto 4*, *Auto 8* or *Manual* (`chunk_mode`). Default: Auto 8.
+#### <a id="82-wrapping-mode"></a>8.2 Wrapping mode ![visible when 8.1 on](https://img.shields.io/badge/visible%20when-8.1%20on-blue?style=flat)
+> **Setting:** *Auto 4 cells*, *Auto 8 cells* or *Manual* (`chunk_mode`). Default: Auto 8.
 >
-> **Purpose:** *Auto 4* wraps in rows of 4, 8, 16 …, *Auto 8* in rows of 8, 16 …, depending on the card width. *Manual* uses the value from [8.3](#83-cells-per-row) as upper limit.
+> **Purpose:** *Auto 4* wraps in rows of 4, 8, 16 …, *Auto 8* in rows of 8, 16 …, depending on the card width. *Manual* uses the value from 8.3 as upper limit.
 
-#### 8.3 Cells per row
-
-[![visible when 8.1 on + 8.2 = Manual](https://img.shields.io/badge/visible%20when-8.1%20on%20%2B%208.2%20%3D%20Manual-blue?style=flat-square)](https://img.shields.io/badge/visible%20when-8.1%20on%20%2B%208.2%20%3D%20Manual-blue?style=flat-square)
-
+#### <a id="83-cells-per-row"></a>8.3 Cells per row ![visible when 8.1 on + 8.2 = Manual](https://img.shields.io/badge/visible%20when-8.1%20on%20%2B%208.2%20%3D%20Manual-blue?style=flat)
 > **Setting:** Number 2 – 32, default 8 (`chunk_size`). Only visible in *Manual* mode.
 >
-> **Purpose:** Maximum number of cells per row. If the card is too narrow for that many, fewer cells per row are used.
+> **Purpose:** Maximum number of cells per row. If the card is too narrow for that, fewer cells per row are used.
 
-* * *
+---
 
 ### 9. Additional Sensors
 
 #### 9.1 Add sensor
-
-> **Setting:** Select a sensor in the field *Add Sensor*.
+> **Setting:** Select a sensor in the field *Add sensor*.
 >
-> **Purpose:** Adds a value row above the cells, e.g. temperature, current or cycle count. The unit is taken from the entity. Tapping a value opens the sensor details.
+> **Purpose:** Adds a value row above the cells, e.g. temperature, current or cycle count. The unit is taken from the entity. Tapping a value opens the sensor details. Adding a sensor automatically turns on “Show additional sensors”.
 
 #### 9.2 Name and icon
-
-> **Setting:** Tap the pencil: free text *Name* and an icon picker (`name`, `icon`).
+> **Setting:** Open with the pencil: Free text *Name* and icon picker (`name`, `icon`).
 >
 > **Purpose:** The name is shown in front of the value. Without an icon the standard icon of the entity is used.
 
 #### 9.3 Reorder and delete
-
-> **Setting:** Drag handle to move a sensor, cross to delete it.
+> **Setting:** Drag handle to move a sensor, cross to delete.
 >
 > **Purpose:** The order in the list is the order from left to right.
 
 #### 9.4 Font size
-
-> **Setting:** Slider 0.7 – 1.5, default 1 (`extra_font_scale`). At the bottom of the panel.
+> **Setting:** Slider 0.7 – 1.5, default 1 (`extra_font_scale`). At the end of the panel.
 >
-> **Purpose:** Size factor for the texts and icons of the additional sensors, independent of the cell font size.
+> **Purpose:** Size factor for texts and icons of the additional sensors, independent of the cell font size.
 
-* * *
+---
 
 ## Screenshots
 
-[![Screenshot1](https://github.com/user-attachments/assets/5f8281fe-c0eb-457e-928a-3d51ead546c3)](https://github.com/user-attachments/assets/5f8281fe-c0eb-457e-928a-3d51ead546c3) [![Screenshot2](https://github.com/user-attachments/assets/6fc3ca88-7ca2-476b-aae2-5a5b7ef6833a)](https://github.com/user-attachments/assets/6fc3ca88-7ca2-476b-aae2-5a5b7ef6833a) [![Screenshot3](https://github.com/user-attachments/assets/a020dbda-9a2a-456c-b50e-341ecf2aee2f)](https://github.com/user-attachments/assets/a020dbda-9a2a-456c-b50e-341ecf2aee2f)
+<img width="60%" height="auto" alt="Skala" src="https://github.com/user-attachments/assets/2543b511-668d-4fda-9fff-d4b35d1e1805" />
+<img width="60%" height="auto" alt="Screenshot1" src="https://github.com/user-attachments/assets/5f8281fe-c0eb-457e-928a-3d51ead546c3" />
+<img width="60%" height="auto" alt="Screenshot2" src="https://github.com/user-attachments/assets/6fc3ca88-7ca2-476b-aae2-5a5b7ef6833a" />
+<img width="60%" height="auto" alt="Screenshot3" src="https://github.com/user-attachments/assets/a020dbda-9a2a-456c-b50e-341ecf2aee2f" />
 
-* * *
+---
 
 ## License
 
@@ -997,6 +773,6 @@ The panel appears as soon as the power sensor ([4.2](#42-power-w)) delivers a va
 
 - Editing & modifying allowed
 - Non-commercial use only
-- Share adaptations under same license
+- Share adaptations under the same license
 
-[Link to full license](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[Link to the full license](https://creativecommons.org/licenses/by-nc-sa/4.0/)
