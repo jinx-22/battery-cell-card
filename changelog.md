@@ -3,40 +3,30 @@
 ## [0.9.5] - 2026-10-26
 
 ### Added
-
-- **Charge / discharge animation** (needs the power sensor): glowing cell top (3 styles), running bar (2 styles) and cell wall animation (pulse or cell wall energy). Optional simultaneous lighting of all cells.
-- **Animation speed** constant (0.1× – 2×) or power-dependent (relative to your maximum charge / discharge power).
-- **Balancing energy flow**: an animated energy line runs from the highest to the lowest cell while balancing is active, also across wrapped rows.
-- Own **animation colors** for charging, discharging and the balancing flow (`color_*`), editable with color pickers in the editor.
-- **Cell height slider** (280 – 800 px) in the Display panel. In the sections dashboard it is linked with the layout rows in both directions: change the slider and the rows follow, change the rows in the layout tab and the slider follows.
-- **Min. cell width slider** (40 – 120 px) in the Display panel.
-- Short headings and hint texts in the panel *Balancing and Min. Cell / Max. Cell*.
-- Editor scrolls to a panel when it is opened.
+- **Charge/discharge animations** (require a power sensor):
+  - Glowing cell top (3 styles)
+  - Running bar (2 styles)
+  - Cell wall animation (2 styles)
+  - Animation mode: synchronized – all cells animate simultaneously – or sequential – the animation runs through the cells one after another.
+  - The three charge/discharge animations are synchronized in timing, work together and complement each other to create a harmonious overall effect.
+  - Configurable animation speed: constant (0.1×–2×) or power-dependent.
+  - Separate animation colors for charging, discharging and balancing energy flow (`color_*`).
+- **Balancing energy flow:** Animated energy line between the highest and lowest cells, including across wrapped rows.
+- **Cell height:** Adjustable from 280 to 800 px in the Display panel, synchronized with layout rows in the Home Assistant Sections view.
+- **Minimum cell width:** Adjustable from 40 to 120 px.
+- Short headings and hint texts in the Balancing and Min. Cell / Max. Cell panels.
 
 ### Changed
-
-- Pulse animation redesigned: soft permanent glow from both cell walls plus a horizontal glow at the fill level of each cell.
 - Editor reorganized:
   - Theme moved to the Display panel.
-  - The custom scale now lives inside the panel *Battery Chemistry* (only shown for battery type *Custom*); the min. voltage is at the bottom of that section.
-  - `custom_max_mv` is no longer shown in the editor (still usable in YAML, used when fewer than 2 scale steps exist).
-  - Cell height and min. cell width moved from *Cell Wrapping* to *Display*; the Display panel was re-sorted and grouped.
-  - Dividers between the settings in all panels.
-  - Font size of the additional sensors moved to the bottom of its panel.
-- Minimum cell height raised from 200 to 280 px. New cards start with 351 px (7 layout rows).
-- Without explicit `grid_options.rows` the layout rows are derived from `cell_height` (min. 6 rows).
-- Label "Pulse / wave" renamed to "Cell wall animation".
-- Animations are no longer switched off by the system setting "reduce motion".
-
-### Fixed
-
-- Flickering of the card in the Home Assistant Companion App while animations are running.
-- Cell height changes are applied without rebuilding the card (no flicker in the editor preview while dragging the slider).
-
-### Improved
-
-- The balancing energy flow is drawn on its own canvas layer and does not repaint the rest of the card.
-- Animations pause while the card is not visible.
+  - Custom voltage scale moved to the Battery Chemistry panel and shown only for the Custom battery type.
+  - `custom_max_mv` removed from the editor but remains configurable via YAML.
+  - Cell height and minimum cell width moved to the Display panel.
+  - Settings regrouped and dividers added.
+  - Additional sensor font-size setting moved to the bottom of its panel.
+- Minimum cell height increased from 200 to 280 px.
+- Default cell height for new cards set to 351 px (7 layout rows).
+- Layout rows are derived from `cell_height` unless `grid_options.rows` is explicitly configured, with a minimum of 6 rows.
 
 ---
 
