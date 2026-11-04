@@ -784,10 +784,6 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 
 ## Lizenz
 
-**Creative Commons – CC BY-NC-SA 4.0**
+Dieses Projekt steht unter der **Apache-Lizenz 2.0**.
 
-- Bearbeiten & Verändern erlaubt
-- Nur nicht-kommerzielle Nutzung
-- Bearbeitungen unter derselben Lizenz weitergeben
-
-[Link zur vollständigen Lizenz](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+Den vollständigen Lizenztext findest du in der Datei [LICENSE](LICENSE).
