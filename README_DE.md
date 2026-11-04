@@ -188,7 +188,7 @@ Klicke auf den Button, um das Repository in HACS hinzuzufügen, lade die Karte h
 ## HA Marketplace (HACS)
 
 1. Gehe zu **Einstellungen -> Marketplace**
-3. Suche **Tank Card**
+3. Suche **Battery Cells Card**
 4. Installiere die Karte
 5. Den Chache im Browser löschen und neu laden!
 
