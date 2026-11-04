@@ -175,11 +175,18 @@ All planned features have been implemented. Ideas and feature requests are welco
 
 ## Installation
 
-### HACS
+### HA Marketplace (HACS)
 
-Click the button to add the repository in HACS, download the card and reload your browser.
+Click the button to add the repository in HA MARKETPLACE, download the card and reload your browser.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jinx-22&repository=battery-cell-card&category=plugin)
+
+## HA Marketplace (HACS)
+
+1. Open **Settings -> Marketplace**
+3. Search for **Battery Cells Card**
+4. Install the card
+5. Reload Home Assistant or the browser
 
 ### Manual Installation
 
