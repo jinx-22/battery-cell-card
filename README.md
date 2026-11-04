@@ -769,10 +769,7 @@ Items with a badge (![visible when 2.1 = Custom](https://img.shields.io/badge/vi
 
 ## License
 
-**Creative Commons – CC BY-NC-SA 4.0**
+This project is licensed under the **Apache License 2.0**.
 
-- Editing & modifying allowed
-- Non-commercial use only
-- Share adaptations under the same license
+See the [LICENSE](LICENSE) file for the full license text.
 
-[Link to the full license](https://creativecommons.org/licenses/by-nc-sa/4.0/)
