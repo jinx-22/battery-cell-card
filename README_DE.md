@@ -12,11 +12,17 @@
 
 *(Link zur englischen Version: [English](README.md))*
 
-**Version:** 0.9.3
-
 **Beschreibung:** Eine benutzerdefinierte Home-Assistant-Karte zur Visualisierung von Batteriezellen, Zellspannungen, SOC, Balancing-Status und Differenzen.  
 Ideal für LiFePO₄-Batteriesysteme, auch für NMC/NCM und Blei-Säureakkus.
 
+**Version:** 0.9.4
+
+Neu in 0.9.4
+
+- Lizens-Sektion in README.md und README_DE.md bearbeitet
+- Bugfixes und mehr
+  
+[changelog.md](https://github.com/jinx-22/battery-cell-card/blob/main/changelog.md)
 
 ### ✨ Neu in v0.9.3
 
@@ -743,10 +749,6 @@ Wird im Editor nur angezeigt, wenn der Batterietyp (2.1) *Benutzerdefiniert* ist
 
 ## Lizenz
 
-**Creative Commons – CC BY-NC-SA 4.0**
+Dieses Projekt steht unter der **Apache-Lizenz 2.0**.
 
-- Bearbeiten & Verändern erlaubt
-- Nur nicht-kommerzielle Nutzung
-- Bearbeitungen unter derselben Lizenz weitergeben
-
-[Link zur vollständigen Lizenz](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+Den vollständigen Lizenztext findest du in der Datei [LICENSE](LICENSE).
