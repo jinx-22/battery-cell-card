@@ -177,11 +177,20 @@ Alle geplanten Funktionen sind umgesetzt. Ideen und Funktionswünsche sind willk
 
 ## Installation
 
-### HACS
+### Einfache Installation
 
 Klicke auf den Button, um das Repository in HACS hinzuzufügen, lade die Karte herunter und lade den Browser neu.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jinx-22&repository=battery-cell-card&category=plugin)
+
+### HA Marketplace
+
+## HA Marketplace (HACS)
+
+1. Gehe zu **Einstellungen -> Marketplace**
+3. Suche **Tank Card**
+4. Installiere die Karte
+5. Den Chache im Browser löschen und neu laden!
 
 ### Manuelle Installation
 
