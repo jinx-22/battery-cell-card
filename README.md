@@ -12,9 +12,14 @@
 Ideal for LiFePO₄ battery systems, also for NMC/NCM and lead-acid.
 *(Link to German version: [Deutsch](README_DE.md))*
 
-**Version:** 0.9.3
+**Version:** 0.9.4
 
-**Description:** A Home Assistant 
+New in 0.9.4
+
+- Edit License section in README.md und README_DE.md
+- Bugfixes and more
+  
+[changelog.md](https://github.com/jinx-22/battery-cell-card/blob/main/changelog.md)
 
 ### ✨ New in 0.9.3
 
@@ -46,8 +51,6 @@ Ideal for LiFePO₄ battery systems, also for NMC/NCM and lead-acid.
 * Improved support for voltage sensors using V or mV.
 * `grid_options` for controlling the card size.
 * Significant performance improvements and many other small changes and enhancements.
-
-### Full changelog: [changelog.md](https://github.com/jinx-22/battery-cell-card/blob/main/changelog.md)
 
 ---
 
@@ -730,10 +733,6 @@ Shown in the editor only when the battery type (2.1) is *Custom*.
 
 ## License
 
-**Creative Commons – CC BY-NC-SA 4.0**
+This project is licensed under the **Apache License 2.0**.
 
-- Editing & modifying allowed
-- Non-commercial use only
-- Share adaptations under same license
-
-[Link to full license](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+See the [LICENSE](LICENSE) file for the full license text.
