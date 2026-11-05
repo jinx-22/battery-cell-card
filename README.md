@@ -61,7 +61,7 @@ Ideal for LiFePO₄ battery systems, also suitable for NMC/NCM and lead-acid bat
 
 Coming in version 0.9.6:
 
-A simple alternative battery display mode for home batteries without cells(-voltage-sensors)!
+A simple battery status display for home batteries that don't provide cell voltage sensors or don't require that level of detail!
 
 <img width="30%" height="auto" alt="brave_7u0pNbkvNC" src="https://github.com/user-attachments/assets/41e6d55a-ee29-494e-99ed-b011efbbe16d" />
 
