@@ -19,7 +19,6 @@ Ideal for LiFePO₄ battery systems, also suitable for NMC/NCM and lead-acid bat
 
 ### ✨ New in v0.9.5
 
----
 
 <img width="50%" height="auto" alt="firefox_BlMrAtUIUM" src="https://github.com/user-attachments/assets/7c10b71a-4cf2-4f18-8212-059047c8a453" /><img width="50%" height="auto" alt="brave_qZR7FbmqRH" src="https://github.com/user-attachments/assets/f77792e3-4cbd-475a-8ec7-5744177e5e5e" />
 
