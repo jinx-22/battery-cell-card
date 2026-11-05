@@ -12,43 +12,48 @@
 
 *(Link zur englischen Version: [English](README.md))*
 
-**Version:** 0.9.5
+**Version:** 0.9.6
 
 **Beschreibung:** Eine benutzerdefinierte Home-Assistant-Karte zur Visualisierung von Batteriezellen, Zellspannungen, SOC, Balancing-Status und Differenzen.  
-Ideal für LiFePO₄-Batteriesysteme, auch für NMC/NCM und Blei-Säureakkus.
+Ideal für LiFePO₄-Batteriesysteme, auch für NMC/NCM und Blei-Säureakkus. Zusätzlich als einfache Batterie-Anzeige für Heimspeicher, die keine Zellspannungssensoren ausgeben.
 
 
-### ✨ Neu in v0.9.5
-
---- 
-
-<img width="50%" height="auto" alt="firefox_BlMrAtUIUM" src="https://github.com/user-attachments/assets/7c10b71a-4cf2-4f18-8212-059047c8a453" /><img width="50%" height="auto" alt="brave_qZR7FbmqRH" src="https://github.com/user-attachments/assets/f77792e3-4cbd-475a-8ec7-5744177e5e5e" />
+### ✨ Neu in v0.9.6
 
 ---
 
-* **Lade-/Entlade-Animationen** (benötigen einen Leistungssensor):
-  * Aufglühen der Zellenoberseite (3 Stile)
-  * Laufbalken (2 Stile)
-  * Zellwand-Animation (2 Stile)
-  * Animationsmodus: synchronisiert – alle Zellen gleichzeitig – oder sequentiell – die Animation läuft nacheinander durch die Zellen.
-  * Die drei Lade-/Entlade-Animationen sind zeitlich synchronisiert, wirken zusammen und ergänzen sich zu einem harmonischen Gesamteffekt.
-  * Einstellbare Animationsgeschwindigkeit: konstant (0,1×–2×) oder leistungsabhängig.
-  * Separate Animationsfarben für Laden, Entladen und Balancing-Energiefluss (`color_*`).
-* **Balancing-Energiefluss:** Animierte Energie-Linie zwischen der höchsten und der niedrigsten Zelle, auch über umbrochene Zeilen hinweg.
-* **Zellenhöhe:** Einstellbar von 280 bis 800 px im Anzeige-Panel, synchronisiert mit den Layout-Zeilen in der Home-Assistant-Sections-Ansicht.
-* **Minimale Zellenbreite:** Einstellbar von 40 bis 120 px.
-* Kurze Überschriften und Hinweistexte in den Panels Balancing und Min. Zelle / Max. Zelle.
-* Editor neu organisiert: Theme ins Anzeige-Panel, benutzerdefinierte Spannungsskala ins Batterie-Chemie-Panel (nur bei Typ Benutzerdefiniert), `custom_max_mv` aus dem Editor entfernt (weiterhin per YAML konfigurierbar), Zellenhöhe und min. Zellenbreite ins Anzeige-Panel, Einstellungen neu gruppiert und Trennlinien ergänzt.
-* Minimale Zellenhöhe von 200 auf 280 px angehoben; Standard-Zellenhöhe für neue Karten 351 px (7 Layout-Zeilen).
-* Layout-Zeilen werden aus `cell_height` abgeleitet, sofern `grid_options.rows` nicht explizit gesetzt ist (Minimum 6 Zeilen).
+Modus: Batterie-Monitoring (ohne Zellspannungen)
+<br><br>
+<img width="30%" height="auto" alt="brave_7u0pNbkvNC" src="https://github.com/user-attachments/assets/41e6d55a-ee29-494e-99ed-b011efbbe16d" />
+
+---
+
+Modus: Zellen-Monitoring (detailliert)
+<br><br>
+<img width="50%" height="auto" alt="brave_qZR7FbmqRH" src="https://github.com/user-attachments/assets/f77792e3-4cbd-475a-8ec7-5744177e5e5e" />
+
+
+---
+
+* **Neuer Kartenmodus „Batterie-Monitoring (ohne Zellspannungen)"** (`display_mode: battery`): Die Karte zeigt nur eine einzelne Batterie, die über den SOC-Sensor gefüllt wird – ideal für Heimspeicher ohne Zellspannungssensoren oder wenn es nicht so detailliert sein soll. Die Auswahl erfolgt oben im Panel **Anzeigemodus / Batterie-Chemie**:
+  * **Zellen-Monitoring (detailliert)** – die bekannte Ansicht mit allen Zellspannungen (Standard)
+  * **Batterie-Monitoring (ohne Zellspannungen)** – nur die Legende als eine Batterie
+  * Prozentbeschriftung in 5 / 10 / 20 / 25 %-Schritten (`soc_step`); 0 % und 100 % werden bei 20 % und 25 % mit angezeigt.
+  * 7 Farbpresets für die SOC-Skala (`soc_preset`): Standard-Farben, Grün, Blau, Lila / Rosa, Sunset, Neon, Ozean. Grün und Blau.
+  * Einstellbare Batterie-Breite von 110 bis 400 px (`battery_width`).
+  * Lade-/Entlade-Animationen (Aufglühen, Laufbalken, Zellwand) laufen auch auf der Batterie. 
+  * Zelldifferenz, Balancing-Erkennung und Sync-Symbol bleiben erhalten.
+* **Das Sync-Symbol dreht sich** jetzt, solange Balancing aktiv ist (in beiden Modi).
+* **Editor passt sich dem Modus an:** Im Batterie-Monitoring sind die Panels Zellen und Zellen-Umbruch sowie der Schalter „Legende anzeigen" ausgegraut. Einstellungen, die nur für Zellen gelten (Batterietyp, niedrigste / höchste Zelle, Zelleneinheit, Zellenabstand, „Balancing ab Zellspannung", „Alle Zellen gleichzeitig aufleuchten"), werden ausgeblendet. „Min. Zellenbreite" wird durch „Batterie-Breite" ersetzt.
 
 ### Vollständiger Changelog: [changelog.md](https://github.com/jinx-22/battery-cell-card/blob/main/changelog.md)
 
 ---
 
 > [!CAUTION]
-> **Hinweis:** Die Balkenhöhe zeigt die Zellspannung, nicht den Ladezustand.
+> **Hinweis:** Im Zellen-Monitoring zeigt die Balkenhöhe die Zellspannung, nicht den Ladezustand.
 > Der SOC in Prozent ist in der Legende ablesbar, wenn ein SOC-Sensor zugewiesen ist.
+> Im Batterie-Monitoring zeigt die Füllhöhe der Batterie dagegen direkt den SOC.
 
 ---
 
@@ -57,14 +62,6 @@ Ideal für LiFePO₄-Batteriesysteme, auch für NMC/NCM und Blei-Säureakkus.
 > Jede Einstellung des visuellen Editors ist Schritt für Schritt erklärt, mit Zweck der Option und Hinweis, wann sie sichtbar ist.
 >
 > **👉 [Editor-Dokumentation](#editor-dokumentation)**
-
----
-
-Vorschau für Version 0.9.6:
-
-Einfache Batterie-Statusdarstellung auch für Heimspeicher die keine Zellspannungssensoren ausgeben, oder es nicht so detailliert benötigt!
-
-<img width="30%" height="auto" alt="brave_7u0pNbkvNC" src="https://github.com/user-attachments/assets/41e6d55a-ee29-494e-99ed-b011efbbe16d" />
 
 ---
 
@@ -104,6 +101,7 @@ Je nach Konfiguration kann diese Karte anzeigen:
 * Lade-/Entlade-Animationen (Aufglühen, Laufbalken, Zellwand) mit synchronem oder sequentiellem Modus
 * Balancing-Energiefluss als animierte Linie zwischen höchster und niedrigster Zelle
 * Einstellbare Animationsgeschwindigkeit und separate Farben für Laden, Entladen und Balancing
+* Einfaches Batterie-Monitoring als einzelne Batterie mit SOC-Füllstand, Prozentskala und Farbpresets (ohne Zellspannungssensoren)
 * Visueller Editor für einfache Konfiguration
 * card-mod ready (V0.5.9.8)
 
@@ -113,6 +111,16 @@ Kompatibel mit allen BMS, die einzelne Zellsensoren bereitstellen, z. B.:
 * JK-BMS
 * smartBMS smartlabs Dongle
 * Alle Sensoren, die einzelne Zellspannungen melden (V oder mV)
+
+---
+
+<img width="50%" height="auto" alt="firefox_BlMrAtUIUM" src="https://github.com/user-attachments/assets/7c10b71a-4cf2-4f18-8212-059047c8a453" /><img width="50%" height="auto" alt="brave_qZR7FbmqRH" src="https://github.com/user-attachments/assets/f77792e3-4cbd-475a-8ec7-5744177e5e5e" />
+
+---
+
+Das Batterie-Monitoring benötigt dagegen nur einen SOC-Sensor und funktioniert damit auch mit Heimspeichern, die keine einzelnen Zellspannungen ausgeben.
+
+<img width="30%" height="auto" alt="brave_7u0pNbkvNC" src="https://github.com/user-attachments/assets/41e6d55a-ee29-494e-99ed-b011efbbe16d" />
 
 ---
 
@@ -133,6 +141,16 @@ Alle geplanten Funktionen sind umgesetzt. Ideen und Funktionswünsche sind willk
 
 <img width="33%" height="auto" alt="0 8" src="https://github.com/user-attachments/assets/ae1a84b7-b2c6-4e85-a39a-7528715f04eb" />
 
+### Batterie-Monitoring (ohne Zellspannungen)
+
+* Eine einzelne Batterie, gefüllt über den SOC-Sensor – ohne Zellen
+* Prozentbeschriftung in 5 / 10 / 20 / 25 %-Schritten
+* 7 SOC-Farbpresets: Standard-Farben, Grün, Blau, Lila / Rosa, Sunset, Neon, Ozean (Grün und Blau in leuchtender Laser-Optik)
+* Breite einstellbar (110–400 px), Symbole, Schrift und 3D-Rahmen wachsen responsiv mit
+* Lade-/Entlade-Animationen auf der Batterie
+* Zelldifferenz, Balancing-Erkennung und drehendes Sync-Symbol
+  
+
 ### Batteriestatus
 
 * SOC-Text & Symbol
@@ -140,7 +158,7 @@ Alle geplanten Funktionen sind umgesetzt. Ideen und Funktionswünsche sind willk
 
 ### Balancing
 
-* Sync-Symbol, wenn das Balancing aktiv ist
+* Sync-Symbol, wenn das Balancing aktiv ist (das Symbol dreht sich dabei)
 * Anzeige der Spannungsdifferenz Δ zwischen den Zellen
 * Optionaler animierter Balancing-Energiefluss zwischen höchster und niedrigster Zelle (auch über umbrochene Zeilen)
 
@@ -222,11 +240,6 @@ Die Karte ist jetzt in der Oberfläche auswählbar und sichtbar.
 Wenn dir diese Integration gefällt und sie deinem Home-Assistant-Setup echten Mehrwert bringt,  
 freue ich mich über eine kleine Spende — jeder Beitrag hilft bei der Weiterentwicklung 🚀
 
-## 🧡 Support & Donations
-
-If you like this integration and it adds real value to your Home Assistant setup,  
-I’d appreciate a small donation — every contribution helps further development 🚀
-
 <div align="center">
 
 ### <a id="lightning"></a>Lightning
@@ -247,8 +260,6 @@ I’d appreciate a small donation — every contribution helps further developme
 
 </div>
 
-**Thank you very much**, and please leave a free [![GitHub stars](https://img.shields.io/github/stars/jinx-22/battery-cell-card?style=social)](https://github.com/jinx-22/battery-cell-card/stargazers) so others can find this project too — thanks!
-
 ---
 
 **Vielen Dank**, und bitte vergib einen kostenlosen [![GitHub stars](https://img.shields.io/github/stars/jinx-22/battery-cell-card?style=social)](https://github.com/jinx-22/battery-cell-card/stargazers), damit auch andere dieses Projekt finden — danke!
@@ -259,59 +270,65 @@ I’d appreciate a small donation — every contribution helps further developme
 
 Die Karte hat einen visuellen Editor (Englisch / Deutsch, folgt der Home-Assistant-Sprache). Jede Option kann auch in YAML gesetzt werden. Zahlenwerte außerhalb des erlaubten Bereichs werden automatisch begrenzt.
 
+Mit `display_mode` wird zwischen dem **Zellen-Monitoring** (`cells`, Standard) und dem **Batterie-Monitoring** (`battery`) gewählt. Optionen, die nur für einen Modus gelten, sind in der Beschreibung gekennzeichnet; Details zum Batterie-Monitoring stehen unter der Tabelle.
+
 | Option | Standard | Typ | Bereich / Werte | Beschreibung |
 | ------ | -------- | --- | --------------- | ------------ |
 | `title` | `'Battery Cells'` | string | – | Kartentitel. |
 | `theme` | `''` | string | Theme-Name | Home-Assistant-Theme für diese Karte (leer = Standard-Theme). |
-| `battery_type` | `lifepo4` | string | `lifepo4`, `nmc`, `lead`, `custom` | Batterie-Chemie und Spannungsskala. |
+| `display_mode` | `cells` | string | `cells`, `battery` | Kartenmodus: `cells` = Zellen-Monitoring (detailliert, alle Zellspannungen), `battery` = Batterie-Monitoring (ohne Zellspannungen, eine Batterie mit SOC-Füllstand). |
+| `soc_preset` | `traffic` | string | `traffic`, `green`, `blue`, `purple`, `sunset`, `neon`, `ocean` | Nur `battery`: Farbskala der Batterie. `traffic` = Standard-Farben, `green` / `blue` = leuchtendes Laser-Grün / Laser-Blau, `purple` = Lila / Rosa. |
+| `soc_step` | `'10'` | string / number | `5`, `10`, `20`, `25` | Nur `battery`: Schritte der Prozentbeschriftung. 0 % und 100 % werden nur bei 20 und 25 angezeigt. |
+| `battery_width` | `120` | number | 110 – 400 | Nur `battery`: Breite der Batterie (px). Bei schmaler Karte wird sie auf die Kartenbreite begrenzt. |
+| `battery_type` | `lifepo4` | string | `lifepo4`, `nmc`, `lead`, `custom` | Batterie-Chemie und Spannungsskala (nur Zellen-Monitoring). |
 | `custom_min_mv` | `2600` | number | 1000 – 5000 | Nur `custom`: minimale Zellspannung (mV). Mit `legend_stops` ist es die Unterkante der untersten Stufe. |
 | `custom_max_mv` | `3650` | number | 1000 – 5000 | Nur `custom`: maximale Zellspannung (mV). Wird verwendet, wenn weniger als 2 `legend_stops` existieren. Nur per YAML (nicht im Editor). |
 | `legend_stops` | `[]` | array | 2 – 20 Stufen | Nur `custom`: eigene Skalen-Stufen `{color, mv, pct, top, bottom}` (siehe Hinweis unten). |
-| `scale_gradient` | `false` | boolean | – | `custom`-Skala: weicher Farbverlauf statt harter Segmente (Zellen + Legende). |
-| `show_legend` | `true` | boolean | – | Legendenspalte anzeigen. |
-| `soc_entity` | `null` | string / null | Sensor | Sensor für den Ladezustand (%). |
+| `scale_gradient` | `false` | boolean | – | Weicher Farbverlauf statt harter Segmente. Gilt für die `custom`-Skala (Zellen + Legende) und im Batterie-Monitoring für die SOC-Skala (nicht bei `green` / `blue`, diese nutzen immer einen Verlauf). |
+| `show_legend` | `true` | boolean | – | Legendenspalte anzeigen. Im Batterie-Monitoring ist die Batterie immer sichtbar. |
+| `soc_entity` | `null` | string / null | Sensor | Sensor für den Ladezustand (%). Im Batterie-Monitoring erforderlich: bestimmt den Füllstand. |
 | `watt_entity` | `null` | string / null | Sensor | Leistungssensor (W). Positiv = Laden, negativ = Entladen. Erforderlich für Lade-/Entlade-Animationen. |
 | `cell_diff_sensor` | `null` | string / null | Sensor | Zellspannungsdifferenz (Δ). Einheit `V` / `mV` wird erkannt; ohne Einheit gelten Werte unter 0,1 als V. |
 | `balance_sensor` | `null` | string / null | Entität | Optionale Entität „Balancing aktiv“ (Zustand `on`). |
 | `cell_diff` | `8` | number | 0 – 1000 | Minimale Δ (mV) für das Balancing-(Sync-)Symbol. |
-| `cell_bal_over` | `3000` | number | 0 – 6000 | Das Balancing-Symbol erscheint nur, wenn die höchste Zelle mindestens diese Spannung (mV) hat. |
-| `auto_detect_low_high` | `true` | boolean | – | Niedrigste / höchste Zelle automatisch erkennen. |
+| `cell_bal_over` | `3000` | number | 0 – 6000 | Nur Zellen-Monitoring: Das Balancing-Symbol erscheint nur, wenn die höchste Zelle mindestens diese Spannung (mV) hat. |
+| `auto_detect_low_high` | `true` | boolean | – | Niedrigste / höchste Zelle automatisch erkennen (nur Zellen-Monitoring). |
 | `pack_cell_low` | `null` | string / null | Sensor | Sensor mit der Nummer der niedrigsten Zelle (Automatik aus). |
 | `pack_cell_high` | `null` | string / null | Sensor | Sensor mit der Nummer der höchsten Zelle (Automatik aus). |
 | `show_soc_value` | `true` | boolean | – | SOC-Wert in der Legende. |
 | `show_soc_icon` | `true` | boolean | – | Batterie-Symbol in der Legende (ändert sich mit der Leistung). |
-| `show_cell_diff` | `true` | boolean | – | Zelldifferenz (Δ mV) in der Legende. |
-| `show_sync_icon` | `true` | boolean | – | Sync-Symbol während des Balancings. |
-| `show_balance_flow` | `false` | boolean | – | Animierter Balancing-Energiefluss zwischen höchster und niedrigster Zelle. |
-| `show_flow` | `false` | boolean | – | Lade-/Entlade-Animationen aktivieren (benötigt `watt_entity`). |
+| `show_cell_diff` | `true` | boolean | – | Zelldifferenz (Δ mV) in der Legende. Im Batterie-Monitoring steht das Δ in einer eigenen Zeile über dem mV-Wert. |
+| `show_sync_icon` | `true` | boolean | – | Sync-Symbol während des Balancings (dreht sich, solange Balancing aktiv ist). |
+| `show_balance_flow` | `false` | boolean | – | Animierter Balancing-Energiefluss zwischen höchster und niedrigster Zelle (nur Zellen-Monitoring). |
+| `show_flow` | `false` | boolean | – | Lade-/Entlade-Animationen aktivieren (benötigt `watt_entity`). Funktioniert in beiden Modi. |
 | `flow_tip` | `tip1` | string | `off`, `tip1`, `tip2`, `tip3` | Aufglühen der Zellenoberseite: aus, Glow, Glow (dezent), Glow (Explosion). |
 | `flow_bar` | `off` | string | `off`, `bar1`, `bar2` | Laufbalken: aus, kurzer Schweif, langer Schweif. |
 | `flow_glow` | `off` | string | `off`, `pulse`, `wave` | Zellwand-Animation: aus, Pulsieren (Rand zur Mitte), Zellwandenergie. |
-| `flow_sync` | `false` | boolean | – | `true` = alle Zellen gleichzeitig; `false` = sequentiell nacheinander. |
+| `flow_sync` | `false` | boolean | – | `true` = alle Zellen gleichzeitig; `false` = sequentiell nacheinander (nur Zellen-Monitoring). |
 | `flow_speed_mode` | `manual` | string | `manual`, `auto` | Geschwindigkeit konstant oder leistungsabhängig. |
 | `flow_speed` | `1` | number | 0,1 – 2 | Geschwindigkeitsfaktor bei konstanter Geschwindigkeit. |
 | `flow_speed_auto` | `1` | number | 0,2 – 2 | Geschwindigkeitsfaktor bei leistungsabhängiger Geschwindigkeit. |
 | `flow_max_charge_w` | `3000` | number | 100 – 100000 | Max. Ladeleistung (W) für die leistungsabhängige Geschwindigkeit. |
 | `flow_max_discharge_w` | `3000` | number | 100 – 100000 | Max. Entladeleistung (W) für die leistungsabhängige Geschwindigkeit. |
 | `color_tip1_up` / `color_tip1_down` … | `null` | string / array | RGB oder Hex | Animationsfarben für Laden (`_up`) und Entladen (`_down`). Keys: `color_tip1_*`, `color_tip2_*`, `color_tip3_*`, `color_bar1_*`, `color_bar2_*`, `color_pulse_*`, `color_wave_*`, `color_bf`. `null` = Standardfarbe. |
-| `cell_unit` | `mV` | string | `mV`, `V` | Einheit der Zellwerte. |
+| `cell_unit` | `mV` | string | `mV`, `V` | Einheit der Zellwerte (nur Zellen-Monitoring). |
 | `font_size` | `8` | number | 4 – 16 | Grundschriftgröße. |
-| `overlay_opacity` | `0.7` | number | 0 – 1 | Abdunklung des leeren Teils jeder Zelle. |
-| `cell_gap` | `4` | number | 0 – 16 | Abstand zwischen den Zellen (px). |
+| `overlay_opacity` | `0.7` | number | 0 – 1 | Abdunklung des leeren Teils jeder Zelle bzw. der Batterie. |
+| `cell_gap` | `4` | number | 0 – 16 | Abstand zwischen den Zellen (px, nur Zellen-Monitoring). |
 | `container_padding` | `10` | number | 0 – 40 | Innenabstand um die Zellen (px). |
 | `top_padding` | `20` | number | 0 – 60 | Abstand unter dem Titel (px). |
 | `use_3d` | `false` | boolean | – | 3D-Metallrahmen. |
 | `show_slices` | `false` | boolean | – | Scheiben-Look der Skala. |
 | `slice_strength` | `subtle` | string | `subtle`, `medium`, `strong` | Stärke des Scheiben-Looks. |
-| `chunk_cells` | `false` | boolean | – | Zellen auf schmalen Displays in mehrere Zeilen umbrechen. |
+| `chunk_cells` | `false` | boolean | – | Zellen auf schmalen Displays in mehrere Zeilen umbrechen (nur Zellen-Monitoring). |
 | `chunk_mode` | `auto8` | string | `auto4`, `auto8`, `manual` | Umbruch-Modus. |
 | `chunk_size` | `8` | number | 2 – 32 | Zellen pro Zeile, nur Modus `manual` (Obergrenze). |
-| `cell_height` | `340` | number | 280 – 800 | Zellenhöhe (px). Synchronisiert mit Layout-Zeilen in der Sections-Ansicht (ohne Umbruch). Standard für neue Karten: 351. |
-| `min_cell_width` | `50` | number | 40 – 120 | Minimale Zellenbreite (px); kleinere Breiten lösen den Umbruch früher aus. |
+| `cell_height` | `340` | number | 280 – 800 | Zellenhöhe (px); im Batterie-Monitoring die Höhe der Batterie. Synchronisiert mit Layout-Zeilen in der Sections-Ansicht (ohne Umbruch). Standard für neue Karten: 351. |
+| `min_cell_width` | `50` | number | 40 – 120 | Minimale Zellenbreite (px); kleinere Breiten lösen den Umbruch früher aus (nur Zellen-Monitoring). |
 | `show_extra_sensors` | `false` | boolean | – | Zusätzliche Sensoren über den Zellen anzeigen. |
 | `extra_sensors` | `[]` | array | – | Liste von `{name, entity, icon}`. Ohne `icon` wird das Symbol der Entität verwendet. |
 | `extra_font_scale` | `1` | number | 0.7 – 1.5 | Schriftgrößenfaktor für zusätzliche Sensoren. |
-| `cells` | `[]` | array | – | Liste der Zellen `{name, entity}` in Anzeigereihenfolge (V oder mV wird erkannt). |
+| `cells` | `[]` | array | – | Liste der Zellen `{name, entity}` in Anzeigereihenfolge (V oder mV wird erkannt). Im Batterie-Monitoring nicht benötigt. |
 | `grid_options` | `columns: 12` | object | `columns`, `rows` | Home-Assistant-Layout. Ohne Umbruch: `rows` wird aus `cell_height` abgeleitet (Minimum 6). Mit Umbruch: `rows: auto`. |
 
 **Schlüssel von `legend_stops`** (nur mit `battery_type: custom`, erste Stufe = Oberkante der Legende):
@@ -332,9 +349,27 @@ Die Karte hat einen visuellen Editor (Englisch / Deutsch, folgt der Home-Assista
 | `lead` | 1,80 V – 2,45 V (2-V-Zelle) |
 | `custom` | `custom_min_mv` – `custom_max_mv` oder eigene `legend_stops` |
 
-**Balancing-Symbol:** wird angezeigt, wenn `balance_sensor` auf `on` steht, oder wenn Δ ≥ `cell_diff` und die höchste Zelle ≥ `cell_bal_over` ist.
+**Batterie-Monitoring (`display_mode: battery`)**
 
-**Balancing-Energiefluss:** erscheint nur, solange Balancing live erkannt wird (über `balance_sensor` oder die Werte unter Balancing-Erkennung).
+Die Karte zeigt nur die Legende als eine einzelne Batterie. Der Füllstand kommt aus `soc_entity`, die Prozentzahlen stehen dort, wo im Zellen-Monitoring die Spannungswerte stehen.
+
+| `soc_preset` | Name | Aufbau |
+| ------------ | ---- | ------ |
+| `traffic` | Standard-Farben | 0–5 % rot · 5–10 % orange · 10–20 % gelb · 20–80 % grün · 80–90 % gelb · 90–95 % orange · 95–100 % rot |
+| `green` | Grün | Leuchtendes Laser-Grün mit Farbverlauf und Schimmer |
+| `blue` | Blau | Leuchtendes Laser-Blau mit Farbverlauf und Schimmer |
+| `purple` | Lila / Rosa | Gleiche Aufteilung wie Standard-Farben, Farben von dunklem Lila bis Rosa |
+| `sunset` | Sunset | Gleiche Aufteilung wie Standard-Farben, Farben von Rot über Orange und Gelb zu Grün |
+| `neon` | Neon | Gleiche Aufteilung wie Standard-Farben, Farben von Pink über Violett zu Cyan |
+| `ocean` | Ozean | Gleiche Aufteilung wie Standard-Farben, Farben von Rosarot über Blau und Hellblau zu Türkisgrün |
+
+* **Wirken weiter:** `soc_entity`, `watt_entity`, `cell_diff_sensor`, `balance_sensor`, `cell_diff`, `show_soc_value`, `show_soc_icon`, `show_cell_diff`, `show_sync_icon`, `show_flow`, `flow_*`, `color_*` (außer `color_bf`), `font_size`, `overlay_opacity`, `container_padding`, `top_padding`, `use_3d`, `show_slices`, `slice_strength`, `cell_height`, `theme`, `show_extra_sensors`, `extra_sensors`, `extra_font_scale`, `title`, `grid_options`.
+* **Werden ignoriert** (dürfen in der Konfiguration stehen bleiben): `cells`, `battery_type`, `custom_min_mv`, `custom_max_mv`, `legend_stops`, `show_legend`, `chunk_cells`, `chunk_mode`, `chunk_size`, `cell_gap`, `cell_unit`, `min_cell_width`, `cell_bal_over`, `auto_detect_low_high`, `pack_cell_low`, `pack_cell_high`, `show_balance_flow`, `flow_sync`, `color_bf`.
+* **Responsiv:** Symbole und Schrift wachsen mit Breite und Höhe der Batterie. Beim 3D-Rahmen wachsen die Seitenränder, die Oberkante und der Pluspol mit.
+
+**Balancing-Symbol:** wird angezeigt, wenn `balance_sensor` auf `on` steht, oder wenn Δ ≥ `cell_diff` und die höchste Zelle ≥ `cell_bal_over` ist. Im Batterie-Monitoring gibt es keine Zellspannungen: Dort gilt Balancing als aktiv, wenn `balance_sensor` auf `on` steht – oder, wenn kein `balance_sensor` gesetzt ist, sobald Δ ≥ `cell_diff` ist. Solange Balancing aktiv ist, dreht sich das Symbol.
+
+**Balancing-Energiefluss:** erscheint nur, solange Balancing live erkannt wird (über `balance_sensor` oder die Werte unter Balancing-Erkennung). Nur im Zellen-Monitoring verfügbar.
 
 > Karten, die über den Karten-Auswahldialog erstellt werden, sind mit den Beispielsensoren `sensor.status_of_charge`, `sensor.pack_watt` und `sensor.delta_mvolts_between_cells` vorbelegt.
 > `card_height` und `background` werden nicht mehr unterstützt (seit 0.7.0).
@@ -435,6 +470,48 @@ cells:
   - { name: Cell 2, entity: sensor.cell2 }
 ```
 
+### Batterie-Monitoring (ohne Zellspannungen)
+
+```yaml
+type: custom:battery-cells-card
+title: Heimspeicher
+display_mode: battery
+soc_entity: sensor.status_of_charge
+watt_entity: sensor.pack_watt
+cell_diff_sensor: sensor.delta_mvolts_between_cells
+balance_sensor: binary_sensor.balancing_active
+soc_preset: traffic
+soc_step: '10'
+battery_width: 140
+cell_height: 351
+use_3d: true
+show_slices: true
+show_flow: true
+flow_tip: tip1
+flow_bar: bar1
+flow_glow: pulse
+grid_options:
+  columns: 12
+  rows: 7
+```
+
+### Batterie-Monitoring im Laser-Grün (breit, 20-%-Schritte)
+
+```yaml
+type: custom:battery-cells-card
+title: Batterie
+display_mode: battery
+soc_entity: sensor.status_of_charge
+watt_entity: sensor.pack_watt
+soc_preset: green
+soc_step: '20'
+battery_width: 220
+use_3d: true
+show_flow: true
+flow_tip: tip2
+flow_glow: wave
+```
+
 ---
 
 ## Editor-Dokumentation
@@ -442,7 +519,18 @@ cells:
 Der Editor besteht aus aufklappbaren Panels, nummeriert in der Reihenfolge, in der sie erscheinen. Jede Änderung wird sofort in der Vorschau übernommen. Es ist jeweils nur ein Panel geöffnet (Akkordeon).
 
 
-Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Benutzerdefiniert-orange?style=flat) ![sichtbar bei 7.1 an](https://img.shields.io/badge/sichtbar%20bei-7.1%20an-blue?style=flat)) werden im Editor nur angezeigt, wenn die genannte Einstellung gewählt ist. Orange = Batterietyp *Benutzerdefiniert*, Blau = ein anderer Schalter oder Modus.
+Punkte mit Badge (![sichtbar bei 2.2 = Benutzerdefiniert](https://img.shields.io/badge/sichtbar%20bei-2.2%20%3D%20Benutzerdefiniert-orange?style=flat) ![sichtbar bei 7.1 an](https://img.shields.io/badge/sichtbar%20bei-7.1%20an-blue?style=flat)) werden im Editor nur angezeigt, wenn die genannte Einstellung gewählt ist. Orange = Batterietyp *Benutzerdefiniert*, Blau = ein anderer Schalter oder Modus.
+
+**Zwei Kartenmodi:** Im Panel 2 wird der Kartenmodus gewählt. Der Editor passt sich daran an:
+
+| Bereich | Zellen-Monitoring (detailliert) | Batterie-Monitoring (ohne Zellspannungen) |
+| ------- | ------------------------------- | ----------------------------------------- |
+| Panel 2 | Batterietyp, ggf. eigene Skala | SOC-Farbskala, Farbverlauf, Prozent-Schritte |
+| Panel 3 Zellen | aktiv | ausgegraut |
+| Panel 5 Balancing | alle Einstellungen | nur Differenzschwellwert |
+| Panel 6 Anzeige | Zelleneinheit, Zellenabstand, Zellenhöhe, Min. Zellenbreite | Zelleneinheit und Zellenabstand entfallen, „Zellenhöhe" heißt Batterie-Höhe, „Min. Zellenbreite" wird zu Batterie-Breite; Schalter „Legende anzeigen" ausgegraut |
+| Panel 7 Animation | alle Animationen | ohne Balancing-Energiefluss und „Alle Zellen gleichzeitig" |
+| Panel 8 Zellen-Umbruch | aktiv | ausgegraut |
 
 
 ### Inhalt
@@ -450,10 +538,14 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 
 1. [Name](#1-name)
 
-2. [Batterie-Chemie](#2-batterie-chemie)
-   - [2.1 Batterietyp](#21-batterietyp)
-   - [2.2 Benutzerdefinierte Skala](#22-benutzerdefinierte-skala) ![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Benutzerdefiniert-orange?style=flat)
-   - [2.3 Eigene Min-Spannung](#23-eigene-min-spannung) ![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Benutzerdefiniert-orange?style=flat)
+2. [Anzeigemodus / Batterie-Chemie](#2-anzeigemodus--batterie-chemie)
+   - [2.1 Kartenmodus](#21-kartenmodus)
+   - [2.2 Batterietyp](#22-batterietyp) ![sichtbar bei 2.1 = Zellen-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Zellen--Monitoring-blue?style=flat)
+   - [2.3 Benutzerdefinierte Skala](#23-benutzerdefinierte-skala) ![sichtbar bei 2.2 = Benutzerdefiniert](https://img.shields.io/badge/sichtbar%20bei-2.2%20%3D%20Benutzerdefiniert-orange?style=flat)
+   - [2.4 Eigene Min-Spannung](#24-eigene-min-spannung) ![sichtbar bei 2.2 = Benutzerdefiniert](https://img.shields.io/badge/sichtbar%20bei-2.2%20%3D%20Benutzerdefiniert-orange?style=flat)
+   - [2.5 SOC-Farbskala](#25-soc-farbskala) ![sichtbar bei 2.1 = Batterie-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Batterie--Monitoring-blue?style=flat)
+   - [2.6 Farbverlauf (Batterie-Monitoring)](#26-farbverlauf-batterie-monitoring) ![sichtbar bei 2.1 = Batterie-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Batterie--Monitoring-blue?style=flat)
+   - [2.7 Prozent-Schritte](#27-prozent-schritte) ![sichtbar bei 2.1 = Batterie-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Batterie--Monitoring-blue?style=flat)
 
 3. [Zellen](#3-zellen)
    - [3.1 Zelle hinzufügen](#31-zelle-hinzufügen)
@@ -469,8 +561,8 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 5. [Balancing und Min. Zelle / Max. Zelle](#5-balancing-und-min-zelle--max-zelle)
    - [5.1 Balancing-Erkennung](#51-balancing-erkennung)
    - [5.2 Differenzschwellwert](#52-differenzschwellwert)
-   - [5.3 Balancing ab Zellspannung](#53-balancing-ab-zellspannung)
-   - [5.4 Niedrigste / höchste Zelle](#54-niedrigste--höchste-zelle)
+   - [5.3 Balancing ab Zellspannung](#53-balancing-ab-zellspannung) ![sichtbar bei 2.1 = Zellen-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Zellen--Monitoring-blue?style=flat)
+   - [5.4 Niedrigste / höchste Zelle](#54-niedrigste--höchste-zelle) ![sichtbar bei 2.1 = Zellen-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Zellen--Monitoring-blue?style=flat)
    - [5.5 Automatisch erkennen](#55-automatisch-erkennen)
    - [5.6 Sensor für niedrigste Zelle](#56-sensor-für-niedrigste-zelle) ![sichtbar bei 5.5 aus](https://img.shields.io/badge/sichtbar%20bei-5.5%20aus-blue?style=flat)
    - [5.7 Sensor für höchste Zelle](#57-sensor-für-höchste-zelle) ![sichtbar bei 5.5 aus](https://img.shields.io/badge/sichtbar%20bei-5.5%20aus-blue?style=flat)
@@ -478,8 +570,8 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 6. [Anzeige](#6-anzeige)
    - [6.1 Schriftgröße und Zelleneinheit](#61-schriftgröße-und-zelleneinheit)
    - [6.2 Zellenabstand, Titelabstand, Kartenrand](#62-zellenabstand-titelabstand-kartenrand)
-   - [6.3 Zellenhöhe](#63-zellenhöhe)
-   - [6.4 Min. Zellenbreite](#64-min-zellenbreite)
+   - [6.3 Zellenhöhe / Batterie-Höhe](#63-zellenhöhe--batterie-höhe)
+   - [6.4 Min. Zellenbreite / Batterie-Breite](#64-min-zellenbreite--batterie-breite)
    - [6.5 Deckkraft des Overlays](#65-deckkraft-des-overlays)
    - [6.6 Legende und Legenden-Elemente](#66-legende-und-legenden-elemente)
    - [6.7 Zusätzliche Sensoren anzeigen](#67-zusätzliche-sensoren-anzeigen)
@@ -488,7 +580,7 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
    - [6.10 Theme](#610-theme)
 
 7. [Animation](#7-animation)
-   - [7.1 Balancing-Energiefluss](#71-balancing-energiefluss)
+   - [7.1 Balancing-Energiefluss](#71-balancing-energiefluss) ![sichtbar bei 2.1 = Zellen-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Zellen--Monitoring-blue?style=flat)
    - [7.2 Lade-/Entlade-Animation](#72-ladeentlade-animation) ![sichtbar bei Leistungssensor](https://img.shields.io/badge/sichtbar%20bei-Leistungssensor-blue?style=flat)
    - [7.3 Aufglühen / Laufbalken / Zellwand](#73-aufglühen--laufbalken--zellwand) ![sichtbar bei 7.2 an](https://img.shields.io/badge/sichtbar%20bei-7.2%20an-blue?style=flat)
    - [7.4 Alle Zellen gleichzeitig](#74-alle-zellen-gleichzeitig) ![sichtbar bei 7.2 an](https://img.shields.io/badge/sichtbar%20bei-7.2%20an-blue?style=flat)
@@ -518,15 +610,24 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 
 ---
 
-### 2. Batterie-Chemie
+### 2. Anzeigemodus / Batterie-Chemie
 
-#### 2.1 Batterietyp
-> **Einstellung:** *LiFePO4*, *NMC / NCM (Li-Ni-Mn-Co)*, *Blei (2V-Zelle)* oder *Benutzerdefiniert* (`battery_type`).
+#### 2.1 Kartenmodus
+> **Einstellung:** Über dem Dropdown steht „Kartenmodus auswählen:". Das Dropdown „Batterie-Sensorwerte" (`display_mode`) bietet zwei Einträge:
+> - *Zellen-Monitoring (detailliert)* (`cells`, Standard)
+> - *Batterie-Monitoring (ohne Zellspannungen)* (`battery`)
+>
+> **Zweck:** Beim **Zellen-Monitoring** zeigt die Karte alle Zellspannungen mit Legende. Beim **Batterie-Monitoring** wird nur die Legende als einzelne Batterie angezeigt, deren Füllstand der SOC-Sensor ([4.1](#41-ladezustand-soc)) bestimmt – ideal für Heimspeicher ohne Zellspannungssensoren. Die Prozentzahlen stehen dort, wo sonst die Spannungswerte stehen.
+>
+> Beim Umschalten ins Batterie-Monitoring werden die Panels *Zellen* und *Zellen-Umbruch* sowie der Schalter *Legende anzeigen* ausgegraut, und der Batterietyp verschwindet. Alle Zell-Einstellungen bleiben gespeichert und sind beim Zurückschalten wieder da.
+
+#### <a id="22-batterietyp"></a>2.2 Batterietyp ![sichtbar bei 2.1 = Zellen-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Zellen--Monitoring-blue?style=flat)
+> **Einstellung:** *LiFePO4*, *NMC / NCM (Li-Ni-Mn-Co)*, *Blei (2V-Zelle)* oder *Benutzerdefiniert* (`battery_type`). Nur im Zellen-Monitoring sichtbar.
 >
 > **Zweck:** Legt den Spannungsbereich fest, der auf die Balkenhöhe sowie auf Farben und Beschriftung der Legende abgebildet wird (LiFePO4 2,60 – 3,65 V, NMC 3,00 – 4,20 V, Blei 1,80 – 2,45 V pro Zelle). Beim Wechsel des Typs wird außerdem ein passender Wert für [5.3](#53-balancing-ab-zellspannung) vorgeschlagen. *Benutzerdefiniert* schaltet die benutzerdefinierte Skala und die Min-Spannung frei.
 
-#### <a id="22-benutzerdefinierte-skala"></a>2.2 Benutzerdefinierte Skala ![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Benutzerdefiniert-orange?style=flat)
-> Wird im Editor nur angezeigt, wenn der Batterietyp (2.1) *Benutzerdefiniert* ist.
+#### <a id="23-benutzerdefinierte-skala"></a>2.3 Benutzerdefinierte Skala ![sichtbar bei 2.2 = Benutzerdefiniert](https://img.shields.io/badge/sichtbar%20bei-2.2%20%3D%20Benutzerdefiniert-orange?style=flat)
+> Wird im Editor nur angezeigt, wenn der Batterietyp (2.2) *Benutzerdefiniert* ist.
 
 ##### Farb-Skala-Preset
 > **Einstellung:** Dropdown mit *Kein Preset* und 7 fertigen Skalen: LiFePO4 Standard, Lila / Rosa, Sunset, Neon, Ozean, NMC / NCM, Blei (2V-Zelle).
@@ -566,16 +667,33 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 ##### Automatische Korrekturen
 > **Zweck:** Der Editor verhindert ungültige Skalen: Spannungen sinken immer von oben nach unten, die Anteile ergeben immer 100 % und die unterste Stufe endet bei der eigenen Min-Spannung.
 
-#### <a id="23-eigene-min-spannung"></a>2.3 Eigene Min-Spannung ![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Benutzerdefiniert-orange?style=flat)
+#### <a id="24-eigene-min-spannung"></a>2.4 Eigene Min-Spannung ![sichtbar bei 2.2 = Benutzerdefiniert](https://img.shields.io/badge/sichtbar%20bei-2.2%20%3D%20Benutzerdefiniert-orange?style=flat)
 > **Einstellung:** Zahl in mV, 1000 – 5000, Standard 2600 (`custom_min_mv`). Nur bei *Benutzerdefiniert*.
 >
 > **Zweck:** Spannung, bei der ein Zellbalken als leer gilt. Bei eigenen Skalen-Stufen ist es die Unterkante der untersten Stufe und wird automatisch gesenkt, falls sie sonst mit dieser Stufe kollidieren würde.
 >
 > **Hinweis:** `custom_max_mv` ist im Editor nicht mehr vorhanden, bleibt aber per YAML konfigurierbar und wird verwendet, wenn weniger als 2 Skalen-Stufen existieren.
 
+#### <a id="25-soc-farbskala"></a>2.5 SOC-Farbskala ![sichtbar bei 2.1 = Batterie-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Batterie--Monitoring-blue?style=flat)
+> **Einstellung:** Dropdown „Farbskala (SOC)" (`soc_preset`) mit 7 Einträgen: *Standard-Farben*, *Grün*, *Blau*, *Lila / Rosa*, *Sunset*, *Neon*, *Ozean*. Nur im Batterie-Monitoring sichtbar.
+>
+> **Zweck:** Farben der Batterie. Standard-Farben, Lila / Rosa, Sunset, Neon und Ozean sind wie die Spannungsskala aufgebaut: bis 5 % rot, bis 10 % orange, bis 20 % gelb, 20–80 % Hauptfarbe, danach wieder gelb, orange, rot (bzw. die jeweils passenden Farben des Presets). *Grün* und *Blau* sind eine leuchtende Laser-Optik mit Farbverlauf und leichtem Schimmer.
+
+#### <a id="26-farbverlauf-batterie-monitoring"></a>2.6 Farbverlauf (Batterie-Monitoring) ![sichtbar bei 2.1 = Batterie-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Batterie--Monitoring-blue?style=flat)
+> **Einstellung:** Schalter an / aus (`scale_gradient`). Standard: aus.
+>
+> **Zweck:** Aus = harte Farbsegmente. An = weiche Übergänge zwischen den Farben der SOC-Skala. Bei *Grün* und *Blau* wird der Schalter nicht angezeigt, weil diese Presets immer einen Verlauf nutzen.
+
+#### <a id="27-prozent-schritte"></a>2.7 Prozent-Schritte ![sichtbar bei 2.1 = Batterie-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Batterie--Monitoring-blue?style=flat)
+> **Einstellung:** Dropdown mit *5 %*, *10 %*, *20 %*, *25 %* (`soc_step`). Standard: 10 %.
+>
+> **Zweck:** Abstand der Prozentbeschriftung neben der Batterie. Die Werte 0 % und 100 % werden nur bei 20 % und 25 % mit angezeigt.
+
 ---
 
 ### 3. Zellen
+
+> Im Batterie-Monitoring (2.1) ist dieses Panel ausgegraut, weil es keine einzelnen Zellen gibt. Die eingetragenen Zellen bleiben gespeichert.
 
 #### 3.1 Zelle hinzufügen
 > **Einstellung:** Sensor im Feld *Zelle hinzufügen* auswählen.
@@ -599,7 +717,7 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 #### 4.1 Ladezustand (SOC)
 > **Einstellung:** Sensor-Entität (`soc_entity`).
 >
-> **Zweck:** Zeigt den Ladezustand in Prozent in der Legende. Ein Tipp darauf öffnet die Details des Sensors.
+> **Zweck:** Zeigt den Ladezustand in Prozent in der Legende. Ein Tipp darauf öffnet die Details des Sensors. Im Batterie-Monitoring ist der Sensor erforderlich: Er bestimmt den Füllstand der Batterie.
 
 #### 4.2 Leistung (W)
 > **Einstellung:** Sensor-Entität (`watt_entity`).
@@ -609,32 +727,34 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 #### 4.3 Zellspannungsdifferenz
 > **Einstellung:** Sensor-Entität in V oder mV (`cell_diff_sensor`).
 >
-> **Zweck:** Zeigt die Differenz zwischen der höchsten und der niedrigsten Zelle als `Δ x mV` in der Legende. Sie entscheidet außerdem, wann das Sync-Symbol erscheint (siehe [5.2](#52-differenzschwellwert)).
+> **Zweck:** Zeigt die Differenz zwischen der höchsten und der niedrigsten Zelle als `Δ x mV` in der Legende. Sie entscheidet außerdem, wann das Sync-Symbol erscheint (siehe [5.2](#52-differenzschwellwert)). Im Batterie-Monitoring steht das Δ in einer eigenen Zeile mittig über dem mV-Wert.
 
 #### 4.4 Balancing aktiv
 > **Einstellung:** Optionale Entität beliebigen Typs (`balance_sensor`).
 >
-> **Zweck:** Ist ihr Zustand `on`, wird das Sync-Symbol angezeigt. Nutze sie, wenn dein BMS das Balancing direkt meldet. Ohne sie wird das Symbol aus Differenz und Zellspannung abgeleitet ([5.2](#52-differenzschwellwert), [5.3](#53-balancing-ab-zellspannung)).
+> **Zweck:** Ist ihr Zustand `on`, wird das Sync-Symbol angezeigt. Nutze sie, wenn dein BMS das Balancing direkt meldet. Ohne sie wird das Symbol aus Differenz und Zellspannung abgeleitet ([5.2](#52-differenzschwellwert), [5.3](#53-balancing-ab-zellspannung)). Im Batterie-Monitoring wird ohne diesen Sensor allein die Differenz ([5.2](#52-differenzschwellwert)) ausgewertet.
 
 ---
 
 ### 5. Balancing und Min. Zelle / Max. Zelle
 
+> Im Batterie-Monitoring (2.1) heißt das Panel nur **Balancing** und zeigt lediglich den Differenzschwellwert (5.2). Die Einstellungen 5.3 bis 5.7 entfallen.
+
 #### 5.1 Balancing-Erkennung
-> Kurze Überschrift und Hinweistext: Balancing ist aktiv, wenn die Zelldifferenz den Schwellwert erreicht und eine Zelle über der Balancing-Spannung liegt.
+> Kurze Überschrift und Hinweistext: Balancing ist aktiv, wenn die Zelldifferenz den Schwellwert erreicht und eine Zelle über der Balancing-Spannung liegt. Im Batterie-Monitoring lautet der Hinweis: Ohne Balancing-Sensor gilt Balancing als aktiv, sobald die Zelldifferenz den Schwellwert erreicht.
 
 #### 5.2 Differenzschwellwert
 > **Einstellung:** Zahl in mV, Standard 8 (`cell_diff`).
 >
-> **Zweck:** Das Sync-Symbol erscheint nur, wenn der Unterschied zwischen höchster und niedrigster Zelle mindestens diesen Wert erreicht.
+> **Zweck:** Das Sync-Symbol erscheint nur, wenn der Unterschied zwischen höchster und niedrigster Zelle mindestens diesen Wert erreicht. Im Batterie-Monitoring entscheidet dieser Wert allein, solange kein Sensor „Balancing aktiv“ (4.4) gesetzt ist.
 
-#### 5.3 Balancing ab Zellspannung
-> **Einstellung:** Zahl in mV, Standard 3000 (`cell_bal_over`). Beim Wechsel des Batterietyps werden 3000 (LiFePO4 / Benutzerdefiniert), 3500 (NMC) oder 2000 (Blei) vorgeschlagen.
+#### <a id="53-balancing-ab-zellspannung"></a>5.3 Balancing ab Zellspannung ![sichtbar bei 2.1 = Zellen-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Zellen--Monitoring-blue?style=flat)
+> **Einstellung:** Zahl in mV, Standard 3000 (`cell_bal_over`). Beim Wechsel des Batterietyps werden 3000 (LiFePO4 / Benutzerdefiniert), 3500 (NMC) oder 2000 (Blei) vorgeschlagen. Nur im Zellen-Monitoring sichtbar.
 >
 > **Zweck:** Die meisten BMS balancieren nur nahe am vollen Zustand. Das Sync-Symbol verlangt deshalb zusätzlich, dass die höchste Zelle diese Spannung erreicht.
 
-#### 5.4 Niedrigste / höchste Zelle
-> Kurze Überschrift und Hinweistext: Diese Zellen werden umrandet und vom Energiefluss verbunden. Automatisch oder über zwei Sensoren, die die Zellnummer liefern.
+#### <a id="54-niedrigste--höchste-zelle"></a>5.4 Niedrigste / höchste Zelle ![sichtbar bei 2.1 = Zellen-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Zellen--Monitoring-blue?style=flat)
+> Kurze Überschrift und Hinweistext: Diese Zellen werden umrandet und vom Energiefluss verbunden. Automatisch oder über zwei Sensoren, die die Zellnummer liefern. Dieser Abschnitt (5.4 bis 5.7) ist im Batterie-Monitoring ausgeblendet.
 
 #### 5.5 Automatisch erkennen
 > **Einstellung:** Schalter an / aus (`auto_detect_low_high`). Standard: an.
@@ -655,35 +775,39 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 
 ### 6. Anzeige
 
+> Im Batterie-Monitoring (2.1) heißt der erste Abschnitt dieses Panels **Batteriedarstellung**. Symbole und Schrift der Batterie wachsen automatisch mit Breite und Höhe mit.
+
 #### 6.1 Schriftgröße und Zelleneinheit
 > **Einstellung:** Schriftgröße 4 – 16, Standard 8 (`font_size`); Einheit *mV* oder *V* (`cell_unit`).
 >
-> **Zweck:** Grundgröße für Namen, Werte und Legendentexte. Einheit des Werts unten in jeder Zelle: ganze Millivolt oder Volt mit drei Nachkommastellen.
+> **Zweck:** Grundgröße für Namen, Werte und Legendentexte. Einheit des Werts unten in jeder Zelle: ganze Millivolt oder Volt mit drei Nachkommastellen. Im Batterie-Monitoring entfällt die Einheit, es gibt nur die Schriftgröße.
 
 #### 6.2 Zellenabstand, Titelabstand, Kartenrand
 > **Einstellung:** Zellenabstand 0 – 16 px (`cell_gap`), Abstand zum Titel 0 – 60 px (`top_padding`), Kartenrand-Abstand 0 – 40 px (`container_padding`).
 >
-> **Zweck:** Abstände zwischen Zellen, unter dem Titel und zum Kartenrand.
+> **Zweck:** Abstände zwischen Zellen, unter dem Titel und zum Kartenrand. Im Batterie-Monitoring entfällt der Zellenabstand.
 
-#### 6.3 Zellenhöhe
+#### <a id="63-zellenhöhe--batterie-höhe"></a>6.3 Zellenhöhe / Batterie-Höhe
 > **Einstellung:** Zahl 280 – 800 px, Standard 340 (`cell_height`). Für neue Karten 351 px.
 >
-> **Zweck:** Höhe der Zellenzeile. Ohne Umbruch wird daraus die Anzahl der Layout-Zeilen in der Home-Assistant-Sections-Ansicht abgeleitet (Minimum 6). Mit Umbruch ist es die feste Zeilenhöhe.
+> **Zweck:** Höhe der Zellenzeile. Ohne Umbruch wird daraus die Anzahl der Layout-Zeilen in der Home-Assistant-Sections-Ansicht abgeleitet (Minimum 6). Mit Umbruch ist es die feste Zeilenhöhe. Im Batterie-Monitoring heißt die Einstellung **Batterie-Höhe** und legt die Höhe der Batterie fest.
 
-#### 6.4 Min. Zellenbreite
-> **Einstellung:** Zahl 40 – 120 px, Standard 50 (`min_cell_width`).
+#### <a id="64-min-zellenbreite--batterie-breite"></a>6.4 Min. Zellenbreite / Batterie-Breite
+> **Einstellung:**
+> - Zellen-Monitoring: *Min. Zellenbreite*, Zahl 40 – 120 px, Standard 50 (`min_cell_width`).
+> - Batterie-Monitoring: *Batterie-Breite*, Zahl 110 – 400 px, Standard 120 (`battery_width`).
 >
-> **Zweck:** Kleinste erlaubte Breite einer Zelle. Ein höherer Wert lässt die Karte früher umbrechen und hält die Zellen breiter.
+> **Zweck:** Beide Einstellungen teilen sich denselben Platz im Editor. *Min. Zellenbreite* ist die kleinste erlaubte Breite einer Zelle: Ein höherer Wert lässt die Karte früher umbrechen und hält die Zellen breiter. *Batterie-Breite* bestimmt die Breite der Batterie; bei einer schmaleren Karte wird sie auf die Kartenbreite begrenzt. Mit der Breite wachsen Symbole, Schrift und der 3D-Rahmen mit.
 
 #### 6.5 Deckkraft des Overlays
 > **Einstellung:** Zahl 0 – 100 %, Standard 70 % (`overlay_opacity`).
 >
-> **Zweck:** Dunkelt den leeren Teil jedes Balkens oberhalb des Spannungspegels ab.
+> **Zweck:** Dunkelt den leeren Teil jedes Balkens oberhalb des Spannungspegels ab, im Batterie-Monitoring den leeren Teil der Batterie oberhalb des SOC.
 
 #### 6.6 Legende und Legenden-Elemente
 > **Einstellung:** Schalter Legende anzeigen (`show_legend`); bei eingeschalteter Legende: SOC-Wert, SOC-Symbol, Zelldifferenz, Synchronisationssymbol.
 >
-> **Zweck:** Die Legende ist die erste Spalte mit Farbskala und Statuselementen. Die vier Elemente lassen sich einzeln ein- und ausschalten.
+> **Zweck:** Die Legende ist die erste Spalte mit Farbskala und Statuselementen. Die vier Elemente lassen sich einzeln ein- und ausschalten. Solange Balancing aktiv ist, dreht sich das Synchronisationssymbol (eine Runde dauert 6 Sekunden). Im Batterie-Monitoring ist der Schalter *Legende anzeigen* ausgegraut, weil die Batterie immer sichtbar ist; die vier Elemente bleiben einzeln schaltbar.
 
 #### 6.7 Zusätzliche Sensoren anzeigen
 > **Einstellung:** Schalter an / aus (`show_extra_sensors`). Standard: aus.
@@ -693,7 +817,7 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 #### 6.8 3D-Rahmen
 > **Einstellung:** Schalter an / aus (`use_3d`). Standard: aus.
 >
-> **Zweck:** Metallgehäuse mit Pol oben um jede Zelle. Aus = flacher Rahmen mit dünnem Rand.
+> **Zweck:** Metallgehäuse mit Pol oben um jede Zelle. Aus = flacher Rahmen mit dünnem Rand. Im Batterie-Monitoring gilt der 3D-Rahmen für die Batterie: Seitenränder, Oberkante und Pol wachsen proportional mit Breite und Höhe. Im flachen Modus gibt es keinen Pol.
 
 #### 6.9 Scheiben-Schatten und Stärke
 > **Einstellung:** Schalter an / aus (`show_slices`); bei an: *Dezent*, *Mittel* oder *Stark* (`slice_strength`).
@@ -709,15 +833,15 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 
 ### 7. Animation
 
-#### 7.1 Balancing-Energiefluss
-> **Einstellung:** Schalter an / aus (`show_balance_flow`). Standard: aus.
+#### <a id="71-balancing-energiefluss"></a>7.1 Balancing-Energiefluss ![sichtbar bei 2.1 = Zellen-Monitoring](https://img.shields.io/badge/sichtbar%20bei-2.1%20%3D%20Zellen--Monitoring-blue?style=flat)
+> **Einstellung:** Schalter an / aus (`show_balance_flow`). Standard: aus. Nur im Zellen-Monitoring verfügbar.
 >
 > **Zweck:** Animierte Energie-Linie zwischen der höchsten und der niedrigsten Zelle, auch über umbrochene Zeilen hinweg. Erscheint nur, solange Balancing live erkannt wird (über den Sensor „Balancing aktiv“ oder die Werte unter Balancing-Erkennung).
 
 #### <a id="72-ladeentlade-animation"></a>7.2 Lade-/Entlade-Animation ![sichtbar bei Leistungssensor](https://img.shields.io/badge/sichtbar%20bei-Leistungssensor-blue?style=flat)
 > **Einstellung:** Schalter an / aus (`show_flow`). Nur sichtbar, wenn ein Leistungssensor (4.2) gesetzt ist.
 >
-> **Zweck:** Aktiviert die Lade-/Entlade-Animationen. Die drei Animationstypen (Aufglühen, Laufbalken, Zellwand) sind zeitlich synchronisiert und ergänzen sich.
+> **Zweck:** Aktiviert die Lade-/Entlade-Animationen. Die drei Animationstypen (Aufglühen, Laufbalken, Zellwand) sind zeitlich synchronisiert und ergänzen sich. Sie laufen in beiden Modi, im Batterie-Monitoring auf der Batterie; die Animationsspitze und der Laufbalken wandern mit dem SOC-Füllstand mit.
 
 #### <a id="73-aufglühen--laufbalken--zellwand"></a>7.3 Aufglühen / Laufbalken / Zellwand ![sichtbar bei 7.2 an](https://img.shields.io/badge/sichtbar%20bei-7.2%20an-blue?style=flat)
 > **Einstellung:**
@@ -728,7 +852,7 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 > **Zweck:** Wähle einen oder mehrere Animationseffekte. Sie laufen synchron und ergeben zusammen einen harmonischen Gesamteffekt.
 
 #### <a id="74-alle-zellen-gleichzeitig"></a>7.4 Alle Zellen gleichzeitig ![sichtbar bei 7.2 an](https://img.shields.io/badge/sichtbar%20bei-7.2%20an-blue?style=flat)
-> **Einstellung:** Schalter an / aus (`flow_sync`).
+> **Einstellung:** Schalter an / aus (`flow_sync`). Im Batterie-Monitoring ausgeblendet.
 >
 > **Zweck:** An = alle Zellen animieren gleichzeitig. Aus = die Animation läuft nacheinander durch die Zellen.
 
@@ -747,6 +871,8 @@ Punkte mit Badge (![sichtbar bei 2.1 = Benutzerdefiniert](https://img.shields.io
 ---
 
 ### 8. Zellen-Umbruch
+
+> Im Batterie-Monitoring (2.1) ist dieses Panel ausgegraut, weil es keine Zellen zum Umbrechen gibt.
 
 #### 8.1 Zellen umbrechen aktivieren
 > **Einstellung:** Schalter an / aus (`chunk_cells`). Standard: aus.
