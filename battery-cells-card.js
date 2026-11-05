@@ -1,9 +1,9 @@
 /**
  * Battery Cells Card – Home Assistant Lovelace card for BMS cell voltages
  * (LiFePO4, NMC/NCM, lead-acid, custom scale).
- * v0.14.6: new display mode "battery" (legend only as a single SOC battery).
+ * v0.15.1: new display mode "battery" (legend only as a single SOC battery).
  */
-const VERSION = '0.14.6';
+const VERSION = '0.9.6';
 console.info(`%c 🔋 Battery Cells Card %c v${VERSION} `, 'background:linear-gradient(90deg,#f00 0%,#f00 2.5%,#ffa500 2.5%,#ffa500 5%,#ff0 5%,#ff0 7.5%,#0e0 7.5%,#0e0 100%);color:#000;font-weight:bold;padding:6px 12px;border-radius:4px;', 'color:#2e7d32;padding:4px 8px;');
 
 /* ── Constants ── */
@@ -394,9 +394,10 @@ class BatteryCellsCard extends HTMLElement {
   setConfig(config) {
     const c = this._c = normalizeConfig(config);
     this._scale = buildScale(c);
+    const bat = c.display_mode === 'battery';
     this._ids = [
-      c.soc_entity, c.watt_entity, c.cell_diff_sensor, c.balance_sensor, ...(c.auto_detect_low_high ? [] : [c.pack_cell_low, c.pack_cell_high]),
-      ...c.cells.map(x => x.entity), ...c.extra_sensors.map(x => x.entity)
+      c.soc_entity, c.watt_entity, c.cell_diff_sensor, c.balance_sensor, ...(c.auto_detect_low_high || bat ? [] : [c.pack_cell_low, c.pack_cell_high]),
+      ...(bat ? [] : c.cells.map(x => x.entity)), ...c.extra_sensors.map(x => x.entity)
     ].filter(Boolean);
     this._prev = [];
     const struct = structSig(c);
@@ -954,10 +955,12 @@ const I18N = {
     chunk_size: 'Cells per row', cell_height: 'Cell height', min_cell_width: 'Min. cell width',
     fallback_cell: 'Cell', fallback_sensor: 'Sensor',
     battery_chemistry: 'Display Mode / Battery Chemistry', battery_type: 'Battery type',
+    battery_height: 'Battery height', scale_gradient_bat: 'Smooth color gradient', sec_battery: 'Battery appearance', balancing_only: 'Balancing',
+    hint_bal_soc: 'Without a balancing sensor, balancing is assumed as soon as the cell delta reaches the threshold.',
     type_lifepo4: 'LiFePO4', type_nmc: 'NMC / NCM (Li-Ni-Mn-Co)', type_lead: 'Lead-Acid (2V cell)', type_custom: 'Custom',
     preset: 'Color preset', preset_none: 'No preset', preset1: 'Preset 1 – LiFePO4 Standard', preset2: 'Preset 2 – LiFePO4 Purple / Pink', preset3: 'Preset 3 – LiFePO4 Sunset', preset4: 'Preset 4 – LiFePO4 Neon', preset5: 'Preset 5 – LiFePO4 Ocean', preset6: 'Preset 6 – NMC / NCM', preset7: 'Preset 7 – Lead-Acid (2V cell)',
     custom_min_mv: 'Min. voltage = lower edge of the bottom step', sec_cells: 'Cell appearance',
-    display_mode: 'Battery sensor values', mode_cells: 'With cell voltages (detailed)', mode_battery: 'Without cell voltages (SOC only)', soc_step: 'Percent steps',
+    card_mode: 'Select card mode:', display_mode: 'Battery sensor values', mode_cells: 'Cell monitoring (detailed)', mode_battery: 'Battery monitoring (without cell voltages)', soc_step: 'Percent steps',
     soc_preset: 'Color scale (SOC)', battery_width: 'Battery width',
     soc_p_traffic: 'Standard colors', soc_p_green: 'Green', soc_p_blue: 'Blue', soc_p_purple: 'Purple / Pink', soc_p_sunset: 'Sunset', soc_p_neon: 'Neon', soc_p_ocean: 'Ocean',
     hint_bf: 'The energy flow only appears while balancing is detected live – via the “Balancing active” sensor or because the values under “Balancing detection” are reached.',
@@ -1001,10 +1004,12 @@ const I18N = {
     chunk_size: 'Zellen pro Zeile', cell_height: 'Zellenhöhe', min_cell_width: 'Min. Zellenbreite',
     fallback_cell: 'Zelle', fallback_sensor: 'Sensor',
     battery_chemistry: 'Anzeigemodus / Batterie-Chemie', battery_type: 'Batterietyp',
+    battery_height: 'Batterie-Höhe', scale_gradient_bat: 'Farbverlauf', sec_battery: 'Batteriedarstellung', balancing_only: 'Balancing',
+    hint_bal_soc: 'Ohne Balancing-Sensor gilt Balancing als aktiv, sobald die Zelldifferenz den Schwellwert erreicht.',
     type_lead: 'Blei (2V-Zelle)', type_custom: 'Benutzerdefiniert',
     preset: 'Farb-Skala-Preset', preset_none: 'Kein Preset', preset1: 'Preset 1 – LiFePO4 Standard', preset2: 'Preset 2 – LiFePO4 Lila / Rosa', preset3: 'Preset 3 – LiFePO4 Sunset', preset4: 'Preset 4 – LiFePO4 Neon', preset5: 'Preset 5 – LiFePO4 Ozean', preset6: 'Preset 6 – NMC / NCM', preset7: 'Preset 7 – Blei (2V-Zelle)',
     custom_min_mv: 'Min-Spannung = Unterkante der untersten Stufe', sec_cells: 'Zellendarstellung',
-    display_mode: 'Batterie-Sensorwerte', mode_cells: 'Mit Zellspannungen (detailliert)', mode_battery: 'Ohne Zellspannungen (nur SOC)', soc_step: 'Prozent-Schritte',
+    card_mode: 'Kartenmodus auswählen:', display_mode: 'Batterie-Sensorwerte', mode_cells: 'Zellen-Monitoring (detailliert)', mode_battery: 'Batterie-Monitoring (ohne Zellspannungen)', soc_step: 'Prozent-Schritte',
     soc_preset: 'Farbskala (SOC)', battery_width: 'Batterie-Breite',
     soc_p_traffic: 'Standard-Farben', soc_p_green: 'Grün', soc_p_blue: 'Blau', soc_p_purple: 'Lila / Rosa', soc_p_sunset: 'Sunset', soc_p_neon: 'Neon', soc_p_ocean: 'Ozean',
     hint_bf: 'Der Energiefluss erscheint nur, solange ein Balancing live erkannt wird – über den Sensor „Balancing aktiv“ oder weil die Werte unter „Balancing-Erkennung“ erreicht sind.',
@@ -1033,7 +1038,7 @@ const ICON_DRAG = 'M6,5H18V7H6V5M6,11H18V13H6V11M6,17H18V19H6V17Z';
 const SENSOR_SELECTOR = { entity: { domain: 'sensor' } };
 const ENTITY_SCHEMA = [{ name: 'entity', selector: SENSOR_SELECTOR }];
 const TEXT_SEL = { text: {} };
-const SCHEMA_KEYS = ['watt_entity', 'show_flow', 'show_balance_flow', 'flow_tip', 'flow_bar', 'flow_glow', 'flow_speed_mode', 'chunk_cells', 'chunk_mode', 'battery_type', 'show_legend', 'show_slices', 'auto_detect_low_high', 'pack_cell_low', 'pack_cell_high', 'display_mode'];
+const SCHEMA_KEYS = ['watt_entity', 'show_flow', 'show_balance_flow', 'flow_tip', 'flow_bar', 'flow_glow', 'flow_speed_mode', 'chunk_cells', 'chunk_mode', 'battery_type', 'show_legend', 'show_slices', 'auto_detect_low_high', 'pack_cell_low', 'pack_cell_high', 'display_mode', 'soc_preset'];
 const ENTITY_KEYS = ['soc_entity', 'watt_entity', 'cell_diff_sensor', 'balance_sensor', 'pack_cell_low', 'pack_cell_high'];
 const NUM_KEYS = ['font_size', 'cell_gap', 'top_padding', 'container_padding', 'cell_height', 'min_cell_width', 'battery_width', 'overlay_opacity', 'custom_min_mv', 'cell_diff', 'cell_bal_over', 'chunk_size', 'flow_speed', 'flow_speed_auto', 'flow_max_charge_w', 'flow_max_discharge_w', 'extra_font_scale'];
 const CLEAR_DEFAULTS = { theme: 'default', battery_type: 'lifepo4', slice_strength: 'subtle', flow_tip: 'off', flow_bar: 'off', flow_glow: 'off', flow_speed_mode: 'manual', cell_unit: 'mV', display_mode: 'cells', soc_step: '10', soc_preset: 'traffic' };
@@ -1094,7 +1099,7 @@ class BatteryCellsCardEditor extends HTMLElement {
   constructor() {
     super();
     this._config = {}; this._hass = null; this._built = false; this._local = ''; this._lang = 'en'; this._forms = [];
-    this._presetForm = this._scalePanel = this._animPanel = this._colorsBox = this._chemPanel = this._cellsPanel = this._legendForm = this._chunkPanel = this._lowHighBox = null; this._balReady = false; this._pwrReady = false; this._hk = null; this._stopRefs = [];
+    this._presetForm = this._scalePanel = this._animPanel = this._colorsBox = this._cellsPanel = this._legendForm = this._chunkPanel = this._lowHighBox = this._balPanel = this._secHead = this._balNotes = null; this._balReady = false; this._pwrReady = false; this._hk = null; this._stopRefs = [];
     this._showColors = false; this._colorsSig = ''; this._colorRefs = [];
   }
   set hass(hass) {
@@ -1151,6 +1156,10 @@ class BatteryCellsCardEditor extends HTMLElement {
       if (ctx.kind === 'extra_sensors') return `${this._t('fallback_sensor')} ${ctx.index + 1}`;
       if (ctx.addLabel) return ctx.addLabel;
     }
+    if (this._config.display_mode === 'battery') {
+      if (schema.name === 'cell_height') return this._t('battery_height');
+      if (schema.name === 'scale_gradient') return this._t('scale_gradient_bat');
+    }
     return this._t(schema.name);
   }
   _normalize(c) {
@@ -1204,7 +1213,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     const s = [{ name: 'display_mode', selector: dropdown(DISPLAY_MODES.map(v => ({ value: v, label: this._t('mode_' + v) }))) }];
     if (this._config.display_mode === 'battery') s.push(
       { name: 'soc_preset', selector: dropdown(SOC_PRESET_KEYS.map(v => ({ value: v, label: this._t('soc_p_' + v) }))) },
-      { name: 'scale_gradient', selector: bool },
+      ...(this._config.soc_preset in SOC_ELECTRIC ? [] : [{ name: 'scale_gradient', selector: bool }]),
       { name: 'soc_step', selector: dropdown(SOC_STEPS.map(v => ({ value: String(v), label: v + ' %' }))) });
     return s;
   }
@@ -1283,7 +1292,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     const d = this._animReady() ? '' : 'none';
     if (this._animPanel.style.display !== d) this._animPanel.style.display = d;
   }
-  _balanceSchema() { return [{ name: 'cell_diff', selector: numSel(1, 200, 1, 'mV') }, { name: 'cell_bal_over', selector: numSel(1500, 4500, 1, 'mV') }]; }
+  _balanceSchema() { return [{ name: 'cell_diff', selector: numSel(1, 200, 1, 'mV') }, ...(this._config.display_mode === 'battery' ? [] : [{ name: 'cell_bal_over', selector: numSel(1500, 4500, 1, 'mV') }])]; }
   _lowHighSchema() {
     const s = [{ name: 'auto_detect_low_high', selector: bool }];
     if (!this._config.auto_detect_low_high) s.push({ name: 'pack_cell_low', selector: SENSOR_SELECTOR }, { name: 'pack_cell_high', selector: SENSOR_SELECTOR });
@@ -1296,12 +1305,12 @@ class BatteryCellsCardEditor extends HTMLElement {
   _fontUnitSchema() {
     return [{ type: 'grid', name: '', column_min_width: '60px', schema: [
       { name: 'font_size', selector: numSel(4, 16, .5) },
-      { name: 'cell_unit', selector: dropdown([{ value: 'mV', label: this._t('unit_mv') }, { value: 'V', label: this._t('unit_v') }]) }
+      ...(this._config.display_mode === 'battery' ? [] : [{ name: 'cell_unit', selector: dropdown([{ value: 'mV', label: this._t('unit_mv') }, { value: 'V', label: this._t('unit_v') }]) }])
     ] }];
   }
   _gapSchema() {
     return [{ type: 'grid', name: '', column_min_width: '90px', schema: [
-      { name: 'cell_gap', selector: numSel(0, 16, 1, 'px') },
+      ...(this._config.display_mode === 'battery' ? [] : [{ name: 'cell_gap', selector: numSel(0, 16, 1, 'px') }]),
       { name: 'top_padding', selector: numSel(0, 60, 1, 'px') },
       { name: 'container_padding', selector: numSel(0, 40, 1, 'px') }
     ] }];
@@ -1404,6 +1413,8 @@ class BatteryCellsCardEditor extends HTMLElement {
     const chunkOn = form(this._chunkSchema, ['chunk_cells']);
     const chunkOpt = form(this._chunkOptSchema, ['chunk_mode', 'chunk_size']);
 
+    const balNote = note('hint_bal'), balNoteSoc = note('hint_bal_soc');
+    this._balNotes = [balNote, balNoteSoc];
     this._lowHighBox = mk('div', 'lowhigh');
     this._lowHighBox.append(sep(), head('sec_lowhigh'), note('hint_lowhigh'), form(this._lowHighSchema, ['auto_detect_low_high', 'pack_cell_low', 'pack_cell_high']));
     const modeForm = form(this._modeSchema, ['display_mode', 'soc_preset', 'scale_gradient', 'soc_step']);
@@ -1411,7 +1422,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     const root = mk('div', 'editor');
     root.append(
       form(this._topSchema, ['title']),
-      panel('battery_chemistry', modeForm, sepBetween(modeForm, chemForm), chemForm, this._scalePanel),
+      panel('battery_chemistry', head('card_mode'), modeForm, sepBetween(modeForm, chemForm), chemForm, this._scalePanel),
       this._cellsPanel = panel('cells',
         this._sortable('cells'),
         sep(),
@@ -1424,12 +1435,12 @@ class BatteryCellsCardEditor extends HTMLElement {
         one('watt_entity', SENSOR_SELECTOR), sep(),
         one('cell_diff_sensor', SENSOR_SELECTOR), sep(),
         one('balance_sensor', { entity: {} })),
-      panel('balancing_min_max',
-        head('sec_bal'), note('hint_bal'),
+      this._balPanel = panel('balancing_min_max',
+        head('sec_bal'), balNote, balNoteSoc,
         form(this._balanceSchema, ['cell_diff', 'cell_bal_over']),
         this._lowHighBox),
       panel('display',
-        head('sec_cells'),
+        this._secHead = head('sec_cells'),
         form(this._fontUnitSchema, ['font_size', 'cell_unit']),
         form(this._gapSchema, ['cell_gap', 'top_padding', 'container_padding']),
         sep(), slider('cell_height', CELL_H_MIN, CELL_H_MAX, 'px'),
@@ -1513,11 +1524,15 @@ class BatteryCellsCardEditor extends HTMLElement {
     /* Battery-only mode: cells, cell wrapping and "show legend" do not apply and are greyed out (chemistry is hidden in its panel) */
     const bat = this._config.display_mode === 'battery';
     if (this._lowHighBox) this._lowHighBox.style.display = bat ? 'none' : '';
+    this._balNotes?.forEach((n, i) => { n.style.display = (i === 1) === bat ? '' : 'none'; });
+    if (this._balPanel) this._balPanel.header = this._t(bat ? 'balancing_only' : 'balancing_min_max');
+    if (this._secHead) this._secHead.textContent = this._t(bat ? 'sec_battery' : 'sec_cells');
     [this._cellsPanel, this._chunkPanel, this._legendForm].forEach(el => {
       if (!el) return;
       el.style.opacity = bat ? '.4' : '';
       el.style.pointerEvents = bat ? 'none' : '';
-      el.toggleAttribute('aria-disabled', bat);
+      el.toggleAttribute('inert', bat);
+      if (bat) el.setAttribute('aria-disabled', 'true'); else el.removeAttribute('aria-disabled');
       if (bat && el.expanded) el.expanded = false;
     });
   }
