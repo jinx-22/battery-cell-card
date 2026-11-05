@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.9.6] - 2026-11-05
+
+### Added
+
+- **Battery monitoring mode** (`display_mode: battery`): a single battery bar filled by the SOC sensor, without individual cells. Selected at the top of the **Display Mode / Battery Chemistry** panel:
+  - **Cell monitoring (detailed)** – the familiar view with all cell voltages (`display_mode: cells`, default)
+  - **Battery monitoring (without cell voltages)** – only the legend as one battery bar
+  - Percentage labels in 5 / 10 / 20 / 25 % steps (`soc_step`); 0 % and 100 % are shown with the 20 % and 25 % steps.
+  - 7 SOC color presets (`soc_preset`): Standard colors, Green, Blue, Purple / Pink, Sunset, Neon, Ocean. Green and Blue use a laser-style, always smooth gradient with a shimmering glow.
+  - Adjustable battery width from 110 to 400 px (`battery_width`).
+  - Charge/discharge animations (glowing top, running bar, cell wall) run on the battery bar. The balancing energy flow is not available in this mode.
+  - Cell delta, sync icon and balancing detection stay available. Without a balancing sensor, balancing is assumed as soon as the cell delta reaches the threshold.
+  - Responsive: icons and fonts grow with the battery width and height, and the 3D frame (sides, top and terminal pole) grows proportionally.
+- The sync icon now rotates while balancing is active (also in cell monitoring mode).
+
+### Changed
+
+- Editor adapts to the selected mode: in battery monitoring the Cells, Cell wrapping and Show legend settings are greyed out, and settings that only apply to cells (battery chemistry, lowest / highest cell, cell unit, cell gap, balancing cell voltage, simultaneous cell animation) are hidden. Minimum cell width is replaced by battery width.
+- In battery monitoring mode the card no longer subscribes to the cell sensors.
+
+---
+
 ## [0.9.5] - 2026-10-26
 
 ### Added
