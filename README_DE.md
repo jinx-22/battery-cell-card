@@ -61,6 +61,14 @@ Ideal für LiFePO₄-Batteriesysteme, auch für NMC/NCM und Blei-Säureakkus.
 
 ---
 
+Vorschau für Version 0.9.6:
+
+Einfache Batterie-Statusdarstellung auch für Heimspeicher die keine Zellspannungssensoren ausgeben, oder es nicht so detailliert benötigt!
+
+<img width="30%" height="auto" alt="brave_7u0pNbkvNC" src="https://github.com/user-attachments/assets/41e6d55a-ee29-494e-99ed-b011efbbe16d" />
+
+---
+
 ## Inhaltsverzeichnis
 
 1. [Was macht diese Karte?](#was-macht-diese-karte)
