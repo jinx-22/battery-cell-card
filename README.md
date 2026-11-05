@@ -59,6 +59,15 @@ Ideal for LiFePO₄ battery systems, also suitable for NMC/NCM and lead-acid bat
 
 ---
 
+Coming in version 0.9.6:
+
+A simple alternative battery display mode for home batteries without cell voltage sensors!
+
+<img width="30%" height="auto" alt="brave_7u0pNbkvNC" src="https://github.com/user-attachments/assets/41e6d55a-ee29-494e-99ed-b011efbbe16d" />
+
+
+---
+
 ## Table of Contents
 
 1. [What does this card do?](#what-does-this-card-do)
@@ -109,7 +118,7 @@ Compatible with all BMS that provide individual cell sensors, e.g.:
 
 ## 🔜 Planned Features
 
-All planned features have been implemented. Ideas and feature requests are welcome – please open an [Issue](https://github.com/jinx-22/battery-cell-card/issues).
+All planned features have been implemented. Ideas and feature requests are welcome – please open an [discussions](https://github.com/jinx-22/battery-cell-card/discussions).
 
 ---
 
