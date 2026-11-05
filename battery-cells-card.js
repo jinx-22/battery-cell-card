@@ -1,8 +1,9 @@
 /**
  * Battery Cells Card – Home Assistant Lovelace card for BMS cell voltages
  * (LiFePO4, NMC/NCM, lead-acid, custom scale).
+ * v0.14.6: new display mode "battery" (legend only as a single SOC battery).
  */
-const VERSION = '0.9.5';
+const VERSION = '0.14.6';
 console.info(`%c 🔋 Battery Cells Card %c v${VERSION} `, 'background:linear-gradient(90deg,#f00 0%,#f00 2.5%,#ffa500 2.5%,#ffa500 5%,#ff0 5%,#ff0 7.5%,#0e0 7.5%,#0e0 100%);color:#000;font-weight:bold;padding:6px 12px;border-radius:4px;', 'color:#2e7d32;padding:4px 8px;');
 
 /* ── Constants ── */
@@ -18,6 +19,24 @@ const BAR_GRADIENT = 'linear-gradient(to top,#ff0000 0%,#ff0000 5%,#ffa500 5%,#f
 const BATTERY_TYPES = ['lifepo4', 'nmc', 'lead', 'custom'];
 const SLICE_LEVELS = ['subtle', 'medium', 'strong'];
 const CHUNK_MODES = ['auto4', 'auto8', 'manual'];
+/* Display modes: cells (cells + legend) or battery (legend only, filled by the SOC sensor) */
+const DISPLAY_MODES = ['cells', 'battery'];
+const SOC_STEPS = [5, 10, 20, 25];
+/* SOC scales: [color, height %] from top to bottom, sum = 100 (7 segments like the voltage scale: 5/5/10/60/10/5/5) */
+const SOC_PCT = [5, 5, 10, 60, 10, 5, 5];
+const socSeven = cols => cols.map((col, i) => [col, SOC_PCT[i]]);
+const SOC_PRESETS = {
+  traffic: socSeven(['#ff0000', '#ffa500', '#ffff00', '#00ee00', '#ffff00', '#ffa500', '#ff0000']),
+  green: [['#9dff9a', 5], ['#39ff4a', 15], ['#00ff2a', 60], ['#00d924', 20]],
+  blue: [['#8aa8ff', 5], ['#3d6bff', 15], ['#1448ff', 60], ['#0a32d9', 20]],
+  purple: socSeven(['#380070', '#8d00eb', '#ff05d5', '#ff99f0', '#ff05d5', '#8d00eb', '#380070']),
+  sunset: socSeven(['#be123c', '#f97316', '#fbbf24', '#10b981', '#fbbf24', '#f97316', '#be123c']),
+  neon: socSeven(['#f472b6', '#d946ef', '#a981e9', '#22d3ee', '#a981e9', '#d946ef', '#f472b6']),
+  ocean: socSeven(['#fd8b8b', '#2563eb', '#38bdf8', '#34d399', '#38bdf8', '#2563eb', '#fd8b8b'])
+};
+/* "Electric" presets: always a smooth gradient plus a shimmering spark layer (value = glow colour) */
+const SOC_ELECTRIC = { green: '120,255,140', blue: '110,150,255' };
+const SOC_PRESET_KEYS = Object.keys(SOC_PRESETS);
 const ANIM = {
   top: { upSec: 2.5, downSec: 4.2, gap: .4, stagger: .15, thickPx: 4, thickK: .014 },
   tail: { bar1: 50, bar2: 2 },
@@ -64,7 +83,7 @@ const flick = p => {
 const FLOW_TIPS = ['off', 'tip1', 'tip2', 'tip3'], FLOW_BARS = ['off', 'bar1', 'bar2'], FLOW_GLOWS = ['off', 'pulse', 'wave'], FLOW_SPEEDS = ['manual', 'auto'];
 const LEGEND_TOGGLES = ['show_soc_value', 'show_soc_icon', 'show_cell_diff', 'show_sync_icon'];
 const MIN_CELL_W_FLOOR = 40, DEFAULT_MIN_CELL_W = 50, DEFAULT_CELL_H = 340, CELL_H_MIN = 280, CELL_H_MAX = 800;
-const RANGES = { cell_height: [CELL_H_MIN, CELL_H_MAX], min_cell_width: [MIN_CELL_W_FLOOR, 120], flow_max_charge_w: [100, 100000], flow_max_discharge_w: [100, 100000] };
+const RANGES = { cell_height: [CELL_H_MIN, CELL_H_MAX], min_cell_width: [MIN_CELL_W_FLOOR, 120], battery_width: [110, 400], flow_max_charge_w: [100, 100000], flow_max_discharge_w: [100, 100000] };
 const GRADIENT_BLEND = 1.1;
 const MV_MAX = 6000, MAX_STOPS = 20, PLACEHOLDER_CELLS = 4;
 const LIMITS = { font_size: [4, 16], cell_gap: [0, 16], container_padding: [0, 40], top_padding: [0, 60], overlay_opacity: [0, 1], flow_speed: [0.1, 2], flow_speed_auto: [0.2, 2], cell_diff: [0, 1000], cell_bal_over: [0, MV_MAX] };
@@ -88,7 +107,7 @@ const sortKeys = (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Obj
 const sig = o => JSON.stringify(o, sortKeys);
 /* Settings that only change CSS variables or live values: applying them does not rebuild the DOM
    (animations keep running, no flicker in the editor preview while a slider is dragged) */
-const LIVE_KEYS = ['flow_speed', 'flow_speed_auto', 'flow_speed_mode', 'flow_max_charge_w', 'flow_max_discharge_w', 'cell_diff', 'cell_bal_over', 'cell_unit', 'overlay_opacity', 'font_size', 'cell_gap', 'container_padding', 'top_padding', 'extra_font_scale', 'watt_entity', 'balance_sensor', 'auto_detect_low_high', 'pack_cell_low', 'pack_cell_high', 'grid_options', 'type', 'cell_height', ...COLOR_KEYS];
+const LIVE_KEYS = ['flow_speed', 'flow_speed_auto', 'flow_speed_mode', 'flow_max_charge_w', 'flow_max_discharge_w', 'cell_diff', 'cell_bal_over', 'cell_unit', 'overlay_opacity', 'font_size', 'cell_gap', 'container_padding', 'top_padding', 'extra_font_scale', 'watt_entity', 'balance_sensor', 'auto_detect_low_high', 'pack_cell_low', 'pack_cell_high', 'grid_options', 'type', 'cell_height', 'battery_width', ...COLOR_KEYS];
 const structSig = c => { const o = { ...c }; LIVE_KEYS.forEach(k => delete o[k]); return sig(o); };
 
 function roundPath(pts, r) {
@@ -162,6 +181,7 @@ const DEFAULTS = {
   soc_entity: null, watt_entity: null, balance_sensor: null, cell_diff_sensor: null,
   cell_diff: 8, cell_bal_over: 3000, cell_unit: 'mV',
   auto_detect_low_high: true, pack_cell_low: null, pack_cell_high: null,
+  display_mode: 'cells', soc_step: '10', soc_preset: 'traffic', battery_width: 120,
   chunk_cells: false, chunk_mode: 'auto8', chunk_size: 8, cell_height: DEFAULT_CELL_H, min_cell_width: DEFAULT_MIN_CELL_W,
   battery_type: 'lifepo4', custom_min_mv: 2600, custom_max_mv: 3650, legend_stops: [], scale_gradient: false, cells: []
 };
@@ -196,6 +216,10 @@ function normalizeConfig(config = {}) {
   c.flow_glow = pick(c.flow_glow, FLOW_GLOWS, 'off');
   c.flow_speed_mode = pick(c.flow_speed_mode, FLOW_SPEEDS, 'manual');
   c.cell_unit = pick(c.cell_unit, ['mV', 'V'], 'mV');
+  c.display_mode = pick(c.display_mode, DISPLAY_MODES, 'cells');
+  c.soc_step = pick(Number(c.soc_step), SOC_STEPS, 10);
+  c.soc_preset = pick(c.soc_preset === 'voltage' ? 'traffic' : c.soc_preset, SOC_PRESET_KEYS, 'traffic');
+  if (c.display_mode === 'battery') { c.chunk_cells = false; c.show_balance_flow = false; }
   c.grid_options = { columns: config.grid_options?.columns ?? 12 };
   for (const k in RANGES) c[k] = clamp(c[k], ...RANGES[k], DEFAULTS[k]);
   for (const k in LIMITS) c[k] = clamp(c[k], ...LIMITS[k], DEFAULTS[k]);
@@ -206,6 +230,12 @@ function normalizeConfig(config = {}) {
 
 /* ── Scale ── */
 function buildScale(c) {
+  /* Battery mode with a percentage scale: segments are SOC percentages, the fill is the SOC itself */
+  if (c.display_mode === 'battery') {
+    const legend = SOC_PRESETS[c.soc_preset].map(([col, pct]) => [col, pct, null, null]);
+    const smooth = !!c.scale_gradient || c.soc_preset in SOC_ELECTRIC;
+    return { legend, gradient: legendGradient(legend, smooth), fill: [{ mv: 0, pct: 0 }, { mv: 100, pct: 100 }], gradientMode: smooth };
+  }
   if (c.battery_type === 'custom' && c.legend_stops.length >= 2) return scaleFromStops(c);
   let pts = PRESETS[c.battery_type];
   if (!pts) {
@@ -324,7 +354,7 @@ ${FX_ANIM_CSS}
 .gl{display:none;position:absolute;left:0;right:0;bottom:0;height:0;overflow:hidden;z-index:2;pointer-events:none}[data-flow=up] .gl,[data-flow=down] .gl{display:block}[data-flow=up] .gl{--g1:var(--ov-g1,226,240,255);--g2:var(--ov-g2,175,213,255);--g3:var(--ov-g3,140,195,255)}[data-flow=down] .gl{--g1:var(--ov-g1,255,205,150);--g2:var(--ov-g2,255,80,40);--g3:var(--ov-g3,255,30,30)}.wv{display:none;position:absolute;top:0;bottom:0;left:0;width:34%;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(to right,#000 0,rgba(0,0,0,.55) 35%,transparent 100%);mask-image:linear-gradient(to right,#000 0,rgba(0,0,0,.55) 35%,transparent 100%)}.wv.r{left:auto;right:0;-webkit-mask-image:linear-gradient(to left,#000 0,rgba(0,0,0,.55) 35%,transparent 100%);mask-image:linear-gradient(to left,#000 0,rgba(0,0,0,.55) 35%,transparent 100%)}[data-flow=up] .wv,[data-flow=down] .wv{display:block}.wvi{position:absolute;left:0;right:0;top:0;height:calc(100% + ${ANIM.wave.period}px);background:repeating-linear-gradient(to bottom,rgba(var(--g3),0) 0,rgba(var(--g2),.6) ${ANIM.wave.period / 8}px,rgba(var(--g1),1) ${ANIM.wave.period / 4}px,rgba(var(--g2),.6) ${ANIM.wave.period * .375}px,rgba(var(--g3),0) ${ANIM.wave.period / 2}px,rgba(var(--g3),0) ${ANIM.wave.period}px)}[data-flow=up] .wvi{animation:wv-up ${ANIM.wave.sec}s linear infinite;animation-delay:calc(var(--ci,0)*-${ANIM.wave.stagger}s)}[data-flow=down] .wvi{animation:wv-dn ${ANIM.wave.sec}s linear infinite;animation-delay:calc(var(--ci,0)*-${ANIM.wave.stagger}s)}@keyframes wv-up{from{transform:translateY(0)}to{transform:translateY(-${ANIM.wave.period}px)}}@keyframes wv-dn{from{transform:translateY(-${ANIM.wave.period}px)}to{transform:translateY(0)}}
 .pv{display:none;position:absolute;top:0;bottom:0;left:0;width:${ANIM.pulse.width}%;overflow:hidden;pointer-events:none;background:linear-gradient(to right,rgba(var(--g2),.4) 0,rgba(var(--g3),.2) 28%,rgba(var(--g3),.08) 60%,rgba(var(--g3),0) 100%)}.pv.r{left:auto;right:0;background:linear-gradient(to left,rgba(var(--g2),.4) 0,rgba(var(--g3),.2) 28%,rgba(var(--g3),.08) 60%,rgba(var(--g3),0) 100%)}[data-flow=up] .pv,[data-flow=down] .pv{display:block}.pv::before{content:'';position:absolute;top:0;bottom:0;left:0;width:2px;background:rgba(var(--g1),.9);box-shadow:0 0 12px 2px rgba(var(--g2),.6);opacity:.45}.pv.r::before{left:auto;right:0}.pvi{position:absolute;inset:0;transform-origin:0 50%;opacity:0;background:linear-gradient(to right,rgba(var(--g2),.85) 0,rgba(var(--g3),.58) 18%,rgba(var(--g3),.22) 38%,rgba(var(--g3),.1) 60%,rgba(var(--g3),.03) 82%,rgba(var(--g3),0) 100%)}.pt{display:none;position:absolute;left:0;right:0;top:0;height:clamp(12px,5%,30px);pointer-events:none;opacity:0;background:linear-gradient(to bottom,rgba(var(--g1),.85) 0,rgba(var(--g2),.5) 28%,rgba(var(--g3),.18) 62%,rgba(var(--g3),0) 100%);-webkit-mask-image:linear-gradient(to right,rgba(0,0,0,.45) 0,#000 50%,rgba(0,0,0,.45) 100%);mask-image:linear-gradient(to right,rgba(0,0,0,.45) 0,#000 50%,rgba(0,0,0,.45) 100%)}.pt::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:rgba(var(--g1),1);box-shadow:0 0 8px 2px rgba(var(--g2),.8)}[data-flow=up] .pt,[data-flow=down] .pt{display:block}.pv.r .pvi{transform-origin:100% 50%;background:linear-gradient(to left,rgba(var(--g2),.85) 0,rgba(var(--g3),.58) 18%,rgba(var(--g3),.22) 38%,rgba(var(--g3),.1) 60%,rgba(var(--g3),.03) 82%,rgba(var(--g3),0) 100%)}@keyframes pv-up{0%{transform:scaleX(.3);opacity:0;animation-timing-function:cubic-bezier(.45,0,.85,.5)}96%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}@keyframes pv-dn{0%{transform:scaleX(1);opacity:0;animation-timing-function:cubic-bezier(.45,0,.85,.5)}42%{transform:scaleX(.8);opacity:1;animation-timing-function:cubic-bezier(.15,.6,.4,1)}100%{transform:scaleX(.3);opacity:0}}@keyframes pv-edge-up{0%{opacity:.45}96%{opacity:.95}100%{opacity:.45}}@keyframes pv-edge-dn{0%{opacity:.45}42%{opacity:.95}100%{opacity:.45}}@keyframes pt-up{0%{opacity:.35;animation-timing-function:cubic-bezier(.45,0,.85,.5)}96%{opacity:1}100%{opacity:.35}}@keyframes pt-dn{0%{opacity:.35;animation-timing-function:cubic-bezier(.45,0,.85,.5)}42%{opacity:1;animation-timing-function:cubic-bezier(.15,.6,.4,1)}100%{opacity:.35}}.paused *,.paused *::before,.paused *::after{animation-play-state:paused!important}
 .soc,.diff,.bat,.sync{position:absolute;left:50%;transform:translate(-50%,-50%);z-index:3}.soc,.diff{font-weight:700;color:#fff;text-align:center;box-sizing:border-box}.soc{top:49%;width:94%;text-shadow:0 0 6px #000;white-space:nowrap;font-size:min(clamp(7px,calc(var(--bcc-fs)*1px + 1.2*var(--u)),18px),calc(var(--bcc-cellh)*.085));line-height:1}.diff{top:57%;width:90%;max-width:90%;text-shadow:0 0 3px #000;white-space:normal;font-size:min(clamp(6px,calc(var(--bcc-fs)*.7px + .6*var(--u)),14px),calc(var(--bcc-cellh)*.06));line-height:1}.bat{top:36%;filter:drop-shadow(0 0 6px #000);--mdc-icon-size:min(calc(var(--bcc-fs)*2.8px + 1.6*var(--u)),calc(var(--bcc-cellh)*.15))}.sync{top:66%;color:#dfeeff;filter:drop-shadow(0 0 16px #000);display:none;--mdc-icon-size:min(calc(var(--bcc-fs)*2.5px + 1.2*var(--u)),calc(var(--bcc-cellh)*.13))}.hl{position:absolute;inset:0;border-radius:1px;pointer-events:none;z-index:2;box-sizing:border-box;display:none}.d3 .hl{border-radius:2px;top:var(--frame);bottom:var(--frame);left:var(--side);right:var(--side);z-index:2}.low>.hl,.high>.hl{display:block;border:4px solid}.compact .low>.hl,.compact .high>.hl{border-width:2px}.low>.hl{border-color:#ff6666 #ff7f7f #cc1a1a #e60000}.high>.hl{border-color:#99d1ff #66b3ff #0066dd #3385ff}.d3 .w{overflow:visible;padding-block:var(--frame);padding-inline:var(--side);background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,0) 38%,rgba(0,0,0,0) 62%,rgba(0,0,0,.2) 100%),linear-gradient(88deg,#404247 0%,#c9cbce 7%,#dcdee0 10%,#b3b5b9 16%,#93959a 23%,#e4e6e8 30%,#f0f1f2 37%,#b0b2b6 45%,#82848a 56%,#f1f2f3 68%,#62646a 78%,#4c4e54 86%,#f3f4f5 94%,#404247 100%);box-shadow:0 0 0 1px rgba(0,0,0,.28),inset 0 1px 1px rgba(255,255,255,.3),inset 0 -2px 3px rgba(255,255,255,.18),inset 1px 0 1px rgba(255,255,255,.15),inset -1px 0 2px rgba(255,255,255,.16)}.d3 .w::after{content:'';position:absolute;inset:calc(var(--frame) - 2px) max(0px,calc(var(--side) - 2px));box-sizing:border-box;border:2px solid;border-color:#d8dadd #e4e5e7 #2c2e33 #6a6c72;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.3);pointer-events:none;z-index:1}.d3 .w::before{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:20%;height:clamp(2px,1.2cqw,5px);box-sizing:border-box;background:linear-gradient(180deg,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 40%,rgba(0,0,0,0) 65%,rgba(0,0,0,.35) 100%),linear-gradient(95deg,#34363a 0%,#767880 8%,#b3b5ba 20%,#d8dadd 30%,#a9abaf 42%,#75777b 60%,#575960 80%,#3c3e42 92%,#2c2d31 100%);border:1px solid rgba(255,255,255,.28);border-radius:1px;box-shadow:inset 0 1px 1px rgba(255,255,255,.5),inset 0 -1px 1px rgba(0,0,0,.4);z-index:2;pointer-events:none}.flat .w{padding:3px}.flat .w::after{content:'';position:absolute;inset:0;box-sizing:border-box;border:2px solid #aeb1b4;border-radius:4px;pointer-events:none;z-index:2;box-shadow:inset 0 1px 0 rgba(255,255,255,.42),inset 1px 0 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(0,0,0,.28),inset -1px 0 0 rgba(0,0,0,.2),0 1px 2px rgba(0,0,0,.2)}
-.bf .content{gap:18px}.flat.bf .content{gap:15px}.bfx{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3;opacity:0;visibility:hidden;transform:translateZ(0);transition:opacity 1s ease,visibility 0s linear 1s}.bfx.on{opacity:1;visibility:visible;transition:opacity 1s ease,visibility 0s}.bf .bar::before,[data-flow] .bar::before{mix-blend-mode:normal}@container (max-width:600px){.content{--side:max(2px,min(1.2cqw,6px));--frame:clamp(7px,2.2cqw,28px)}}@container (max-width:400px){.content{--side:2px;--frame:clamp(6px,2cqw,24px)}}`);
+.bf .content{gap:18px}.flat.bf .content{gap:15px}.bfx{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3;opacity:0;visibility:hidden;transform:translateZ(0);transition:opacity 1s ease,visibility 0s linear 1s}.bfx.on{opacity:1;visibility:visible;transition:opacity 1s ease,visibility 0s}.bf .bar::before,[data-flow] .bar::before{mix-blend-mode:normal}.row .w.solo{flex:0 0 auto;width:min(100%,var(--bcc-bw,120px));margin-inline:auto}.d3 .w.solo{--side:clamp(3px,min(calc(var(--bcc-bw,120px)*.1),11cqw),40px);--frame:clamp(7px,max(2.2cqw,calc(var(--bcc-cellh,340px)*.032)),36px);--pole:clamp(3px,min(calc(var(--bcc-bw,120px)*.045),3.5cqw),18px)}.d3 .w.solo::before{top:calc(var(--pole)*-1);height:var(--pole);border-radius:calc(var(--pole)*.2)}.d3 .content:has(.w.solo){padding-top:max(8px,calc(var(--bcc-bw,120px)*.045 + 2px))}.w.solo{--sfs:min(calc(clamp(7px,calc(var(--bcc-fs)*1px + 1.2*var(--u)),18px)*var(--bcc-bs,1)),calc(var(--bcc-bw,120px)*.3),calc(var(--bcc-cellh)*.085))}.w.solo .soc{font-size:var(--sfs)}.w.solo .diff{font-size:calc(var(--sfs)*.55);white-space:pre-line;line-height:1.15;top:59%}.w.solo .bat{--mdc-icon-size:min(calc((var(--bcc-fs)*2.8px + 1.6*var(--u))*var(--bcc-bs,1)),calc(var(--bcc-bw,120px)*.4),calc(var(--bcc-cellh)*.15))}.w.solo .sync{top:73%;--mdc-icon-size:min(calc((var(--bcc-fs)*2.5px + 1.2*var(--u))*var(--bcc-bs,1)),calc(var(--bcc-bw,120px)*.35),calc(var(--bcc-cellh)*.13))}.w.solo .lab.tk{font-size:min(calc((var(--bcc-fs)*1.2px + .5*var(--u))*(1 + (var(--bcc-bs,1) - 1)*.25)),var(--bcc-labmax,999px))}.sync{animation:bf-spin 6s linear infinite}@keyframes bf-spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(-360deg)}}.spark{position:absolute;inset:0;pointer-events:none;z-index:1;mix-blend-mode:screen;box-shadow:inset 0 0 16px 2px rgba(var(--spk),.45);background:radial-gradient(ellipse 70% 100% at 50% 100%,rgba(var(--spk),.4),transparent 70%),repeating-linear-gradient(90deg,transparent 0 7px,rgba(var(--spk),.2) 7px 8px),repeating-linear-gradient(0deg,transparent 0 10px,rgba(var(--spk),.12) 10px 11px);animation:bf-shimmer 2.6s ease-in-out infinite alternate}@keyframes bf-shimmer{from{opacity:.5;filter:brightness(1)}to{opacity:1;filter:brightness(1.5)}}.lab.tk{text-align:left;padding-left:5px}@container (max-width:600px){.content{--side:max(2px,min(1.2cqw,6px));--frame:clamp(7px,2.2cqw,28px)}}@container (max-width:400px){.content{--side:2px;--frame:clamp(6px,2cqw,24px)}}`);
 /* One constructed stylesheet is shared by all cards (falls back to a <style> per card on old browsers) */
 const SHEET = typeof CSSStyleSheet !== 'undefined' && 'replaceSync' in CSSStyleSheet.prototype ? new CSSStyleSheet() : null;
 SHEET?.replaceSync(CARD_STYLE);
@@ -338,7 +368,7 @@ class BatteryCellsCard extends HTMLElement {
     this._ids = []; this._prev = []; this._rateG = SPEED_BASE; this._io = null; this._paused = false; this._rateRaf = 0;
     this._bf = this._bfEls = this._bfRo = null; this._bfKey = ''; this._bfOk = false; this._bfShown = false; this._bfT = 0; this._bfRaf = this._bfRaf2 = 0; this._bfSt = { on: false, low: 0, high: 0, ratio: 0 };
     this._bfG = null; this._bfCol = null; this._bfPx = ANIM.flow.minPx; this._bfTm = 0; this._bfD = 0; this._bfK = 1; this._bfRafL = 0; this._bfLast = 0; this._bfFadeEnd = 0;
-    this._cells = []; this._extras = []; this._soc = []; this._diff = []; this._bat = []; this._sync = [];
+    this._cells = []; this._extras = []; this._soc = []; this._diff = []; this._bat = []; this._sync = []; this._sb = null;
     const handler = e => {
       if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
       const t = e.target.closest?.('[data-e]');
@@ -427,6 +457,7 @@ class BatteryCellsCard extends HTMLElement {
   /* All CSS animations play at _rateG (the balancing canvas runs on its own timing) */
   _setRates(root = this._card) {
     (root?.getAnimations?.({ subtree: true }) || []).forEach(an => {
+      if (/^bf-/.test(an.animationName || '')) return;
       const r = this._rateG;
       if (r && an.playbackRate !== r) an.playbackRate = r;
     });
@@ -475,12 +506,15 @@ class BatteryCellsCard extends HTMLElement {
     /* Largest font size at which the voltage value (4 characters, 4.6 with V) still fits into the bar */
     const bar = this._cells[0]?.el.querySelector('.bar');
     if (bar && this._card) this._card.style.setProperty('--bcc-nummax', Math.max(5, bar.clientWidth * .98 / ((this._c.cell_unit === 'V' ? 4.6 : 4) * .6)).toFixed(1) + 'px');
-    /* Largest font size at which the longest scale label still fits into the legend width */
+    /* Largest font size at which the longest scale label still fits into the legend width (battery mode: "100%") */
     const inner = this._card?.querySelector('.inner');
     if (inner && this._scale) {
-      const len = Math.max(1, ...this._scale.legend.flatMap(l => [l[2], l[3]]).map(t => String(t ?? '').length));
+      const len = this._c.display_mode === 'battery' ? 4 : Math.max(1, ...this._scale.legend.flatMap(l => [l[2], l[3]]).map(t => String(t ?? '').length));
       this._card.style.setProperty('--bcc-labmax', Math.max(5, inner.clientWidth * .98 / (len * .62)).toFixed(1) + 'px');
     }
+    /* Battery mode: symbols and fonts grow with the battery's width and height (factor 1 at 110 x 340 px) */
+    const solo = this._c?.display_mode === 'battery' && this._card?.querySelector('.w.solo');
+    if (solo) this._card.style.setProperty('--bcc-bs', clamp(Math.sqrt((solo.offsetWidth / 110) * (solo.offsetHeight / DEFAULT_CELL_H)), 1, 2.5, 1).toFixed(3));
     this._layoutBf();
   }
 
@@ -634,15 +668,39 @@ class BatteryCellsCard extends HTMLElement {
     return { compact, chunk, pad, size, sig: `${compact}|${chunk}|${size}|${minW}|${c.chunk_mode}` };
   }
 
+  /* Animation layers (running bar, glowing tip, cell wall) – shared by cells and the battery bar */
+  _fxHtml() {
+    const c = this._c, on = c.show_flow, tip = on ? c.flow_tip : 'off', bar = on ? c.flow_bar : 'off', mode = on ? c.flow_glow : 'off';
+    const w = mode !== 'off' ? ' gwn' : '';
+    const side = mode === 'wave' ? '<i class="wv"><i class="wvi"></i></i><i class="wv r"><i class="wvi"></i></i>'
+      : mode === 'pulse' ? '<i class="pv"><i class="pvi"></i></i><i class="pv r"><i class="pvi"></i></i><i class="pt"></i>' : '';
+    const gl = mode !== 'off' ? `<div class="gl ${mode}">${side}</div>` : '';
+    const ag = bar !== 'off' ? `<div class="ag"><i class="tl${bar === 'bar2' ? ' l2' : ''}"></i></div>` : '';
+    const tg = tip === 'tip1' ? '<div class="tg t1"></div><i class="tb t1"></i>'
+      : tip === 'tip2' ? `<div class="tg t2${w}"></div><i class="tb${w}"></i>`
+      : tip === 'tip3' ? `<div class="tg t3${w}"></div><i class="tb t3${w}"></i>` : '';
+    return ag + tg + gl;
+  }
+
   _legendHtml() {
-    const c = this._c, soc = esc(c.soc_entity), diff = esc(c.cell_diff_sensor);
-    const on = k => c.show_legend && c[k];
+    const c = this._c, bat = c.display_mode === 'battery', soc = esc(c.soc_entity), diff = esc(c.cell_diff_sensor);
+    /* Battery mode: the legend is always shown; the individual toggles still apply */
+    const on = k => (bat || c.show_legend) && c[k];
     const btn = (e, label) => e ? ` data-e="${e}" role="button" tabindex="0"${label ? ` aria-label="${label}"` : ''}` : '';
     const gm = this._scale.gradientMode;
     const segs = this._scale.legend.map(([col, pct, top, bot]) =>
-      `<div class="seg" style="${gm ? '' : `background:${esc(col)};`}flex:${pct} 0 0px">${top ? `<div class="lab t">${esc(top)}</div>` : ''}${bot ? `<div class="lab b">${esc(bot)}</div>` : ''}</div>`
+      `<div class="seg" style="${gm ? '' : `background:${esc(col)};`}flex:${pct} 0 0px">${bat ? '' : (top ? `<div class="lab t">${esc(top)}</div>` : '') + (bot ? `<div class="lab b">${esc(bot)}</div>` : '')}</div>`
     ).join('');
-    return `<div class="w"><div class="inner"${gm ? ` style="background:${esc(this._scale.gradient)}"` : ''}>${segs}`
+    let ticks = '';
+    /* 0 % and 100 % are only shown with the coarse steps (20 / 25 %) */
+    const edge = c.soc_step >= 20;
+    if (bat) for (let p = edge ? 100 : 100 - c.soc_step; p >= (edge ? 0 : 1); p -= c.soc_step) {
+      const pos = p === 100 ? 'top:-3px' : p === 0 ? 'bottom:-4px' : `top:${100 - p}%;transform:translateY(-50%)`;
+      ticks += `<div class="lab tk" style="${pos}">${p}%</div>`;
+    }
+    const spark = bat && c.soc_preset in SOC_ELECTRIC ? `<i class="spark" style="--spk:${SOC_ELECTRIC[c.soc_preset]}"></i>` : '';
+    return `<div class="w${bat ? ' solo' : ''}"><div class="inner${bat ? ' bar' : ''}"${gm ? ` style="background:${esc(this._scale.gradient)}"` : ''}>${segs}`
+      + (bat ? `${spark}<div class="ov"></div>${this._fxHtml()}${ticks}` : '')
       + (on('show_soc_value') ? `<div class="soc"${btn(soc)}></div>` : '')
       + (on('show_cell_diff') ? `<div class="diff"${btn(diff)}></div>` : '')
       + (on('show_soc_icon') ? `<ha-icon class="bat" icon="mdi:battery"${btn(soc, soc)}></ha-icon>` : '')
@@ -650,17 +708,9 @@ class BatteryCellsCard extends HTMLElement {
       + '</div></div>';
   }
   _cellHtml(cfg, i = 0) {
-    const c = this._c, on = c.show_flow, tip = on ? c.flow_tip : 'off', bar = on ? c.flow_bar : 'off', mode = on ? c.flow_glow : 'off';
-    const gm = mode !== 'off', w = gm ? ' gwn' : '';
+    const c = this._c;
     const btn = cfg.entity ? ` data-e="${esc(cfg.entity)}" role="button" tabindex="0"` : '';
-    const side = mode === 'wave' ? '<i class="wv"><i class="wvi"></i></i><i class="wv r"><i class="wvi"></i></i>'
-      : mode === 'pulse' ? '<i class="pv"><i class="pvi"></i></i><i class="pv r"><i class="pvi"></i></i><i class="pt"></i>' : '';
-    const fx = gm ? `<div class="gl ${mode}">${side}</div>` : '';
-    const ag = bar !== 'off' ? `<div class="ag"><i class="tl${bar === 'bar2' ? ' l2' : ''}"></i></div>` : '';
-    const tg = tip === 'tip1' ? '<div class="tg t1"></div><i class="tb t1"></i>'
-      : tip === 'tip2' ? `<div class="tg t2${w}"></div><i class="tb${w}"></i>`
-      : tip === 'tip3' ? `<div class="tg t3${w}"></div><i class="tb t3${w}"></i>` : '';
-    return `<div class="w cell"${btn} style="--ci:${c.flow_sync ? 0 : i}" title="${esc(cfg.name || cfg.entity)}"><div class="bar"><div class="ov"></div>${ag}${tg}${fx}<div class="name">${esc(cfg.name)}</div><div class="val"><span class="num"></span><span class="unit"></span></div></div><div class="hl"></div></div>`;
+    return `<div class="w cell"${btn} style="--ci:${c.flow_sync ? 0 : i}" title="${esc(cfg.name || cfg.entity)}"><div class="bar"><div class="ov"></div>${this._fxHtml()}<div class="name">${esc(cfg.name)}</div><div class="val"><span class="num"></span><span class="unit"></span></div></div><div class="hl"></div></div>`;
   }
   _extraHtml(s) {
     const btn = s.entity ? ` data-e="${esc(s.entity)}" role="button" tabindex="0"` : '';
@@ -687,7 +737,8 @@ class BatteryCellsCard extends HTMLElement {
       op: c.overlay_opacity,
       grad: this._scale.gradient,
       base: c.cell_height + 'px',
-      cellh: c.cell_height + 'px'
+      cellh: c.cell_height + 'px',
+      bw: c.battery_width + 'px'
     };
   }
   /* Applies changed live settings without rebuilding the DOM; false = structure changed, full render needed */
@@ -695,7 +746,7 @@ class BatteryCellsCard extends HTMLElement {
     const env = this._env();
     if (env.sig !== this._sig) return false;
     const v = this._vars(env);
-    ['pad', 'top', 'gap', 'efs', 'fs', 'op', 'base', 'cellh'].forEach(k => this._card.style.setProperty(`--bcc-${k}`, v[k]));
+    ['pad', 'top', 'gap', 'efs', 'fs', 'op', 'base', 'cellh', 'bw'].forEach(k => this._card.style.setProperty(`--bcc-${k}`, v[k]));
     this._applyColors(this._card.dataset.flow || '');
     this._measure();
     return true;
@@ -703,16 +754,17 @@ class BatteryCellsCard extends HTMLElement {
 
   _render() {
     const c = this._c, env = this._env(), r = this.shadowRoot;
+    const bat = c.display_mode === 'battery';
     this._sig = env.sig;
     this.toggleAttribute('fill', !c.chunk_cells);
     const vars = this._vars(env);
-    const rows = env.chunk
+    const rows = bat ? [[]] : env.chunk
       ? Array.from({ length: Math.ceil(c.cells.length / env.size) }, (_, i) => c.cells.slice(i * env.size, (i + 1) * env.size))
       : [c.cells];
     this._rowCount = rows.length;
     const extra = c.show_extra_sensors ? c.extra_sensors : [];
     const theme = this._themeName = c.theme && c.theme !== 'default' ? c.theme : '';
-    const legend = c.show_legend ? this._legendHtml() : '';
+    const legend = c.show_legend || bat ? this._legendHtml() : '';
 
     let card = this._card;
     if (!card) {
@@ -734,6 +786,9 @@ class BatteryCellsCard extends HTMLElement {
     this._cells = all('.cell').map(el => ({ el, ov: one(el, '.ov'), num: one(el, '.num'), unit: one(el, '.unit'), gl: one(el, '.gl'), ag: one(el, '.ag'), tg: one(el, '.tg'), tb: one(el, '.tb'), entity: el.dataset.e, fk: '', cls: '' }));
     this._extras = all('.xi').map((el, i) => ({ icon: one(el, 'ha-state-icon'), v: one(el, '.xv'), u: one(el, '.xu'), entity: extra[i]?.entity, cfgIcon: extra[i]?.icon || '', st: undefined, done: false }));
     this._soc = all('.soc'); this._diff = all('.diff'); this._bat = all('.bat'); this._sync = all('.sync');
+    /* Battery mode: the legend itself is the filled bar (overlay + animation layers driven by the SOC) */
+    const lg = bat ? card.querySelector('.inner') : null;
+    this._sb = lg ? { ov: one(lg, '.ov'), gl: one(lg, '.gl'), ag: one(lg, '.ag'), tg: one(lg, '.tg'), tb: one(lg, '.tb'), fk: '' } : null;
     const cv = c.show_balance_flow ? card.querySelector('.bfx') : null;
     this._bfEls = cv ? { cv, g: cv, ctx: cv.getContext('2d') } : null;
     this._bf = null; this._bfG = null; this._bfKey = ''; this._bfShown = false; clearTimeout(this._bfT); this._bfT = 0;
@@ -770,11 +825,24 @@ class BatteryCellsCard extends HTMLElement {
     const soc = val(c.soc_entity), socText = soc == null ? '—' : `${Math.round(soc)}%`;
     this._soc.forEach(el => put(el, socText));
 
+    /* Battery mode: the SOC is the fill level (overlay height and animation position) */
+    if (this._sb) {
+      const s = this._sb, fp = soc == null ? 0 : Math.max(0, Math.min(100, soc)), fk = fp.toFixed(2);
+      if (s.fk !== fk) {
+        s.fk = fk;
+        s.ov.style.height = `${100 - fp}%`;
+        if (s.gl) s.gl.style.height = `${fp}%`;
+        if (s.ag) s.ag.style.height = `${fp}%`;
+        const fpc = Math.max(1, fp).toFixed(2);
+        [s.gl, s.ag, s.tg, s.tb].forEach(el => el?.style.setProperty('--fp', fpc));
+      }
+    }
+
     let diff = val(c.cell_diff_sensor);
     const du = S[c.cell_diff_sensor]?.attributes?.unit_of_measurement;
     if (diff != null && (du === 'V' || (du !== 'mV' && Math.abs(diff) < 0.1))) diff *= 1000;
     diff = diff == null ? null : Math.round(diff);
-    const diffText = diff != null ? `Δ ${diff} mV` : '';
+    const diffText = diff != null ? (c.display_mode === 'battery' ? `Δ\n${diff} mV` : `Δ ${diff} mV`) : '';
     this._diff.forEach(el => put(el, diffText));
 
     const watt = val(c.watt_entity);
@@ -835,8 +903,11 @@ class BatteryCellsCard extends HTMLElement {
 
     /* Cell spread: delta sensor if available, otherwise min/max of the cells */
     const spread = diff ?? (maxV > minV ? maxV - minV : 0);
-    const balancing = (c.balance_sensor && String(S[c.balance_sensor]?.state).toLowerCase() === 'on')
-      || (spread >= c.cell_diff && maxV >= c.cell_bal_over);
+    const balSensorOn = !!c.balance_sensor && String(S[c.balance_sensor]?.state).toLowerCase() === 'on';
+    /* Battery mode has no cell voltages: balancing = sensor "on", or without a sensor the delta threshold */
+    const balancing = c.display_mode === 'battery'
+      ? balSensorOn || (!c.balance_sensor && diff != null && diff >= c.cell_diff)
+      : balSensorOn || (spread >= c.cell_diff && maxV >= c.cell_bal_over);
     const display = balancing ? 'block' : 'none';
     this._sync.forEach(el => { if (el.style.display !== display) el.style.display = display; });
 
@@ -882,10 +953,13 @@ const I18N = {
     chunk_auto4: 'Auto 4 cells', chunk_auto8: 'Auto 8 cells', chunk_manual: 'Manual',
     chunk_size: 'Cells per row', cell_height: 'Cell height', min_cell_width: 'Min. cell width',
     fallback_cell: 'Cell', fallback_sensor: 'Sensor',
-    battery_chemistry: 'Battery Chemistry', battery_type: 'Battery type',
+    battery_chemistry: 'Display Mode / Battery Chemistry', battery_type: 'Battery type',
     type_lifepo4: 'LiFePO4', type_nmc: 'NMC / NCM (Li-Ni-Mn-Co)', type_lead: 'Lead-Acid (2V cell)', type_custom: 'Custom',
     preset: 'Color preset', preset_none: 'No preset', preset1: 'Preset 1 – LiFePO4 Standard', preset2: 'Preset 2 – LiFePO4 Purple / Pink', preset3: 'Preset 3 – LiFePO4 Sunset', preset4: 'Preset 4 – LiFePO4 Neon', preset5: 'Preset 5 – LiFePO4 Ocean', preset6: 'Preset 6 – NMC / NCM', preset7: 'Preset 7 – Lead-Acid (2V cell)',
     custom_min_mv: 'Min. voltage = lower edge of the bottom step', sec_cells: 'Cell appearance',
+    display_mode: 'Battery sensor values', mode_cells: 'With cell voltages (detailed)', mode_battery: 'Without cell voltages (SOC only)', soc_step: 'Percent steps',
+    soc_preset: 'Color scale (SOC)', battery_width: 'Battery width',
+    soc_p_traffic: 'Standard colors', soc_p_green: 'Green', soc_p_blue: 'Blue', soc_p_purple: 'Purple / Pink', soc_p_sunset: 'Sunset', soc_p_neon: 'Neon', soc_p_ocean: 'Ocean',
     hint_bf: 'The energy flow only appears while balancing is detected live – via the “Balancing active” sensor or because the values under “Balancing detection” are reached.',
     sec_bal: 'Balancing detection', hint_bal: 'Balancing is active when the cell delta reaches the threshold and a cell is above the balancing voltage.',
     sec_lowhigh: 'Lowest / highest cell', hint_lowhigh: 'These cells are framed and linked by the energy flow. Automatic, or via two sensors that report the cell number.',
@@ -926,10 +1000,13 @@ const I18N = {
     chunk_auto4: 'Auto 4 Zellen', chunk_auto8: 'Auto 8 Zellen', chunk_manual: 'Manuell',
     chunk_size: 'Zellen pro Zeile', cell_height: 'Zellenhöhe', min_cell_width: 'Min. Zellenbreite',
     fallback_cell: 'Zelle', fallback_sensor: 'Sensor',
-    battery_chemistry: 'Batterie-Chemie', battery_type: 'Batterietyp',
+    battery_chemistry: 'Anzeigemodus / Batterie-Chemie', battery_type: 'Batterietyp',
     type_lead: 'Blei (2V-Zelle)', type_custom: 'Benutzerdefiniert',
     preset: 'Farb-Skala-Preset', preset_none: 'Kein Preset', preset1: 'Preset 1 – LiFePO4 Standard', preset2: 'Preset 2 – LiFePO4 Lila / Rosa', preset3: 'Preset 3 – LiFePO4 Sunset', preset4: 'Preset 4 – LiFePO4 Neon', preset5: 'Preset 5 – LiFePO4 Ozean', preset6: 'Preset 6 – NMC / NCM', preset7: 'Preset 7 – Blei (2V-Zelle)',
     custom_min_mv: 'Min-Spannung = Unterkante der untersten Stufe', sec_cells: 'Zellendarstellung',
+    display_mode: 'Batterie-Sensorwerte', mode_cells: 'Mit Zellspannungen (detailliert)', mode_battery: 'Ohne Zellspannungen (nur SOC)', soc_step: 'Prozent-Schritte',
+    soc_preset: 'Farbskala (SOC)', battery_width: 'Batterie-Breite',
+    soc_p_traffic: 'Standard-Farben', soc_p_green: 'Grün', soc_p_blue: 'Blau', soc_p_purple: 'Lila / Rosa', soc_p_sunset: 'Sunset', soc_p_neon: 'Neon', soc_p_ocean: 'Ozean',
     hint_bf: 'Der Energiefluss erscheint nur, solange ein Balancing live erkannt wird – über den Sensor „Balancing aktiv“ oder weil die Werte unter „Balancing-Erkennung“ erreicht sind.',
     sec_bal: 'Balancing-Erkennung', hint_bal: 'Balancing ist aktiv, wenn die Zelldifferenz den Schwellwert erreicht und eine Zelle über der Balancing-Spannung liegt.',
     sec_lowhigh: 'Niedrigste / höchste Zelle', hint_lowhigh: 'Diese Zellen werden umrandet und vom Energiefluss verbunden. Automatisch oder über zwei Sensoren, die die Zellnummer liefern.',
@@ -956,10 +1033,10 @@ const ICON_DRAG = 'M6,5H18V7H6V5M6,11H18V13H6V11M6,17H18V19H6V17Z';
 const SENSOR_SELECTOR = { entity: { domain: 'sensor' } };
 const ENTITY_SCHEMA = [{ name: 'entity', selector: SENSOR_SELECTOR }];
 const TEXT_SEL = { text: {} };
-const SCHEMA_KEYS = ['watt_entity', 'show_flow', 'show_balance_flow', 'flow_tip', 'flow_bar', 'flow_glow', 'flow_speed_mode', 'chunk_cells', 'chunk_mode', 'battery_type', 'show_legend', 'show_slices', 'auto_detect_low_high', 'pack_cell_low', 'pack_cell_high'];
+const SCHEMA_KEYS = ['watt_entity', 'show_flow', 'show_balance_flow', 'flow_tip', 'flow_bar', 'flow_glow', 'flow_speed_mode', 'chunk_cells', 'chunk_mode', 'battery_type', 'show_legend', 'show_slices', 'auto_detect_low_high', 'pack_cell_low', 'pack_cell_high', 'display_mode'];
 const ENTITY_KEYS = ['soc_entity', 'watt_entity', 'cell_diff_sensor', 'balance_sensor', 'pack_cell_low', 'pack_cell_high'];
-const NUM_KEYS = ['font_size', 'cell_gap', 'top_padding', 'container_padding', 'cell_height', 'min_cell_width', 'overlay_opacity', 'custom_min_mv', 'cell_diff', 'cell_bal_over', 'chunk_size', 'flow_speed', 'flow_speed_auto', 'flow_max_charge_w', 'flow_max_discharge_w', 'extra_font_scale'];
-const CLEAR_DEFAULTS = { theme: 'default', battery_type: 'lifepo4', slice_strength: 'subtle', flow_tip: 'off', flow_bar: 'off', flow_glow: 'off', flow_speed_mode: 'manual', cell_unit: 'mV' };
+const NUM_KEYS = ['font_size', 'cell_gap', 'top_padding', 'container_padding', 'cell_height', 'min_cell_width', 'battery_width', 'overlay_opacity', 'custom_min_mv', 'cell_diff', 'cell_bal_over', 'chunk_size', 'flow_speed', 'flow_speed_auto', 'flow_max_charge_w', 'flow_max_discharge_w', 'extra_font_scale'];
+const CLEAR_DEFAULTS = { theme: 'default', battery_type: 'lifepo4', slice_strength: 'subtle', flow_tip: 'off', flow_bar: 'off', flow_glow: 'off', flow_speed_mode: 'manual', cell_unit: 'mV', display_mode: 'cells', soc_step: '10', soc_preset: 'traffic' };
 const bool = { boolean: {} };
 const numSel = (min, max, step, unit) => ({ number: { min, max, ...(step && { step }), ...(unit && { unit_of_measurement: unit }), mode: 'box' } });
 const sliderSel = (min, max) => ({ number: { min, max, step: 1, mode: 'slider' } });
@@ -1017,7 +1094,7 @@ class BatteryCellsCardEditor extends HTMLElement {
   constructor() {
     super();
     this._config = {}; this._hass = null; this._built = false; this._local = ''; this._lang = 'en'; this._forms = [];
-    this._presetForm = this._scalePanel = this._animPanel = this._colorsBox = null; this._balReady = false; this._pwrReady = false; this._hk = null; this._stopRefs = [];
+    this._presetForm = this._scalePanel = this._animPanel = this._colorsBox = this._chemPanel = this._cellsPanel = this._legendForm = this._chunkPanel = this._lowHighBox = null; this._balReady = false; this._pwrReady = false; this._hk = null; this._stopRefs = [];
     this._showColors = false; this._colorsSig = ''; this._colorRefs = [];
   }
   set hass(hass) {
@@ -1080,6 +1157,8 @@ class BatteryCellsCardEditor extends HTMLElement {
     return {
       ...c,
       theme: c.theme || 'default',
+      soc_step: String(c.soc_step ?? DEFAULTS.soc_step),
+      soc_preset: c.soc_preset === 'voltage' ? 'traffic' : c.soc_preset,
       ...Object.fromEntries(COLOR_KEYS.map(k => [k, parseRgb(c[k])])),
       cells: arr(c.cells).map(normCell),
       extra_sensors: arr(c.extra_sensors).map(normExtra),
@@ -1115,18 +1194,35 @@ class BatteryCellsCardEditor extends HTMLElement {
     return [{ name: 'theme', selector: dropdown([{ value: 'default', label: this._t('default') }, ...themes]) }];
   }
   _chemSchema() {
+    if (this._config.display_mode === 'battery') return [];
     return [{ name: 'battery_type', selector: dropdown(BATTERY_TYPES.map(v => ({ value: v, label: this._t('type_' + v) }))) }];
   }
   _customMinSchema() { return [{ name: 'custom_min_mv', selector: numSel(1000, 5000, 1, 'mV') }]; }
   _scaleSchema() { return [{ name: 'scale_gradient', selector: bool }]; }
-  _animBalSchema() { return this._balanceReady() ? [{ name: 'show_balance_flow', selector: bool }] : []; }
+  /* Display mode: cells + legend, or only the SOC battery (percentage scale, width, steps) */
+  _modeSchema() {
+    const s = [{ name: 'display_mode', selector: dropdown(DISPLAY_MODES.map(v => ({ value: v, label: this._t('mode_' + v) }))) }];
+    if (this._config.display_mode === 'battery') s.push(
+      { name: 'soc_preset', selector: dropdown(SOC_PRESET_KEYS.map(v => ({ value: v, label: this._t('soc_p_' + v) }))) },
+      { name: 'scale_gradient', selector: bool },
+      { name: 'soc_step', selector: dropdown(SOC_STEPS.map(v => ({ value: String(v), label: v + ' %' }))) });
+    return s;
+  }
+  /* Same slot in the display panel: min. cell width (cells) or battery width (battery mode) */
+  _widthSchema() {
+    return this._config.display_mode === 'battery'
+      ? [{ name: 'battery_width', selector: { number: { min: 110, max: 400, step: 1, mode: 'slider', unit_of_measurement: 'px' } } }]
+      : [{ name: 'min_cell_width', selector: { number: { min: MIN_CELL_W_FLOOR, max: 120, step: 1, mode: 'slider', unit_of_measurement: 'px' } } }];
+  }
+  _animBalSchema() { return this._balanceReady() && this._config.display_mode !== 'battery' ? [{ name: 'show_balance_flow', selector: bool }] : []; }
   _animFlowSchema() {
     const c = this._config, opt = (list, pre) => dropdown(list.map(v => ({ value: v, label: this._t(pre + v) })));
     const s = [];
     if (this._powerReady()) {
       s.push({ name: 'show_flow', selector: bool });
       if (c.show_flow) {
-        s.push({ name: 'flow_tip', selector: opt(FLOW_TIPS, 'ft_') }, { name: 'flow_bar', selector: opt(FLOW_BARS, 'fb_') }, { name: 'flow_glow', selector: opt(FLOW_GLOWS, 'fg_') }, { name: 'flow_sync', selector: bool });
+        s.push({ name: 'flow_tip', selector: opt(FLOW_TIPS, 'ft_') }, { name: 'flow_bar', selector: opt(FLOW_BARS, 'fb_') }, { name: 'flow_glow', selector: opt(FLOW_GLOWS, 'fg_') });
+        if (c.display_mode !== 'battery') s.push({ name: 'flow_sync', selector: bool });
         if (c.flow_tip !== 'off' || c.flow_bar !== 'off' || c.flow_glow !== 'off') {
           s.push({ name: 'flow_speed_mode', selector: opt(FLOW_SPEEDS, 'fs_') });
           if (c.flow_speed_mode === 'manual') s.push({ name: 'flow_speed', selector: { number: { min: 0.1, max: 2, step: 0.1, mode: 'slider', unit_of_measurement: '×' } } });
@@ -1144,7 +1240,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     if (this._powerReady() && c.show_flow) {
       for (const k of [c.flow_tip, c.flow_bar, c.flow_glow]) if (k !== 'off') keys.push(`color_${k}_up`, `color_${k}_down`);
     }
-    if (this._balanceReady() && c.show_balance_flow) keys.push('color_bf');
+    if (this._balanceReady() && c.show_balance_flow && c.display_mode !== 'battery') keys.push('color_bf');
     return keys;
   }
   _animColorSchema() { return this._animColorKeys().length ? [{ name: 'show_anim_colors', selector: bool }] : []; }
@@ -1181,7 +1277,7 @@ class BatteryCellsCardEditor extends HTMLElement {
     const id = this._config.watt_entity;
     return this._numOk(id) || (this._pwrReady && !!id);
   }
-  _animReady() { return this._powerReady() || this._balanceReady(); }
+  _animReady() { return this._powerReady() || (this._balanceReady() && this._config.display_mode !== 'battery'); }
   _syncAnim() {
     if (!this._animPanel) return;
     const d = this._animReady() ? '' : 'none';
@@ -1213,14 +1309,14 @@ class BatteryCellsCardEditor extends HTMLElement {
   _switchSchema() {
     const cfg = this._config;
     return [
-      { name: 'show_legend', selector: bool },
-      ...(cfg.show_legend ? LEGEND_TOGGLES.map(name => ({ name, selector: bool })) : []),
+      ...(cfg.show_legend || cfg.display_mode === 'battery' ? LEGEND_TOGGLES.map(name => ({ name, selector: bool })) : []),
       { name: 'show_extra_sensors', selector: bool },
       { name: 'use_3d', selector: bool },
       { name: 'show_slices', selector: bool },
       ...(cfg.show_slices ? [{ name: 'slice_strength', selector: dropdown(SLICE_LEVELS.map(v => ({ value: v, label: this._t('slice_' + v) }))) }] : [])
     ];
   }
+  _legendSwitchSchema() { return [{ name: 'show_legend', selector: bool }]; }
   _chunkSchema() { return [{ name: 'chunk_cells', selector: bool }]; }
   _chunkOptSchema() {
     const cfg = this._config, s = [];
@@ -1308,11 +1404,15 @@ class BatteryCellsCardEditor extends HTMLElement {
     const chunkOn = form(this._chunkSchema, ['chunk_cells']);
     const chunkOpt = form(this._chunkOptSchema, ['chunk_mode', 'chunk_size']);
 
+    this._lowHighBox = mk('div', 'lowhigh');
+    this._lowHighBox.append(sep(), head('sec_lowhigh'), note('hint_lowhigh'), form(this._lowHighSchema, ['auto_detect_low_high', 'pack_cell_low', 'pack_cell_high']));
+    const modeForm = form(this._modeSchema, ['display_mode', 'soc_preset', 'scale_gradient', 'soc_step']);
+    const chemForm = form(this._chemSchema, ['battery_type']);
     const root = mk('div', 'editor');
     root.append(
       form(this._topSchema, ['title']),
-      panel('battery_chemistry', form(this._chemSchema, ['battery_type']), this._scalePanel),
-      panel('cells',
+      panel('battery_chemistry', modeForm, sepBetween(modeForm, chemForm), chemForm, this._scalePanel),
+      this._cellsPanel = panel('cells',
         this._sortable('cells'),
         sep(),
         this._addForm(this._t('add_cell'), entity => this._setList('cells', [
@@ -1327,24 +1427,24 @@ class BatteryCellsCardEditor extends HTMLElement {
       panel('balancing_min_max',
         head('sec_bal'), note('hint_bal'),
         form(this._balanceSchema, ['cell_diff', 'cell_bal_over']),
-        sep(), head('sec_lowhigh'), note('hint_lowhigh'),
-        form(this._lowHighSchema, ['auto_detect_low_high', 'pack_cell_low', 'pack_cell_high'])),
+        this._lowHighBox),
       panel('display',
         head('sec_cells'),
         form(this._fontUnitSchema, ['font_size', 'cell_unit']),
         form(this._gapSchema, ['cell_gap', 'top_padding', 'container_padding']),
         sep(), slider('cell_height', CELL_H_MIN, CELL_H_MAX, 'px'),
-        sep(), slider('min_cell_width', MIN_CELL_W_FLOOR, 120, 'px'),
+        sep(), form(this._widthSchema, ['min_cell_width', 'battery_width']),
         sep(), one('overlay_opacity_pct', { number: { min: 0, max: 100, step: 1, mode: 'slider', unit_of_measurement: '%' } }, 'overlay_opacity'),
         sep(),
-        form(this._switchSchema, [...LEGEND_TOGGLES, 'show_legend', 'show_extra_sensors', 'use_3d', 'show_slices', 'slice_strength']),
+        this._legendForm = form(this._legendSwitchSchema, ['show_legend']),
+        form(this._switchSchema, [...LEGEND_TOGGLES, 'show_extra_sensors', 'use_3d', 'show_slices', 'slice_strength']),
         sep(),
         form(this._themeSchema, ['theme'])),
       this._animPanel = panel('animation',
         balForm, bfNote, sepBetween(balForm, flowForm), flowForm,
         sepBetween(flowForm, colorToggle), colorToggle,
         this._colorsBox),
-      panel('chunk_panel', chunkOn, sepBetween(chunkOn, chunkOpt), chunkOpt),
+      this._chunkPanel = panel('chunk_panel', chunkOn, sepBetween(chunkOn, chunkOpt), chunkOpt),
       panel('additional_sensors',
         this._sortable('extra_sensors'),
         sep(),
@@ -1407,9 +1507,19 @@ class BatteryCellsCardEditor extends HTMLElement {
     });
     this._condSeps?.forEach(([el, a, b]) => { const d = a.schema?.length && b.schema?.length ? '' : 'none'; if (el.style.display !== d) el.style.display = d; });
     if (this._presetForm) this._presetForm.data = { preset: this._presetKey() };
-    if (this._scalePanel) this._scalePanel.style.display = this._config.battery_type === 'custom' ? '' : 'none';
+    if (this._scalePanel) this._scalePanel.style.display = this._config.battery_type === 'custom' && this._config.display_mode !== 'battery' ? '' : 'none';
     this._renderAnimColors();
     this._syncAnim();
+    /* Battery-only mode: cells, cell wrapping and "show legend" do not apply and are greyed out (chemistry is hidden in its panel) */
+    const bat = this._config.display_mode === 'battery';
+    if (this._lowHighBox) this._lowHighBox.style.display = bat ? 'none' : '';
+    [this._cellsPanel, this._chunkPanel, this._legendForm].forEach(el => {
+      if (!el) return;
+      el.style.opacity = bat ? '.4' : '';
+      el.style.pointerEvents = bat ? 'none' : '';
+      el.toggleAttribute('aria-disabled', bat);
+      if (bat && el.expanded) el.expanded = false;
+    });
   }
 
   _sortable(kind) {
