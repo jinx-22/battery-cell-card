@@ -21,15 +21,15 @@ Ideal for LiFePO₄ battery systems, also suitable for NMC/NCM and lead-acid bat
 
 ---
 
-Mode: Battery monitoring (without cell voltages)
+Mode: Cell monitoring (detailed)
 
-<img width="30%" height="auto" alt="brave_7u0pNbkvNC" src="https://github.com/user-attachments/assets/41e6d55a-ee29-494e-99ed-b011efbbe16d" />
+<img width="50%" height="auto" alt="firefox_BlMrAtUIUM" src="https://github.com/user-attachments/assets/7c10b71a-4cf2-4f18-8212-059047c8a453" /><img width="50%" height="auto" alt="brave_qZR7FbmqRH" src="https://github.com/user-attachments/assets/f77792e3-4cbd-475a-8ec7-5744177e5e5e" />
 
 ---
 
-Mode: Cell monitoring (detailed)
+NEW: Mode: Battery monitoring (without cell voltages)
 
-<img width="50%" height="auto" alt="brave_qZR7FbmqRH" src="https://github.com/user-attachments/assets/f77792e3-4cbd-475a-8ec7-5744177e5e5e" />
+<img width="30%" height="auto" alt="brave_7u0pNbkvNC" src="https://github.com/user-attachments/assets/41e6d55a-ee29-494e-99ed-b011efbbe16d" />
 
 ---
 
